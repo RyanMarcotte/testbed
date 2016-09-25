@@ -1,0 +1,13 @@
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockRQ\bin\Debug\MockRQ.exe.config
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockRQ\bin\Debug\MockRQ.exe
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockRQ\bin\Debug\MockRQ.pdb
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockRQ\bin\Debug\MockIQ.Core.Transport.dll
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockRQ\bin\Debug\MockRQ.Windows.dll
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockRQ\bin\Debug\MockIQ.Core.Transport.pdb
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockRQ\bin\Debug\MockRQ.Windows.pdb
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockRQ\obj\Debug\MockRQ.csprojResolveAssemblyReference.cache
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockRQ\obj\Debug\MockRQ.exe
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockRQ\obj\Debug\MockRQ.pdb
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\testbed\MockRQ\MockRQ\bin\Debug\MockRQ.exe.config
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\testbed\MockRQ\MockRQ\obj\Debug\MockRQ.exe
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\testbed\MockRQ\MockRQ\obj\Debug\MockRQ.pdb

@@ -1,0 +1,11 @@
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockIQ.Core.Model\bin\Debug\MockIQ.Core.Model.dll
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockIQ.Core.Model\bin\Debug\MockIQ.Core.Model.pdb
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockIQ.Core.Model\bin\Debug\MockIQ.Core.Transport.dll
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockIQ.Core.Model\bin\Debug\MockIQ.Core.Transport.pdb
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockIQ.Core.Model\obj\Debug\MockIQ.Core.Model.dll
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockIQ.Core.Model\obj\Debug\MockIQ.Core.Model.pdb
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockIQ.Core.Model\bin\Debug\Castle.Core.dll
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockIQ.Core.Model\bin\Debug\Castle.Windsor.dll
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockIQ.Core.Model\bin\Debug\Castle.Core.xml
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockIQ.Core.Model\bin\Debug\Castle.Windsor.xml
+C:\Users\MarcotteR\Documents\Visual Studio 2013\Projects\MockRQ\MockIQ.Core.Model\obj\Debug\MockIQ.Core.Model.csprojResolveAssemblyReference.cache
