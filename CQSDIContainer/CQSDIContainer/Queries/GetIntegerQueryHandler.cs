@@ -15,6 +15,7 @@ namespace CQSDIContainer.Queries
 
 		public int Handle(GetIntegerQuery query)
 		{
+			Console.WriteLine("executing query to retrieve int");
 			return _random.Next(1, 10);
 		}
 	}
