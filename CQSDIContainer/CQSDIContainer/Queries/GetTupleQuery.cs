@@ -7,13 +7,15 @@ using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.Queries
 {
-	public class GetIntegerQuery : IQuery<int>
+	public class GetTupleQuery : IQuery<Tuple<int, string, int>>
 	{
-		public GetIntegerQuery(int id)
+		public GetTupleQuery(int id, int version)
 		{
 			ID = id;
+			Version = version;
 		}
 
 		public int ID { get; }
+		public int Version { get; }
 	}
 }
