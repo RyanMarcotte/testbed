@@ -70,7 +70,10 @@
     <Compile Include="Attributes\HandleCommandAsynchronouslyAttribute.cs" />
     <Compile Include="Attributes\LogExecutionTimeToConsoleAttribute.cs" />
     <Compile Include="CommandDecorators\ExecuteAsynchronouslyCommandHandlerDecorator.cs" />
+    <Compile Include="CommandDecorators\Interfaces\IDecorateAsyncCommandHandler.cs" />
     <Compile Include="CommandDecorators\Interfaces\IDecorateCommandHandler.cs" />
+    <Compile Include="CommandDecorators\Interfaces\IDecorateAsyncResultCommandHandler.cs" />
+    <Compile Include="CommandDecorators\Interfaces\IDecorateResultCommandHandler.cs" />
     <Compile Include="CommandDecorators\LogExecutionTimeToConsoleCommandHandlerDecorator.cs" />
     <Compile Include="Commands\DoSomethingAsyncCommand.cs" />
     <Compile Include="Commands\DoSomethingAsyncCommandHandler.cs" />
@@ -107,6 +110,7 @@
     <Compile Include="Queries\GetTupleQueryHandler.cs" />
     <Compile Include="QueryDecorators\CacheReferenceTypeResultQueryHandlerDecorator.cs" />
     <Compile Include="QueryDecorators\CacheValueTypeResultQueryHandlerDecorator.cs" />
+    <Compile Include="QueryDecorators\Interfaces\IDecorateAsyncQueryHandler.cs" />
     <Compile Include="QueryDecorators\Interfaces\IDecorateQueryHandler.cs" />
     <Compile Include="QueryDecorators\Interfaces\IQueryCacheItemFactory.cs" />
     <Compile Include="QueryDecorators\LogExecutionTimeToConsoleQueryHandlerDecorator.cs" />

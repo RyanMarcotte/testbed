@@ -5,7 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Castle.Facilities.TypedFactory;
 using Castle.Windsor;
+using CQSDIContainer.Commands;
 using CQSDIContainer.Installers;
+using CQSDIContainer.Queries;
+using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer
 {
@@ -22,7 +25,14 @@ namespace CQSDIContainer
 			Console.WriteLine("Finished installing");
 
 			//new ProgramLogicForCQSFactoryDemo(new CQSFactory(container)).DoStuff();
-			new MockRQApplicationServiceUsingDI().DoStuff();
+			new MockRQApplicationServiceUsingDI(
+				container.Resolve<IQueryHandler<GetIntegerQuery, int>>(),
+				container.Resolve<IAsyncQueryHandler<GetStringAsyncQuery, string>>(),
+				container.Resolve<ICommandHandler<DoNothingAndDoSomethingCommand>>(),
+				container.Resolve<IAsyncCommandHandler<DoSomethingAsyncCommand>>(),
+				container.Resolve<IResultCommandHandler<DoSomethingWithResultCommand, DoSomethingWithResultCommandHandlerErrorCode>>(),
+				container.Resolve<IAsyncResultCommandHandler<DoSomethingAsyncWithResultCommand, DoSomethingAsyncWithResultCommandHandlerErrorCode>>()
+			).DoStuff();
 		}
 	}
 }

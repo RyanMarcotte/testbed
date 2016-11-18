@@ -1,3 +1,4 @@
+using System;
 using CQSDIContainer.Commands;
 using CQSDIContainer.Queries;
 using IQ.Platform.Framework.Common.CQS;
@@ -31,7 +32,8 @@ namespace CQSDIContainer
 
 		public void DoStuff()
 		{
-			
+			Console.WriteLine("Press any key to exit");
+			Console.ReadKey();
 		}
 	}
 }
