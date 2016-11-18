@@ -45,8 +45,8 @@
       <HintPath>..\packages\DoubleCache.1.6.0\lib\net45\DoubleCache.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IQ.Platform.Framework.Common, Version=3.22.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\IQ.Platform.Framework.Common.3.22.1\lib\portable-win+net40+sl50+wp80\IQ.Platform.Framework.Common.dll</HintPath>
+    <Reference Include="IQ.Platform.Framework.Common, Version=3.26.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\IQ.Platform.Framework.Common.3.26.0\lib\portable-net40+sl50+win+wp80\IQ.Platform.Framework.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MsgPack, Version=0.6.0.0, Culture=neutral, PublicKeyToken=a2625990d5dc0167, processorArchitecture=MSIL">
