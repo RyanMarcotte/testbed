@@ -72,6 +72,12 @@
     <Compile Include="CommandDecorators\ExecuteAsynchronouslyCommandHandlerDecorator.cs" />
     <Compile Include="CommandDecorators\Interfaces\IDecorateCommandHandler.cs" />
     <Compile Include="CommandDecorators\LogExecutionTimeToConsoleCommandHandlerDecorator.cs" />
+    <Compile Include="Commands\DoSomethingAsyncCommand.cs" />
+    <Compile Include="Commands\DoSomethingAsyncCommandHandler.cs" />
+    <Compile Include="Commands\DoSomethingAsyncWithResultCommand.cs" />
+    <Compile Include="Commands\DoSomethingAsyncWithResultCommandHandler.cs" />
+    <Compile Include="Commands\DoSomethingWithResultCommand.cs" />
+    <Compile Include="Commands\DoSomethingWithResultCommandHandler.cs" />
     <Compile Include="CQSFactory.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ZDoNothingAndDoSomethingCommand.cs" />
@@ -94,6 +100,8 @@
     <Compile Include="Queries\GetIntegerQuery.cs" />
     <Compile Include="Queries\GetIntegerQueryCacheItemFactory.cs" />
     <Compile Include="Queries\GetIntegerQueryHandler.cs" />
+    <Compile Include="Queries\GetStringAsyncQuery.cs" />
+    <Compile Include="Queries\GetStringAsyncQueryHandler.cs" />
     <Compile Include="Queries\GetTupleQuery.cs" />
     <Compile Include="Queries\GetTupleQueryCacheItemFactory.cs" />
     <Compile Include="Queries\GetTupleQueryHandler.cs" />
