@@ -1,0 +1,88 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using Castle.DynamicProxy;
+
+namespace CQSDIContainer.Interceptors
+{
+	/// <summary>
+	/// Base class for interceptors applied to CQS handlers.
+	/// </summary>
+	/// <remarks>
+	/// http://www.codeproject.com/Articles/1080517/Aspect-Oriented-Programming-using-Interceptors-wit
+	/// http://stackoverflow.com/questions/28099669/intercept-async-method-that-returns-generic-task-via-dynamicproxy
+	/// </remarks>
+	public abstract class CQSInterceptor : IInterceptor
+	{
+		/// <summary>
+		/// Intercept a handler invocation and wrap some cross-cutting concern around it.
+		/// </summary>
+		/// <param name="invocation">The handler invocation being intercepted.</param>
+		public void Intercept(IInvocation invocation)
+		{
+			var methodType = GetMethodType(invocation.Method);
+			if (methodType == MethodType.AsynchronousAction || methodType == MethodType.AsynchronousFunction)
+				InterceptAsync(invocation, methodType == MethodType.AsynchronousAction ? AsynchronousMethodType.Action : AsynchronousMethodType.Function);
+			else
+				InterceptSync(invocation);
+		}
+
+		/// <summary>
+		/// Interception logic for synchronous handlers.
+		/// </summary>
+		/// <param name="invocation">The invocation.</param>
+		protected abstract void InterceptSync(IInvocation invocation);
+
+		/// <summary>
+		/// Interception logic for asynchronous handlers.
+		/// </summary>
+		/// <param name="invocation">The invocation.</param>
+		/// <param name="methodType">The asynchronous method type.</param>
+		protected abstract void InterceptAsync(IInvocation invocation, AsynchronousMethodType methodType);
+
+		/// <summary>
+		/// Determines if a method is synchronous or asynchronous.
+		/// </summary>
+		/// <param name="method">The method info.</param>
+		/// <returns></returns>
+		private static MethodType GetMethodType(MethodInfo method)
+		{
+			var returnType = method.ReturnType;
+			if (returnType == typeof(Task))
+				return MethodType.AsynchronousAction;
+			if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+				return MethodType.AsynchronousFunction;
+
+			return MethodType.Synchronous;
+		}
+
+		/// <summary>
+		/// Indicates the type of method.
+		/// </summary>
+		private enum MethodType
+		{
+			Synchronous,
+			AsynchronousAction,
+			AsynchronousFunction
+		}
+
+		/// <summary>
+		/// Indicates the type of asynchronous method.
+		/// </summary>
+		protected enum AsynchronousMethodType
+		{
+			/// <summary>
+			/// The asynchronous method returns Task.
+			/// </summary>
+			Action,
+
+			/// <summary>
+			/// The asynchronous method returns Task&lt;T>.
+			/// </summary>
+			Function
+		}
+	}	
+}

@@ -97,8 +97,7 @@
     <Compile Include="Installers\CQSInstaller.cs" />
     <Compile Include="Installers\MockRQApplicationServiceInstaller.cs" />
     <Compile Include="Interceptors\CacheQueryResultInterceptor.cs" />
-    <Compile Include="Interceptors\CQSInterceptor.cs" />
-    <Compile Include="Interceptors\EatAnyExceptionsInterceptor.cs" />
+    <Compile Include="Interceptors\_CQSInterceptor.cs" />
     <Compile Include="Interceptors\LogAnyExceptionsInterceptor.cs" />
     <Compile Include="Interceptors\LogExecutionTimeToConsoleInterceptor.cs" />
     <Compile Include="Program.cs" />

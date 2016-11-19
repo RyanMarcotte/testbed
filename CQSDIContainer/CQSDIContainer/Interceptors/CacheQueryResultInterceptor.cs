@@ -14,8 +14,6 @@ using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.Interceptors
 {
-	// http://www.codeproject.com/Articles/1080517/Aspect-Oriented-Programming-using-Interceptors-wit#ArticleInterceptAsync
-	// http://stackoverflow.com/questions/28099669/intercept-async-method-that-returns-generic-task-via-dynamicproxy
 	public class CacheQueryResultInterceptor : CQSInterceptor
 	{
 		private static readonly ConcurrentDictionary<Type, CacheItemFactoryInfo> _cacheItemFactoryInfoLookup = new ConcurrentDictionary<Type, CacheItemFactoryInfo>();
@@ -60,8 +58,11 @@ namespace CQSDIContainer.Interceptors
 			}
 		}
 
-		protected override void InterceptAsync(IInvocation invocation)
+		protected override void InterceptAsync(IInvocation invocation, AsynchronousMethodType methodType)
 		{
+			if (methodType == AsynchronousMethodType.Action)
+				throw new InvalidOperationException("All async queries should return Task<T>!!");
+
 			var cacheItemFactoryInfo = _cacheItemFactoryInfoLookup.GetOrAdd(invocation.InvocationTarget.GetType(), type => GetQueryCacheItemFactory(type, _kernel));
 			if (cacheItemFactoryInfo == null)
 			{
@@ -140,6 +141,8 @@ namespace CQSDIContainer.Interceptors
 
 		#region Synchronous Cache Retrieval Helpers
 
+		private static readonly MethodInfo _getReferenceTypeFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetReferenceTypeFromCacheWithReflection), BindingFlags.Static | BindingFlags.NonPublic);
+
 		private static T GetReferenceTypeFromCacheWithReflection<T>(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
 			where T : class
 		{
@@ -150,8 +153,6 @@ namespace CQSDIContainer.Interceptors
 				return (dynamic)invocation.ReturnValue;
 			}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
 		}
-
-		private static readonly MethodInfo _getReferenceTypeFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetReferenceTypeFromCacheWithReflection), BindingFlags.Static | BindingFlags.NonPublic);
 
 		private static void ExecuteGetReferenceTypeFromCache(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
 		{
@@ -164,6 +165,10 @@ namespace CQSDIContainer.Interceptors
 
 		#region Asynchronous Cache Retrieval Helpers
 
+		#region ... for reference types
+
+		private static readonly MethodInfo _getReferenceTypeAsyncFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetReferenceTypeAsyncFromCacheWithReflection), BindingFlags.Static | BindingFlags.NonPublic);
+
 		private static Task<T> GetReferenceTypeAsyncFromCacheWithReflection<T>(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
 			where T : class
 		{
@@ -175,16 +180,20 @@ namespace CQSDIContainer.Interceptors
 					return (dynamic)invocation.ReturnValue;
 				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
 		}
-
-		private static readonly MethodInfo _getReferenceTypeAsyncFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetReferenceTypeAsyncFromCacheWithReflection), BindingFlags.Static | BindingFlags.NonPublic);
-
+		
 		private static void ExecuteGetReferenceTypeAsyncFromCache(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
 			var mi = _getReferenceTypeAsyncFromCacheMethodInfo.MakeGenericMethod(resultType);
 			invocation.ReturnValue = mi.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory });
 		}
-		
+
+		#endregion
+
+		#region ... for value types
+
+		private static readonly MethodInfo _getValueTypeAsyncFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetValueTypeAsyncFromCacheWithReflection), BindingFlags.Static | BindingFlags.NonPublic);
+
 		private static async Task<T> ConvertTaskToAppropriateType<T>(Task<object> task)
 			where T : struct
 		{
@@ -204,15 +213,15 @@ namespace CQSDIContainer.Interceptors
 				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null)));
 		}
 
-		private static readonly MethodInfo _getValueTypeAsyncFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetValueTypeAsyncFromCacheWithReflection), BindingFlags.Static | BindingFlags.NonPublic);
-
 		private static void ExecuteGetValueTypeAsyncFromCache(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
 			var mi = _getValueTypeAsyncFromCacheMethodInfo.MakeGenericMethod(resultType);
 			invocation.ReturnValue = mi.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory });
 		}
-		
+
+		#endregion
+
 		#endregion
 
 		#region Internal Classes

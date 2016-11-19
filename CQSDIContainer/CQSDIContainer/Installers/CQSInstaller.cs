@@ -34,22 +34,12 @@ namespace CQSDIContainer.Installers
 
 				container
 					.Register(Classes.FromThisAssembly().BasedOn(typeof(IInterceptor)).WithServiceBase().LifestyleTransient())
-					.Register(Classes.FromThisAssembly().BasedOn(typeof(ICommandHandler<>)).Unless(t => typeof(IDecorateCommandHandler<>).IsAssignableFrom(t)).WithServiceBase().LifestyleSingleton().Configure(c =>
-					{
-						c.Interceptors(InterceptorReference.ForType<LogExecutionTimeToConsoleInterceptor>()).AtIndex(0);
-						c.Interceptors(InterceptorReference.ForType<EatAnyExceptionsInterceptor>()).AtIndex(1);
-						c.Interceptors(InterceptorReference.ForType<LogAnyExceptionsInterceptor>()).AtIndex(2);
-					}))
-					.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncCommandHandler<>)).WithServiceBase().Unless(t => typeof(IDecorateAsyncCommandHandler<>).IsAssignableFrom(t)).LifestyleSingleton())
-					.Register(Classes.FromThisAssembly().BasedOn(typeof(IResultCommandHandler<,>)).WithServiceBase().Unless(t => typeof(IDecorateResultCommandHandler<,>).IsAssignableFrom(t)).LifestyleSingleton())
-					.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncResultCommandHandler<,>)).WithServiceBase().Unless(t => typeof(IDecorateAsyncResultCommandHandler<,>).IsAssignableFrom(t)).LifestyleSingleton())
-					.Register(Classes.FromThisAssembly().BasedOn(typeof(IQueryHandler<,>)).WithServiceBase().Unless(t => typeof(IDecorateQueryHandler<,>).IsAssignableFrom(t)).LifestyleSingleton().Configure(c =>
-					{
-						c.Interceptors(InterceptorReference.ForType<LogExecutionTimeToConsoleInterceptor>()).AtIndex(0);
-						c.Interceptors(InterceptorReference.ForType<EatAnyExceptionsInterceptor>()).AtIndex(1);
-						c.Interceptors(InterceptorReference.ForType<LogAnyExceptionsInterceptor>()).AtIndex(2);
-					}))
-					.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncQueryHandler<,>)).WithServiceBase().Unless(t => typeof(IDecorateAsyncQueryHandler<,>).IsAssignableFrom(t)).LifestyleSingleton())
+					.Register(Classes.FromThisAssembly().BasedOn(typeof(ICommandHandler<>)).Unless(t => typeof(IDecorateCommandHandler<>).IsAssignableFrom(t)).WithServiceBase().LifestyleSingleton().Configure(ApplyCommonInterceptors))
+					.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncCommandHandler<>)).WithServiceBase().Unless(t => typeof(IDecorateAsyncCommandHandler<>).IsAssignableFrom(t)).LifestyleSingleton().Configure(ApplyCommonInterceptors))
+					.Register(Classes.FromThisAssembly().BasedOn(typeof(IResultCommandHandler<,>)).WithServiceBase().Unless(t => typeof(IDecorateResultCommandHandler<,>).IsAssignableFrom(t)).LifestyleSingleton().Configure(ApplyCommonInterceptors))
+					.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncResultCommandHandler<,>)).WithServiceBase().Unless(t => typeof(IDecorateAsyncResultCommandHandler<,>).IsAssignableFrom(t)).LifestyleSingleton().Configure(ApplyCommonInterceptors))
+					.Register(Classes.FromThisAssembly().BasedOn(typeof(IQueryHandler<,>)).WithServiceBase().Unless(t => typeof(IDecorateQueryHandler<,>).IsAssignableFrom(t)).LifestyleSingleton().Configure(ApplyCommonInterceptors))
+					.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncQueryHandler<,>)).WithServiceBase().Unless(t => typeof(IDecorateAsyncQueryHandler<,>).IsAssignableFrom(t)).LifestyleSingleton().Configure(ApplyCommonInterceptors))
 					.Register(Classes.FromThisAssembly().BasedOn(typeof(IQueryCacheItemFactory<,>)).WithServiceBase().LifestyleSingleton());
 			}
 			else
@@ -63,6 +53,12 @@ namespace CQSDIContainer.Installers
 					.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncQueryHandler<,>)).WithServiceBase().Unless(t => typeof(IDecorateAsyncQueryHandler<,>).IsAssignableFrom(t)).LifestyleSingleton())
 					.Register(Classes.FromThisAssembly().BasedOn(typeof(IQueryCacheItemFactory<,>)).WithServiceBase().LifestyleSingleton());
 			}
+		}
+
+		private static void ApplyCommonInterceptors(ComponentRegistration componentRegistration)
+		{
+			componentRegistration.Interceptors(InterceptorReference.ForType<LogAnyExceptionsInterceptor>()).AtIndex(0);
+			componentRegistration.Interceptors(InterceptorReference.ForType<LogExecutionTimeToConsoleInterceptor>()).AtIndex(1);
 		}
 	}
 }
