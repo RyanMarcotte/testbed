@@ -7,9 +7,15 @@ using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer
 {
-	internal class MockRQApplicationServiceUsingDI
+	public interface IRQApplicationServiceMock
 	{
-		private readonly IQueryHandler<GetIntegerQuery, int> _syncQueryHandler;
+		Task DoStuff();
+	}
+
+	internal class MockRQApplicationServiceUsingDI : IRQApplicationServiceMock
+	{
+		private readonly IQueryHandler<GetIntegerQuery, int> _syncQueryHandlerForValueType;
+		private readonly IQueryHandler<GetStringQuery, string> _syncQueryHandlerForReferenceType;
 		private readonly IAsyncQueryHandler<GetStringAsyncQuery, string> _asyncQueryHandler;
 		private readonly ICommandHandler<DoNothingAndDoSomethingCommand> _syncCommandHandler;
 		private readonly IAsyncCommandHandler<DoSomethingAsyncCommand> _asyncCommandHandler;
@@ -17,14 +23,16 @@ namespace CQSDIContainer
 		private readonly IAsyncResultCommandHandler<DoSomethingAsyncWithResultCommand, DoSomethingAsyncWithResultCommandHandlerErrorCode> _asyncCommandHandlerWithResult;
 
 		public MockRQApplicationServiceUsingDI(
-			IQueryHandler<GetIntegerQuery, int> syncQueryHandler,
+			IQueryHandler<GetIntegerQuery, int> syncQueryHandlerForValueType,
+			IQueryHandler<GetStringQuery, string> syncQueryHandlerForReferenceType,
 			IAsyncQueryHandler<GetStringAsyncQuery, string> asyncQueryHandler,
 			ICommandHandler<DoNothingAndDoSomethingCommand> syncCommandHandler,
 			IAsyncCommandHandler<DoSomethingAsyncCommand> asyncCommandHandler,
 			IResultCommandHandler<DoSomethingWithResultCommand, DoSomethingWithResultCommandHandlerErrorCode> syncCommandHandlerWithResult,
 			IAsyncResultCommandHandler<DoSomethingAsyncWithResultCommand, DoSomethingAsyncWithResultCommandHandlerErrorCode> asyncCommandHandlerWithResult)
 		{
-			_syncQueryHandler = syncQueryHandler;
+			_syncQueryHandlerForValueType = syncQueryHandlerForValueType;
+			_syncQueryHandlerForReferenceType = syncQueryHandlerForReferenceType;
 			_asyncQueryHandler = asyncQueryHandler;
 			_syncCommandHandler = syncCommandHandler;
 			_asyncCommandHandler = asyncCommandHandler;
@@ -34,10 +42,15 @@ namespace CQSDIContainer
 
 		public async Task DoStuff()
 		{
-			Console.WriteLine($"Result of {_syncQueryHandler.GetType().FullName} = {_syncQueryHandler.Handle(new GetIntegerQuery(11))}");
-			Console.WriteLine($"Result of {_syncQueryHandler.GetType().FullName} = {_syncQueryHandler.Handle(new GetIntegerQuery(11))}");
-			Console.WriteLine($"Result of {_syncQueryHandler.GetType().FullName} = {_syncQueryHandler.Handle(new GetIntegerQuery(11))}");
-			Console.WriteLine($"Result of {_syncQueryHandler.GetType().FullName} = {_syncQueryHandler.Handle(new GetIntegerQuery(11))}");
+			Console.WriteLine($"Result of {_syncQueryHandlerForValueType.GetType().FullName} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(11))}");
+			Console.WriteLine($"Result of {_syncQueryHandlerForValueType.GetType().FullName} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(11))}");
+			Console.WriteLine($"Result of {_syncQueryHandlerForValueType.GetType().FullName} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(11))}");
+			Console.WriteLine($"Result of {_syncQueryHandlerForValueType.GetType().FullName} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(11))}");
+
+			Console.WriteLine($"Result of {_syncQueryHandlerForReferenceType.GetType().FullName} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery("this is a string"))}");
+			Console.WriteLine($"Result of {_syncQueryHandlerForReferenceType.GetType().FullName} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery("this is a string"))}");
+			Console.WriteLine($"Result of {_syncQueryHandlerForReferenceType.GetType().FullName} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery("this is a string"))}");
+			Console.WriteLine($"Result of {_syncQueryHandlerForReferenceType.GetType().FullName} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery("this is a string"))}");
 
 			var asyncResult = await _asyncQueryHandler.HandleAsync(new GetStringAsyncQuery());
 			Console.WriteLine($"Result of {_asyncQueryHandler.GetType().FullName} = {asyncResult}");

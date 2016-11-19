@@ -21,18 +21,12 @@ namespace CQSDIContainer
 			container.AddFacility<TypedFactoryFacility>();
 			container.Install(new CacheInstaller());
 			container.Install(new CQSInstaller(true));
+			container.Install(new MockRQApplicationServiceInstaller());
 
 			Console.WriteLine("Finished installing");
 
-			//new ProgramLogicForCQSFactoryDemo(new CQSFactory(container)).DoStuff();
-			new MockRQApplicationServiceUsingDI(
-				container.Resolve<IQueryHandler<GetIntegerQuery, int>>(),
-				container.Resolve<IAsyncQueryHandler<GetStringAsyncQuery, string>>(),
-				container.Resolve<ICommandHandler<DoNothingAndDoSomethingCommand>>(),
-				container.Resolve<IAsyncCommandHandler<DoSomethingAsyncCommand>>(),
-				container.Resolve<IResultCommandHandler<DoSomethingWithResultCommand, DoSomethingWithResultCommandHandlerErrorCode>>(),
-				container.Resolve<IAsyncResultCommandHandler<DoSomethingAsyncWithResultCommand, DoSomethingAsyncWithResultCommandHandlerErrorCode>>()
-			).DoStuff().GetAwaiter().GetResult();
+			var service = container.Resolve<IRQApplicationServiceMock>();
+			service.DoStuff().GetAwaiter().GetResult();
 		}
 	}
 }

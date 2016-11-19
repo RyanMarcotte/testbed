@@ -38,15 +38,29 @@ namespace CQSDIContainer.Interceptors
 			}
 			else
 			{
-				// retrieve the item from the cache
+				// create key for retrieving the item from the cache
 				var cacheItemFactory = _cacheItemFactoryMethodLookup.GetOrAdd(cacheItemFactoryInfo.FactoryInstance, BuildMethodInfoForCacheItemFactoryInstance);
-				var cacheKey = $"{cacheItemFactory.BuildKeyForQueryMethod.Invoke(cacheItemFactoryInfo.FactoryInstance, new[] { invocation.Arguments.FirstOrDefault() })}|{cacheItemFactoryInfo.QueryType.FullName}|{cacheItemFactoryInfo.ResultType.FullName}";
-				invocation.ReturnValue = _cache.Get(cacheKey, cacheItemFactoryInfo.ResultType, () =>
+				var cacheKey = GetCacheKey(cacheItemFactoryInfo, cacheItemFactory, invocation);
+				
+				// retrieve the item from the cache
+				if (cacheItemFactoryInfo.ResultType.IsClass)
+				{
+					invocation.ReturnValue = _cache.Get<string>(cacheKey, () =>
+					{
+						Console.WriteLine("I'm caching something");
+						invocation.Proceed();
+						return (dynamic)invocation.ReturnValue;
+					}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+				}
+				else
+				{
+					invocation.ReturnValue = _cache.Get(cacheKey, cacheItemFactoryInfo.ResultType, () =>
 					{
 						Console.WriteLine("I'm caching something");
 						invocation.Proceed();
 						return invocation.ReturnValue;
 					}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+				}
 			}
 		}
 
@@ -61,27 +75,47 @@ namespace CQSDIContainer.Interceptors
 			}
 			else
 			{
-				// retrieve the item from the cache
+				// create key for retrieving the item from the cache
 				var cacheItemFactory = _cacheItemFactoryMethodLookup.GetOrAdd(cacheItemFactoryInfo.FactoryInstance, BuildMethodInfoForCacheItemFactoryInstance);
-				var cacheKey = $"{cacheItemFactory.BuildKeyForQueryMethod.Invoke(cacheItemFactoryInfo.FactoryInstance, new[] { invocation.Arguments.FirstOrDefault() })}|{cacheItemFactoryInfo.QueryType.FullName}|{cacheItemFactoryInfo.ResultType.FullName}";
+				var cacheKey = GetCacheKey(cacheItemFactoryInfo, cacheItemFactory, invocation);
 
-				invocation.ReturnValue = _cache.GetAsync(cacheKey, cacheItemFactoryInfo.ResultType, () =>
+				// retrieve the item from the cache
+				if (cacheItemFactoryInfo.ResultType.IsClass)
 				{
-					Console.WriteLine("I'm caching something");
-					invocation.Proceed();
-					ExecuteHandleAsyncWithResultUsingReflection(invocation);
-					return (dynamic)invocation.ReturnValue;
-				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+					
+					invocation.ReturnValue = _cache.GetAsync<string>(cacheKey, () =>
+					{
+						Console.WriteLine("I'm caching something");
+						invocation.Proceed();
+						ExecuteHandleAsyncWithResultUsingReflection(invocation);
+						return (dynamic)invocation.ReturnValue;
+					}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+				}
+				else
+				{
+						
+				}
 			}
 		}
 
-		private static readonly MethodInfo _handleAsyncMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Instance | BindingFlags.NonPublic);
+		private static string GetCacheKey(CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory, IInvocation invocation)
+		{
+			var cacheKeyForCQSHandlerArgument = cacheItemFactory.BuildKeyForQueryMethod.Invoke(cacheItemFactoryInfo.FactoryInstance, new[] { invocation.Arguments.FirstOrDefault() });
+			return $"{cacheKeyForCQSHandlerArgument}|{cacheItemFactoryInfo.QueryType.FullName}|{cacheItemFactoryInfo.ResultType.FullName}";
+		}
 
+		private static readonly MethodInfo _handleAsyncMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Instance | BindingFlags.NonPublic);
 		private void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
 			var mi = _handleAsyncMethodInfo.MakeGenericMethod(resultType);
 			invocation.ReturnValue = mi.Invoke(this, new[] { invocation.ReturnValue });
+		}
+
+		//private static readonly MethodInfo _getAsyncFromCacheMethodInfo = typeof(ICacheAside).GetMethod(nameof(ICacheAside.GetAsync), BindingFlags.Instance, );
+		private void fdsfdjskfdls()
+		{
+			
 		}
 
 		// ReSharper disable once MemberCanBeMadeStatic.Local (it can't due to reflection above)
