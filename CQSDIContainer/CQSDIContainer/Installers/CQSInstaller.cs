@@ -32,7 +32,6 @@ namespace CQSDIContainer.Installers
 			{
 				container.Kernel.ComponentModelBuilder.AddContributor(new QueryResultCachingContributor());
 
-				// TODO: apply intercepts
 				container
 					.Register(Classes.FromThisAssembly().BasedOn(typeof(IInterceptor)).WithServiceBase().LifestyleTransient())
 					.Register(Classes.FromThisAssembly().BasedOn(typeof(ICommandHandler<>)).Unless(t => typeof(IDecorateCommandHandler<>).IsAssignableFrom(t)).WithServiceBase().LifestyleSingleton().Configure(c =>

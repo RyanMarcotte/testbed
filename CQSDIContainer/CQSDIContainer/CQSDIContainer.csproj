@@ -95,6 +95,7 @@
     <Compile Include="Installers\CacheInstaller.cs" />
     <Compile Include="Installers\CQSInstaller.cs" />
     <Compile Include="Interceptors\CacheQueryResultInterceptor.cs" />
+    <Compile Include="Interceptors\CQSInterceptor.cs" />
     <Compile Include="Interceptors\EatAnyExceptionsInterceptor.cs" />
     <Compile Include="Interceptors\LogAnyExceptionsInterceptor.cs" />
     <Compile Include="Interceptors\LogExecutionTimeToConsoleInterceptor.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="Queries\GetIntegerQueryHandler.cs" />
     <Compile Include="Queries\GetStringAsyncQuery.cs" />
     <Compile Include="Queries\GetStringAsyncQueryHandler.cs" />
+    <Compile Include="Queries\GetStringAsyncQueryCacheItemFactory.cs" />
     <Compile Include="Queries\GetTupleQuery.cs" />
     <Compile Include="Queries\GetTupleQueryCacheItemFactory.cs" />
     <Compile Include="Queries\GetTupleQueryHandler.cs" />

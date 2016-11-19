@@ -13,7 +13,9 @@ using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.Interceptors
 {
-	public class CacheQueryResultInterceptor : IInterceptor
+	// http://www.codeproject.com/Articles/1080517/Aspect-Oriented-Programming-using-Interceptors-wit#ArticleInterceptAsync
+	// http://stackoverflow.com/questions/28099669/intercept-async-method-that-returns-generic-task-via-dynamicproxy
+	public class CacheQueryResultInterceptor : CQSInterceptorBasic
 	{
 		private static readonly ConcurrentDictionary<Type, CacheItemFactoryInfo> _cacheItemFactoryInfoLookup = new ConcurrentDictionary<Type, CacheItemFactoryInfo>();
 		private static readonly ConcurrentDictionary<object, CacheItemFactoryMethods> _cacheItemFactoryMethodLookup = new ConcurrentDictionary<object, CacheItemFactoryMethods>();
@@ -26,35 +28,31 @@ namespace CQSDIContainer.Interceptors
 			_kernel = kernel;
 		}
 
-		public void Intercept(IInvocation invocation)
+		protected override void InterceptSync(IInvocation invocation)
 		{
-			var cacheItemFactoryInfo = _cacheItemFactoryInfoLookup.GetOrAdd(invocation.InvocationTarget.GetType(), (type) => GetQueryCacheItemFactory(type, _kernel));
+			var cacheItemFactoryInfo = _cacheItemFactoryInfoLookup.GetOrAdd(invocation.InvocationTarget.GetType(), type => GetQueryCacheItemFactory(type, _kernel));
 			if (cacheItemFactoryInfo == null)
 			{
+				// no caching is required
 				invocation.Proceed();
 			}
 			else
 			{
-				var cacheItemFactory = _cacheItemFactoryMethodLookup.GetOrAdd(cacheItemFactoryInfo.FactoryInstance, (instance) =>
-				{
-					// cache the method info so future calls are faster
-					var instanceType = instance.GetType();
-					var buildCacheKeyForQueryMethod = instanceType.GetMethod(nameof(IQueryCacheItemFactory<IQuery<object>, object>.BuildKeyForQuery));
-					var getTimeToLiveProperty = instanceType.GetMethod($"get_{nameof(IQueryCacheItemFactory<IQuery<object>, object>.TimeToLive)}");
-
-					return new CacheItemFactoryMethods(buildCacheKeyForQueryMethod, getTimeToLiveProperty);
-				});
-				
 				// retrieve the item from the cache
-				var invocationArgument = invocation.Arguments.FirstOrDefault();
-				var cacheKey = $"{cacheItemFactory.BuildKeyForQueryMethod.Invoke(cacheItemFactoryInfo.FactoryInstance, new[] { invocationArgument })}|{cacheItemFactoryInfo.QueryType.FullName}|{cacheItemFactoryInfo.ResultType.FullName}";
+				var cacheItemFactory = _cacheItemFactoryMethodLookup.GetOrAdd(cacheItemFactoryInfo.FactoryInstance, BuildMethodInfoForCacheItemFactoryInstance);
+				var cacheKey = $"{cacheItemFactory.BuildKeyForQueryMethod.Invoke(cacheItemFactoryInfo.FactoryInstance, new[] { invocation.Arguments.FirstOrDefault() })}|{cacheItemFactoryInfo.QueryType.FullName}|{cacheItemFactoryInfo.ResultType.FullName}";
 				invocation.ReturnValue = _cache.Get(cacheKey, cacheItemFactoryInfo.ResultType, () =>
-				{
-					Console.WriteLine("I'm caching something");
-					invocation.Proceed();
-					return invocation.ReturnValue;
-				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+					{
+						Console.WriteLine("I'm caching something");
+						invocation.Proceed();
+						return invocation.ReturnValue;
+					}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
 			}
+		}
+
+		protected override void InterceptAsync(IInvocation invocation)
+		{
+			throw new NotImplementedException();
 		}
 
 		private static CacheItemFactoryInfo GetQueryCacheItemFactory(Type invocationTargetType, IKernel kernel)
@@ -65,13 +63,23 @@ namespace CQSDIContainer.Interceptors
 			if (queryHandlerGenericInterface == null || (queryHandlerGenericInterface != typeof(IQueryHandler<,>) && queryHandlerGenericInterface != typeof(IAsyncQueryHandler<,>)))
 				return null;
 
-			// check if an implementation of IQueryCacheItemFactory<,> has been given for the <TQuery, TResult> pair; return it
+			// check if an implementation of IQueryCacheItemFactory<,> has been given for the <TQuery, TResult> pair
+			// we assume that query cache item factories have been registered as singletons
 			var queryType = queryHandlerInterface.GenericTypeArguments[0];
 			var resultType = queryHandlerInterface.GenericTypeArguments[1];
 			var queryCacheItemFactoryType = typeof(IQueryCacheItemFactory<,>).MakeGenericType(queryType, resultType);
 			var queryCacheItemFactoryInstance = kernel.HasComponent(queryCacheItemFactoryType) ? kernel.Resolve(queryCacheItemFactoryType) : null;
 
 			return queryCacheItemFactoryInstance != null ? new CacheItemFactoryInfo(queryType, resultType, queryCacheItemFactoryInstance) : null;
+		}
+
+		private static CacheItemFactoryMethods BuildMethodInfoForCacheItemFactoryInstance(object instance)
+		{
+			var instanceType = instance.GetType();
+			var buildCacheKeyForQueryMethod = instanceType.GetMethod(nameof(IQueryCacheItemFactory<IQuery<object>, object>.BuildKeyForQuery));
+			var getTimeToLiveProperty = instanceType.GetMethod($"get_{nameof(IQueryCacheItemFactory<IQuery<object>, object>.TimeToLive)}");
+
+			return new CacheItemFactoryMethods(buildCacheKeyForQueryMethod, getTimeToLiveProperty);
 		}
 
 		#region Internal Classes
@@ -103,5 +111,7 @@ namespace CQSDIContainer.Interceptors
 		}
 
 		#endregion
+
+		
 	}
 }
