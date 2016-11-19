@@ -45,18 +45,13 @@ namespace CQSDIContainer.Interceptors
 				// retrieve the item from the cache
 				if (cacheItemFactoryInfo.ResultType.IsClass)
 				{
-					invocation.ReturnValue = _cache.Get<string>(cacheKey, () =>
-					{
-						Console.WriteLine("I'm caching something");
-						invocation.Proceed();
-						return (dynamic)invocation.ReturnValue;
-					}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+					ExecuteGetReferenceTypeFromCache(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
 				}
 				else
 				{
 					invocation.ReturnValue = _cache.Get(cacheKey, cacheItemFactoryInfo.ResultType, () =>
 					{
-						Console.WriteLine("I'm caching something");
+						Console.WriteLine($"I'm caching something for cache key {cacheKey}");
 						invocation.Proceed();
 						return invocation.ReturnValue;
 					}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
@@ -81,47 +76,18 @@ namespace CQSDIContainer.Interceptors
 
 				// retrieve the item from the cache
 				if (cacheItemFactoryInfo.ResultType.IsClass)
-				{
-					
-					invocation.ReturnValue = _cache.GetAsync<string>(cacheKey, () =>
-					{
-						Console.WriteLine("I'm caching something");
-						invocation.Proceed();
-						ExecuteHandleAsyncWithResultUsingReflection(invocation);
-						return (dynamic)invocation.ReturnValue;
-					}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
-				}
+					ExecuteGetReferenceTypeAsyncFromCache(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
 				else
-				{
-						
-				}
+					ExecuteGetValueTypeAsyncFromCache(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
 			}
 		}
+
+		#region Common Helpers
 
 		private static string GetCacheKey(CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory, IInvocation invocation)
 		{
 			var cacheKeyForCQSHandlerArgument = cacheItemFactory.BuildKeyForQueryMethod.Invoke(cacheItemFactoryInfo.FactoryInstance, new[] { invocation.Arguments.FirstOrDefault() });
 			return $"{cacheKeyForCQSHandlerArgument}|{cacheItemFactoryInfo.QueryType.FullName}|{cacheItemFactoryInfo.ResultType.FullName}";
-		}
-
-		private static readonly MethodInfo _handleAsyncMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Instance | BindingFlags.NonPublic);
-		private void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation)
-		{
-			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var mi = _handleAsyncMethodInfo.MakeGenericMethod(resultType);
-			invocation.ReturnValue = mi.Invoke(this, new[] { invocation.ReturnValue });
-		}
-
-		//private static readonly MethodInfo _getAsyncFromCacheMethodInfo = typeof(ICacheAside).GetMethod(nameof(ICacheAside.GetAsync), BindingFlags.Instance, );
-		private void fdsfdjskfdls()
-		{
-			
-		}
-
-		// ReSharper disable once MemberCanBeMadeStatic.Local (it can't due to reflection above)
-		private async Task<T> HandleAsyncWithResult<T>(Task<T> task)
-		{
-			return await task;
 		}
 
 		private static CacheItemFactoryInfo GetQueryCacheItemFactory(Type invocationTargetType, IKernel kernel)
@@ -150,6 +116,86 @@ namespace CQSDIContainer.Interceptors
 
 			return new CacheItemFactoryMethods(buildCacheKeyForQueryMethod, getTimeToLiveProperty);
 		}
+
+		#region
+
+		private static async Task<T> HandleAsyncWithResult<T>(Task<T> task)
+		{
+			return await task;
+		}
+
+		private static readonly MethodInfo _handleAsyncMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Static | BindingFlags.NonPublic);
+
+		private static void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation)
+		{
+			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
+			var mi = _handleAsyncMethodInfo.MakeGenericMethod(resultType);
+			invocation.ReturnValue = mi.Invoke(null, new[] { invocation.ReturnValue });
+		}
+
+		#endregion
+
+		#endregion
+
+		#region Synchronous Cache Retrieval Helpers
+
+		private static T GetReferenceTypeFromCacheWithReflection<T>(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+			where T : class
+		{
+			return cache.Get<T>(cacheKey, () =>
+			{
+				Console.WriteLine($"I'm caching something for cache key '{cacheKey}'");
+				invocation.Proceed();
+				return (dynamic)invocation.ReturnValue;
+			}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+		}
+
+		private static readonly MethodInfo _getReferenceTypeFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetReferenceTypeFromCacheWithReflection), BindingFlags.Static | BindingFlags.NonPublic);
+
+		private static void ExecuteGetReferenceTypeFromCache(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+		{
+			var resultType = invocation.Method.ReturnType;
+			var mi = _getReferenceTypeFromCacheMethodInfo.MakeGenericMethod(resultType);
+			invocation.ReturnValue = mi.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory });
+		}
+
+		#endregion
+
+		#region Asynchronous Cache Retrieval Helpers
+
+		private static Task<T> GetReferenceTypeAsyncFromCacheWithReflection<T>(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+			where T : class
+		{
+			return cache.GetAsync<T>(cacheKey, () =>
+				{
+					Console.WriteLine($"I'm caching something for cache key '{cacheKey}'");
+					invocation.Proceed();
+					ExecuteHandleAsyncWithResultUsingReflection(invocation);
+					return (dynamic)invocation.ReturnValue;
+				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+		}
+
+		private static readonly MethodInfo _getReferenceTypeAsyncFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetReferenceTypeAsyncFromCacheWithReflection), BindingFlags.Static | BindingFlags.NonPublic);
+
+		private static void ExecuteGetReferenceTypeAsyncFromCache(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+		{
+			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
+			var mi = _getReferenceTypeAsyncFromCacheMethodInfo.MakeGenericMethod(resultType);
+			invocation.ReturnValue = mi.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory });
+		}
+
+		private static void ExecuteGetValueTypeAsyncFromCache(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+		{
+			invocation.ReturnValue = cache.GetAsync(cacheKey, cacheItemFactoryInfo.ResultType, () =>
+				{
+					Console.WriteLine($"I'm caching something for cache key '{cacheKey}'");
+					invocation.Proceed();
+					ExecuteHandleAsyncWithResultUsingReflection(invocation);
+					return (dynamic)invocation.ReturnValue;
+				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+		}
+
+		#endregion
 
 		#region Internal Classes
 

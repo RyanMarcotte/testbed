@@ -104,6 +104,9 @@
     <Compile Include="MockRQApplicationServiceUsingCQSFactory.cs" />
     <Compile Include="MockRQApplicationServiceUsingDI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queries\GetIntegerAsyncQuery.cs" />
+    <Compile Include="Queries\GetIntegerAsyncQueryCacheItemFactory.cs" />
+    <Compile Include="Queries\GetIntegerAsyncQueryHandler.cs" />
     <Compile Include="Queries\GetIntegerQuery.cs" />
     <Compile Include="Queries\GetIntegerQueryCacheItemFactory.cs" />
     <Compile Include="Queries\GetIntegerQueryHandler.cs" />
