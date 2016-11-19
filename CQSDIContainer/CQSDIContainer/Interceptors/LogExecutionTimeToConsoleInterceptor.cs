@@ -7,14 +7,19 @@ using Castle.DynamicProxy;
 
 namespace CQSDIContainer.Interceptors
 {
-	public class LogExecutionTimeToConsoleInterceptor : IInterceptor
+	public class LogExecutionTimeToConsoleInterceptor : CQSInterceptor
 	{
-		public void Intercept(IInvocation invocation)
+		protected override void InterceptSync(IInvocation invocation)
 		{
 			var begin = DateTime.UtcNow;
 			invocation.Proceed();
 			var end = DateTime.UtcNow;
 			Console.WriteLine($"{invocation.Method.DeclaringType} measured time: {(end - begin).TotalMilliseconds} ms");
+		}
+
+		protected override void InterceptAsync(IInvocation invocation)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

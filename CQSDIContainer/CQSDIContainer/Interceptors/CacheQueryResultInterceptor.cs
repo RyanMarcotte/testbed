@@ -15,7 +15,7 @@ namespace CQSDIContainer.Interceptors
 {
 	// http://www.codeproject.com/Articles/1080517/Aspect-Oriented-Programming-using-Interceptors-wit#ArticleInterceptAsync
 	// http://stackoverflow.com/questions/28099669/intercept-async-method-that-returns-generic-task-via-dynamicproxy
-	public class CacheQueryResultInterceptor : CQSInterceptorBasic
+	public class CacheQueryResultInterceptor : CQSInterceptor
 	{
 		private static readonly ConcurrentDictionary<Type, CacheItemFactoryInfo> _cacheItemFactoryInfoLookup = new ConcurrentDictionary<Type, CacheItemFactoryInfo>();
 		private static readonly ConcurrentDictionary<object, CacheItemFactoryMethods> _cacheItemFactoryMethodLookup = new ConcurrentDictionary<object, CacheItemFactoryMethods>();

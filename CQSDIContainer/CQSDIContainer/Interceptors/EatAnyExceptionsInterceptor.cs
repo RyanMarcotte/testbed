@@ -7,9 +7,9 @@ using Castle.DynamicProxy;
 
 namespace CQSDIContainer.Interceptors
 {
-	public class EatAnyExceptionsInterceptor : IInterceptor
+	public class EatAnyExceptionsInterceptor : CQSInterceptor
 	{
-		public void Intercept(IInvocation invocation)
+		protected override void InterceptSync(IInvocation invocation)
 		{
 			try
 			{
@@ -19,6 +19,11 @@ namespace CQSDIContainer.Interceptors
 			{
 				Console.WriteLine("We ate the exception...");
 			}
+		}
+
+		protected override void InterceptAsync(IInvocation invocation)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
