@@ -20,7 +20,7 @@ namespace CQSDIContainer
 			var container = new WindsorContainer();
 			container.AddFacility<TypedFactoryFacility>();
 			container.Install(new CacheInstaller());
-			container.Install(new CQSInstaller());
+			container.Install(new CQSInstaller(true));
 
 			Console.WriteLine("Finished installing");
 
@@ -32,7 +32,7 @@ namespace CQSDIContainer
 				container.Resolve<IAsyncCommandHandler<DoSomethingAsyncCommand>>(),
 				container.Resolve<IResultCommandHandler<DoSomethingWithResultCommand, DoSomethingWithResultCommandHandlerErrorCode>>(),
 				container.Resolve<IAsyncResultCommandHandler<DoSomethingAsyncWithResultCommand, DoSomethingAsyncWithResultCommandHandlerErrorCode>>()
-			).DoStuff();
+			).DoStuff().GetAwaiter().GetResult();
 		}
 	}
 }

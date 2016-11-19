@@ -81,6 +81,7 @@
     <Compile Include="Commands\DoSomethingAsyncWithResultCommandHandler.cs" />
     <Compile Include="Commands\DoSomethingWithResultCommand.cs" />
     <Compile Include="Commands\DoSomethingWithResultCommandHandler.cs" />
+    <Compile Include="Contributors\QueryResultCachingContributor.cs" />
     <Compile Include="CQSFactory.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ZDoNothingAndDoSomethingCommand.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="Commands\DoSomethingCommandHandler.cs" />
     <Compile Include="Installers\CacheInstaller.cs" />
     <Compile Include="Installers\CQSInstaller.cs" />
+    <Compile Include="Interceptors\CacheQueryResultInterceptor.cs" />
     <Compile Include="Interceptors\EatAnyExceptionsInterceptor.cs" />
     <Compile Include="Interceptors\LogAnyExceptionsInterceptor.cs" />
     <Compile Include="Interceptors\LogExecutionTimeToConsoleInterceptor.cs" />
