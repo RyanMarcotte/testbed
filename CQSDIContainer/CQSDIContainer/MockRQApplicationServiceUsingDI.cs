@@ -38,7 +38,9 @@ namespace CQSDIContainer
 			Console.WriteLine($"Result of {_syncQueryHandler.GetType().FullName} = {_syncQueryHandler.Handle(new GetIntegerQuery(11))}");
 			Console.WriteLine($"Result of {_syncQueryHandler.GetType().FullName} = {_syncQueryHandler.Handle(new GetIntegerQuery(11))}");
 			Console.WriteLine($"Result of {_syncQueryHandler.GetType().FullName} = {_syncQueryHandler.Handle(new GetIntegerQuery(11))}");
-			Console.WriteLine($"Result of {_asyncQueryHandler.GetType().FullName} = {await _asyncQueryHandler.HandleAsync(new GetStringAsyncQuery())}");
+
+			var asyncResult = await _asyncQueryHandler.HandleAsync(new GetStringAsyncQuery());
+			Console.WriteLine($"Result of {_asyncQueryHandler.GetType().FullName} = {asyncResult}");
 
 			_syncCommandHandler.Handle(new DoNothingAndDoSomethingCommand(3));
 			await _asyncCommandHandler.HandleAsync(new DoSomethingAsyncCommand());

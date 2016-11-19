@@ -52,7 +52,42 @@ namespace CQSDIContainer.Interceptors
 
 		protected override void InterceptAsync(IInvocation invocation)
 		{
-			throw new NotImplementedException();
+			var cacheItemFactoryInfo = _cacheItemFactoryInfoLookup.GetOrAdd(invocation.InvocationTarget.GetType(), type => GetQueryCacheItemFactory(type, _kernel));
+			if (cacheItemFactoryInfo == null)
+			{
+				// no caching is required
+				invocation.Proceed();
+				ExecuteHandleAsyncWithResultUsingReflection(invocation);
+			}
+			else
+			{
+				// retrieve the item from the cache
+				var cacheItemFactory = _cacheItemFactoryMethodLookup.GetOrAdd(cacheItemFactoryInfo.FactoryInstance, BuildMethodInfoForCacheItemFactoryInstance);
+				var cacheKey = $"{cacheItemFactory.BuildKeyForQueryMethod.Invoke(cacheItemFactoryInfo.FactoryInstance, new[] { invocation.Arguments.FirstOrDefault() })}|{cacheItemFactoryInfo.QueryType.FullName}|{cacheItemFactoryInfo.ResultType.FullName}";
+
+				invocation.ReturnValue = _cache.GetAsync(cacheKey, cacheItemFactoryInfo.ResultType, () =>
+				{
+					Console.WriteLine("I'm caching something");
+					invocation.Proceed();
+					ExecuteHandleAsyncWithResultUsingReflection(invocation);
+					return (dynamic)invocation.ReturnValue;
+				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+			}
+		}
+
+		private static readonly MethodInfo _handleAsyncMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Instance | BindingFlags.NonPublic);
+
+		private void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation)
+		{
+			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
+			var mi = _handleAsyncMethodInfo.MakeGenericMethod(resultType);
+			invocation.ReturnValue = mi.Invoke(this, new[] { invocation.ReturnValue });
+		}
+
+		// ReSharper disable once MemberCanBeMadeStatic.Local (it can't due to reflection above)
+		private async Task<T> HandleAsyncWithResult<T>(Task<T> task)
+		{
+			return await task;
 		}
 
 		private static CacheItemFactoryInfo GetQueryCacheItemFactory(Type invocationTargetType, IKernel kernel)
