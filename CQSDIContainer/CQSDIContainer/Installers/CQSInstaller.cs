@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Castle.Core;
 using Castle.Facilities.TypedFactory;
+using Castle.MicroKernel;
+using Castle.MicroKernel.Context;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
@@ -55,13 +58,14 @@ namespace CQSDIContainer.Installers
 	{
 		public void Install(IWindsorContainer container, IConfigurationStore store)
 		{
-			container.Register(Component.For(typeof(ICommandHandlerFactory<>)).AsFactory());
+			/*container.Register(Component.For(typeof(ICommandHandlerFactory<>)).AsFactory());
 			container.Register(Component.For(typeof(IAsyncCommandHandlerFactory<>)).AsFactory());
 			container.Register(Component.For(typeof(IResultCommandHandlerFactory<,>)).AsFactory());
 			container.Register(Component.For(typeof(IAsyncResultCommandHandlerFactory<,>)).AsFactory());
 			container.Register(Component.For(typeof(IQueryHandlerFactory<,>)).AsFactory());
-			container.Register(Component.For(typeof(IAsyncQueryHandlerFactory<,>)).AsFactory());
+			container.Register(Component.For(typeof(IAsyncQueryHandlerFactory<,>)).AsFactory());*/
 
+			container.Kernel.Resolver.AddSubResolver(new QueryHandlerResolver());
 			container
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(ICommandHandler<>)).Unless(t => typeof(IDecorateCommandHandler<>).IsAssignableFrom(t)).WithServiceBase().LifestyleSingleton())
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncCommandHandler<>)).WithServiceBase().Unless(t => typeof(IDecorateAsyncCommandHandler<>).IsAssignableFrom(t)).LifestyleSingleton())
@@ -69,6 +73,19 @@ namespace CQSDIContainer.Installers
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncResultCommandHandler<,>)).WithServiceBase().Unless(t => typeof(IDecorateAsyncResultCommandHandler<,>).IsAssignableFrom(t)).LifestyleSingleton())
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(IQueryHandler<,>)).WithServiceBase().Unless(t => typeof(IDecorateQueryHandler<,>).IsAssignableFrom(t)).LifestyleSingleton())
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncQueryHandler<,>)).WithServiceBase().Unless(t => typeof(IDecorateAsyncQueryHandler<,>).IsAssignableFrom(t)).LifestyleSingleton());
+		}
+	}
+
+	public class QueryHandlerResolver : ISubDependencyResolver
+	{
+		public bool CanResolve(CreationContext context, ISubDependencyResolver contextHandlerResolver, ComponentModel model, DependencyModel dependency)
+		{
+			return dependency.TargetType.IsGenericType && dependency.TargetType.GetGenericTypeDefinition() == typeof(IQueryHandler<,>);
+		}
+
+		public object Resolve(CreationContext context, ISubDependencyResolver contextHandlerResolver, ComponentModel model, DependencyModel dependency)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
