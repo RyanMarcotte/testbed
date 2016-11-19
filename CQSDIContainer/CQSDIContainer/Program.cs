@@ -32,7 +32,7 @@ namespace CQSDIContainer
 				container.Resolve<IAsyncCommandHandler<DoSomethingAsyncCommand>>(),
 				container.Resolve<IResultCommandHandler<DoSomethingWithResultCommand, DoSomethingWithResultCommandHandlerErrorCode>>(),
 				container.Resolve<IAsyncResultCommandHandler<DoSomethingAsyncWithResultCommand, DoSomethingAsyncWithResultCommandHandlerErrorCode>>()
-			).DoStuff();
+			).DoStuff().GetAwaiter().GetResult();
 		}
 	}
 }
