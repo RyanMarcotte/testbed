@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
 using Castle.DynamicProxy;
@@ -183,18 +184,35 @@ namespace CQSDIContainer.Interceptors
 			var mi = _getReferenceTypeAsyncFromCacheMethodInfo.MakeGenericMethod(resultType);
 			invocation.ReturnValue = mi.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory });
 		}
-
-		private static void ExecuteGetValueTypeAsyncFromCache(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+		
+		private static async Task<T> ConvertTaskToAppropriateType<T>(Task<object> task)
+			where T : struct
 		{
-			invocation.ReturnValue = cache.GetAsync(cacheKey, cacheItemFactoryInfo.ResultType, () =>
+			var result = await task;
+			return (T)result;
+		}
+
+		private static Task<T> GetValueTypeAsyncFromCacheWithReflection<T>(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+			where T : struct
+		{
+			return ConvertTaskToAppropriateType<T>(cache.GetAsync(cacheKey, cacheItemFactoryInfo.ResultType, async () =>
 				{
 					Console.WriteLine($"I'm caching something for cache key '{cacheKey}'");
 					invocation.Proceed();
 					ExecuteHandleAsyncWithResultUsingReflection(invocation);
-					return (dynamic)invocation.ReturnValue;
-				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+					return await (dynamic)invocation.ReturnValue;
+				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null)));
 		}
 
+		private static readonly MethodInfo _getValueTypeAsyncFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetValueTypeAsyncFromCacheWithReflection), BindingFlags.Static | BindingFlags.NonPublic);
+
+		private static void ExecuteGetValueTypeAsyncFromCache(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+		{
+			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
+			var mi = _getValueTypeAsyncFromCacheMethodInfo.MakeGenericMethod(resultType);
+			invocation.ReturnValue = mi.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory });
+		}
+		
 		#endregion
 
 		#region Internal Classes
