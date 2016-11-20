@@ -68,7 +68,7 @@ namespace CQSDIContainer.Interceptors
 						break;
 
 					case AsynchronousMethodType.Function:
-						ExecuteHandleAsyncWithResultUsingReflection(invocation);
+						ExecuteHandleAsyncWithResultUsingReflection(invocation, componentModel);
 						break;
 
 					default:
@@ -127,11 +127,11 @@ namespace CQSDIContainer.Interceptors
 		private static readonly ConcurrentDictionary<Type, MethodInfo> _genericMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
 		private static readonly MethodInfo _handleAsyncWithResultMethodInfo = typeof(CQSInterceptorWithExceptionHandling).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Instance | BindingFlags.NonPublic);
 
-		private void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation)
+		private void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation, ComponentModel componentModel)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
 			var methodInfo = _genericMethodLookup.GetOrAdd(resultType, _handleAsyncWithResultMethodInfo.MakeGenericMethod(resultType));
-			invocation.ReturnValue = methodInfo.Invoke(this, new[] { invocation.ReturnValue });
+			invocation.ReturnValue = methodInfo.Invoke(this, new[] { invocation.ReturnValue, componentModel });
 		}
 
 		#endregion
