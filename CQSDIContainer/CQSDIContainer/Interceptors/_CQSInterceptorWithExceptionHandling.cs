@@ -16,6 +16,27 @@ namespace CQSDIContainer.Interceptors
 	/// </summary>
 	public abstract class CQSInterceptorWithExceptionHandling : CQSInterceptor
 	{
+		/// <summary>
+		/// Called just before beginning handler invocation.  Use for setup.
+		/// </summary>
+		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
+		protected virtual void OnBeginInvocation(ComponentModel componentModel) { }
+
+		/// <summary>
+		/// Always called just before returning control to the caller.  Use for teardown.
+		/// </summary>
+		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
+		protected virtual void OnEndInvocation(ComponentModel componentModel) { }
+
+		/// <summary>
+		/// Called when an exception has been thrown during invocation.
+		/// </summary>
+		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
+		/// <param name="ex">The exception.</param>
+		protected virtual void OnException(ComponentModel componentModel, Exception ex) { }
+
+		#region Sealed Implementations
+
 		protected sealed override void InterceptSync(IInvocation invocation, ComponentModel componentModel)
 		{
 			try
@@ -65,9 +86,7 @@ namespace CQSDIContainer.Interceptors
 			}
 		}
 
-		protected virtual void OnBeginInvocation(ComponentModel componentModel) { }
-		protected virtual void OnEndInvocation(ComponentModel componentModel) { }
-		protected virtual void OnException(ComponentModel componentModel, Exception ex) { }
+		#region Helper Methods
 
 		private async Task HandleAsync(Task task, ComponentModel componentModel)
 		{
@@ -114,5 +133,9 @@ namespace CQSDIContainer.Interceptors
 			var methodInfo = _genericMethodLookup.GetOrAdd(resultType, _handleAsyncWithResultMethodInfo.MakeGenericMethod(resultType));
 			invocation.ReturnValue = methodInfo.Invoke(this, new[] { invocation.ReturnValue });
 		}
+
+		#endregion
+
+		#endregion
 	}
 }
