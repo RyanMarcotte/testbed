@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Castle.Facilities.TypedFactory;
+using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Castle.Windsor.Installer;
 using CQSDIContainer.Commands;
 using CQSDIContainer.Installers;
 using CQSDIContainer.Queries;
@@ -19,9 +21,7 @@ namespace CQSDIContainer
 		{
 			var container = new WindsorContainer();
 			container.AddFacility<TypedFactoryFacility>();
-			container.Install(new CacheInstaller());
-			container.Install(new CQSInstaller());
-			container.Install(new MockRQApplicationServiceInstaller());
+			container.Install(FromAssembly.This());
 
 			Console.WriteLine("Finished installing");
 
