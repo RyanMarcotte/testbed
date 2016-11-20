@@ -11,6 +11,7 @@ namespace CQSDIContainer.Commands
 	{
 		public void Handle(DoNothingCommand command)
 		{
+			throw new NotImplementedException();
 			Console.WriteLine("I did nothing");
 		}
 	}

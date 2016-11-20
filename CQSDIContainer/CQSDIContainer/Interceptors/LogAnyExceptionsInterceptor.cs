@@ -11,7 +11,7 @@ using CQSDIContainer.Interceptors.ExceptionLogging.Interfaces;
 
 namespace CQSDIContainer.Interceptors
 {
-	public class LogAnyExceptionsInterceptor : CQSInterceptor
+	public class LogAnyExceptionsInterceptor : CQSInterceptorWithExceptionHandling
 	{
 		private readonly ILogExceptionsFromCQSHandlers _exceptionLogger;
 
@@ -25,79 +25,9 @@ namespace CQSDIContainer.Interceptors
 
 		protected override bool ApplyToNestedHandlers => false;
 
-		protected override void InterceptSync(IInvocation invocation, ComponentModel componentModel)
+		protected override void OnException(ComponentModel componentModel, Exception ex)
 		{
-			try
-			{
-				invocation.Proceed();
-			}
-			catch (Exception ex)
-			{
-				_exceptionLogger.LogException(ex);
-				throw;
-			}
-		}
-
-		protected override void InterceptAsync(IInvocation invocation, ComponentModel componentModel, AsynchronousMethodType methodType)
-		{
-			try
-			{
-				invocation.Proceed();
-				switch (methodType)
-				{
-					case AsynchronousMethodType.Action:
-						invocation.ReturnValue = HandleAsync((Task)invocation.ReturnValue, _exceptionLogger);
-						break;
-
-					case AsynchronousMethodType.Function:
-						ExecuteHandleAsyncWithResultUsingReflection(invocation, _exceptionLogger);
-						break;
-
-					default:
-						throw new ArgumentOutOfRangeException(nameof(methodType), methodType, "Invalid value!!");
-				}
-			}
-			catch (Exception ex)
-			{
-				_exceptionLogger.LogException(ex);
-				throw;
-			}
-		}
-
-		private static async Task HandleAsync(Task task, ILogExceptionsFromCQSHandlers exceptionLogger)
-		{
-			try
-			{
-				await task;
-			}
-			catch (Exception ex)
-			{
-				exceptionLogger.LogException(ex);
-				throw;
-			}
-		}
-
-		private static async Task<T> HandleAsyncWithResult<T>(Task<T> task, ILogExceptionsFromCQSHandlers exceptionLogger)
-		{
-			try
-			{
-				return await task;
-			}
-			catch (Exception ex)
-			{
-				exceptionLogger.LogException(ex);
-				throw;
-			}
-		}
-
-		private static readonly ConcurrentDictionary<Type, MethodInfo> _genericMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
-		private static readonly MethodInfo _handleAsyncWithResultMethodInfo = typeof(LogAnyExceptionsInterceptor).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Static | BindingFlags.NonPublic);
-
-		private static void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation, ILogExceptionsFromCQSHandlers exceptionLogger)
-		{
-			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var methodInfo = _genericMethodLookup.GetOrAdd(resultType, _handleAsyncWithResultMethodInfo.MakeGenericMethod(resultType));
-			invocation.ReturnValue = methodInfo.Invoke(null, new[] { invocation.ReturnValue, exceptionLogger });
+			_exceptionLogger.LogException(ex);
 		}
 	}
 }

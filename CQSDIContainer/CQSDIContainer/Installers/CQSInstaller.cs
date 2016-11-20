@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Castle.Core;
 using Castle.DynamicProxy;
+using Castle.MicroKernel.ModelBuilder;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
@@ -15,7 +17,6 @@ using CQSDIContainer.Interceptors.ExceptionLogging.Interfaces;
 using CQSDIContainer.Interceptors.MetricsLogging;
 using CQSDIContainer.Interceptors.MetricsLogging.Interfaces;
 using CQSDIContainer.Queries.Caching;
-using CQSDIContainer.SubResolvers;
 using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.Installers
@@ -24,12 +25,12 @@ namespace CQSDIContainer.Installers
 	{
 		public void Install(IWindsorContainer container, IConfigurationStore store)
 		{
-			container.Kernel.ComponentModelBuilder.AddContributor(new QueryResultCachingContributor());
-			//container.Kernel.Resolver.AddSubResolver(new CQSHandlerSubResolver());
-
+			foreach (var contributor in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsClass && typeof(IContributeComponentModelConstruction).IsAssignableFrom(x)))
+				container.Kernel.ComponentModelBuilder.AddContributor((IContributeComponentModelConstruction)Activator.CreateInstance(contributor));;
+			
 			container
-				.Register(Component.For<ILogExceptionsFromCQSHandlers>().ImplementedBy<ExceptionLoggerForCQS>().LifestyleTransient())
-				.Register(Component.For<ILogExecutionTimeOfCQSHandlers>().ImplementedBy<ExecutionTimeLogger>().LifestyleTransient())
+				.Register(Component.For<ILogExceptionsFromCQSHandlers>().ImplementedBy<ExceptionLoggerForCQSHandlers>().LifestyleTransient())
+				.Register(Component.For<ILogExecutionTimeOfCQSHandlers>().ImplementedBy<ExecutionTimeLoggerForCQSHandlers>().LifestyleTransient())
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(IInterceptor)).WithServiceBase().LifestyleTransient())
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(ICommandHandler<>)).WithServiceBase().LifestyleSingleton().Configure(ApplyCommonInterceptors))
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncCommandHandler<>)).WithServiceBase().LifestyleSingleton().Configure(ApplyCommonInterceptors))
@@ -42,8 +43,7 @@ namespace CQSDIContainer.Installers
 
 		private static void ApplyCommonInterceptors(ComponentRegistration componentRegistration)
 		{
-			componentRegistration.Interceptors(InterceptorReference.ForType<LogAnyExceptionsInterceptor>()).AtIndex(0);
-			componentRegistration.Interceptors(InterceptorReference.ForType<LogExecutionTimeToConsoleInterceptor>()).AtIndex(1);
+			var x = componentRegistration.Interceptors(InterceptorReference.ForType<LogAnyExceptionsInterceptor>()).Last;
 		}
 	}
 }

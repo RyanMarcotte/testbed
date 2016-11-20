@@ -8,7 +8,7 @@ using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.Commands
 {
-	[LogExecutionTimeToConsole]
+	[LogExecutionTime]
 	public class DoNothingAndDoSomethingCommandHandler : ICommandHandler<DoNothingAndDoSomethingCommand>
 	{
 		private readonly ICommandHandler<DoNothingCommand> _doNothingCommandHandler;

@@ -4,7 +4,7 @@ using Castle.Core;
 using Castle.MicroKernel;
 using Castle.MicroKernel.ModelBuilder;
 using CQSDIContainer.Interceptors;
-using IQ.Platform.Framework.Common.CQS;
+using CQSDIContainer.Utilities;
 
 namespace CQSDIContainer.Contributors
 {
@@ -14,20 +14,11 @@ namespace CQSDIContainer.Contributors
 		{
 			// only queries can be cached
 			var interfaces = model.Implementation.GetInterfaces();
-			if (!interfaces.Any() || !interfaces.Any(IsQueryHandler))
+			if (!interfaces.Any() || !interfaces.Any(CQSHandlerTypeCheckingUtility.IsQueryHandler))
 				return;
 
 			// add the interceptor
 			model.Interceptors.Add(InterceptorReference.ForType<CacheQueryResultInterceptor>());
-		}
-
-		private static bool IsQueryHandler(Type type)
-		{
-			if (!type.IsGenericType)
-				return false;
-
-			var genericTypeDefinition = type.GetGenericTypeDefinition();
-			return genericTypeDefinition == typeof(IQueryHandler<,>) || genericTypeDefinition == typeof(IAsyncQueryHandler<,>);
 		}
 	}
 }

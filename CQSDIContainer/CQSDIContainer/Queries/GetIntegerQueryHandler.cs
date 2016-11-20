@@ -8,7 +8,7 @@ using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.Queries
 {
-	[LogExecutionTimeToConsole]
+	[LogExecutionTime]
 	public class GetIntegerQueryHandler : IQueryHandler<GetIntegerQuery, int>
 	{
 		private static readonly Random _random = new Random();

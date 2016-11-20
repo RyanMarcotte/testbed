@@ -3,7 +3,7 @@ using CQSDIContainer.Interceptors.ExceptionLogging.Interfaces;
 
 namespace CQSDIContainer.Interceptors.ExceptionLogging
 {
-	public class ExceptionLoggerForCQS : ILogExceptionsFromCQSHandlers
+	public class ExceptionLoggerForCQSHandlers : ILogExceptionsFromCQSHandlers
 	{
 		public void LogException(Exception ex)
 		{

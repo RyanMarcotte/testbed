@@ -8,8 +8,7 @@ using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.Commands
 {
-	[LogExecutionTimeToConsole]
-	[HandleCommandAsynchronously]
+	[LogExecutionTime]
 	public class DoSomethingCommandHandler : ICommandHandler<DoSomethingCommand>
 	{
 		public void Handle(DoSomethingCommand command)

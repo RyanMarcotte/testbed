@@ -3,7 +3,7 @@ using CQSDIContainer.Interceptors.MetricsLogging.Interfaces;
 
 namespace CQSDIContainer.Interceptors.MetricsLogging
 {
-	public class ExecutionTimeLogger : ILogExecutionTimeOfCQSHandlers
+	public class ExecutionTimeLoggerForCQSHandlers : ILogExecutionTimeOfCQSHandlers
 	{
 		public void LogExecutionTime(Type handlerType, TimeSpan executionTime)
 		{
