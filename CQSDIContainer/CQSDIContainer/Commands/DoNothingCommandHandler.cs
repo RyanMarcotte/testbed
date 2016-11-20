@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CQSDIContainer.Attributes;
 using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.Commands
@@ -12,7 +11,6 @@ namespace CQSDIContainer.Commands
 	{
 		public void Handle(DoNothingCommand command)
 		{
-			//throw new NotImplementedException();
 			Console.WriteLine("I did nothing");
 		}
 	}
