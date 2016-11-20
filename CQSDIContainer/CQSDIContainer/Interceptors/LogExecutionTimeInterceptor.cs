@@ -11,12 +11,12 @@ using CQSDIContainer.Interceptors.MetricsLogging.Interfaces;
 
 namespace CQSDIContainer.Interceptors
 {
-	public class LogExecutionTimeToConsoleInterceptor : CQSInterceptorWithExceptionHandling
+	public class LogExecutionTimeInterceptor : CQSInterceptorWithExceptionHandling
 	{
 		private readonly ILogExecutionTimeOfCQSHandlers _executionTimeLogger;
 		private DateTime _begin;
 
-		public LogExecutionTimeToConsoleInterceptor(ILogExecutionTimeOfCQSHandlers executionTimeLogger)
+		public LogExecutionTimeInterceptor(ILogExecutionTimeOfCQSHandlers executionTimeLogger)
 		{
 			if (executionTimeLogger == null)
 				throw new ArgumentNullException(nameof(executionTimeLogger));

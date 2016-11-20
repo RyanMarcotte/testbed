@@ -60,6 +60,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -69,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\LogExecutionTimeAttribute.cs" />
+    <Compile Include="Attributes\NoTransactionScopeAttribute.cs" />
     <Compile Include="Commands\DoSomethingAsyncCommand.cs" />
     <Compile Include="Commands\DoSomethingAsyncCommandHandler.cs" />
     <Compile Include="Commands\DoSomethingAsyncWithResultCommand.cs" />
@@ -86,6 +88,7 @@
     <Compile Include="Commands\DoNothingCommandHandler.cs" />
     <Compile Include="Commands\DoSomethingCommand.cs" />
     <Compile Include="Commands\DoSomethingCommandHandler.cs" />
+    <Compile Include="Contributors\TransactionScopeContributor.cs" />
     <Compile Include="Installers\CacheInstaller.cs" />
     <Compile Include="Installers\CQSInstaller.cs" />
     <Compile Include="Installers\MockRQApplicationServiceInstaller.cs" />
@@ -94,9 +97,10 @@
     <Compile Include="Interceptors\ExceptionLogging\Interfaces\ILogExceptionsFromCQSHandlers.cs" />
     <Compile Include="Interceptors\MetricsLogging\ExecutionTimeLoggerForCQSHandlers.cs" />
     <Compile Include="Interceptors\MetricsLogging\Interfaces\ILogExecutionTimeOfCQSHandlers.cs" />
+    <Compile Include="Interceptors\TransactionScopeInterceptor.cs" />
     <Compile Include="Interceptors\_CQSInterceptor.cs" />
     <Compile Include="Interceptors\LogAnyExceptionsInterceptor.cs" />
-    <Compile Include="Interceptors\LogExecutionTimeToConsoleInterceptor.cs" />
+    <Compile Include="Interceptors\LogExecutionTimeInterceptor.cs" />
     <Compile Include="Interceptors\_CQSInterceptorWithExceptionHandling.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="MockRQApplicationServiceUsingDI.cs" />

@@ -13,18 +13,18 @@ using CQSDIContainer.Utilities;
 
 namespace CQSDIContainer.Contributors
 {
-	public class ExecutionTimeLoggingContributor : IContributeComponentModelConstruction
+	public class TransactionScopeContributor : IContributeComponentModelConstruction
 	{
 		public void ProcessModel(IKernel kernel, ComponentModel model)
 		{
-			// only CQS handlers can be logged
+			// only CQS command handlers can be wrapped in a transaction scope
 			var interfaces = model.Implementation.GetInterfaces();
-			if (!interfaces.Any() || !interfaces.Any(CQSHandlerTypeCheckingUtility.IsCQSHandler))
+			if (!interfaces.Any() || !interfaces.Any(CQSHandlerTypeCheckingUtility.IsCommandHandler))
 				return;
 
-			// add the interceptor (if the handler had LogExecutionTimeAttribute applied to it)
-			if (model.Implementation.GetCustomAttribute<LogExecutionTimeAttribute>() != null)
-				model.Interceptors.Add(InterceptorReference.ForType<LogExecutionTimeInterceptor>());
+			// add the interceptor (unless the handler had NoTransactionScopeAttribute applied to it)
+			if (model.Implementation.GetCustomAttribute<NoTransactionScopeAttribute>() == null)
+				model.Interceptors.Add(InterceptorReference.ForType<TransactionScopeInterceptor>());
 		}
 	}
 }

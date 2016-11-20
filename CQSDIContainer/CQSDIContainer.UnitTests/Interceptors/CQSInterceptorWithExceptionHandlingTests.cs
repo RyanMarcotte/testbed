@@ -75,7 +75,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		public void ShouldNotCallOnExceptionMethodIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
 		{
 			Action act = () => sut.Intercept(invocation);
-			act.ShouldNotThrow<InvocationFailedException>();
+			act.ShouldNotThrow<Exception>();
 			sut.OnExceptionCalled.Should().BeFalse("Exception should not have been thrown!");
 		}
 
