@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -49,12 +50,14 @@ namespace CQSDIContainer.Interceptors
 			return result;
 		}
 
+		private static readonly ConcurrentDictionary<Type, MethodInfo> _genericMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
 		private static readonly MethodInfo _handleAsyncMethodInfo = typeof(LogExecutionTimeToConsoleInterceptor).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Static | BindingFlags.NonPublic);
+		
 		private static void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation, DateTime begin)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var mi = _handleAsyncMethodInfo.MakeGenericMethod(resultType);
-			invocation.ReturnValue = mi.Invoke(null, new[] { invocation.ReturnValue, invocation, begin });
+			var methodInfo = _genericMethodLookup.GetOrAdd(resultType, _handleAsyncMethodInfo.MakeGenericMethod(resultType));
+			invocation.ReturnValue = methodInfo.Invoke(null, new[] { invocation.ReturnValue, invocation, begin });
 		}
 
 		private static void LogExecutionTime(IInvocation invocation, DateTime begin)

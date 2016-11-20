@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Castle.DynamicProxy;
 using CQSDIContainer.Commands;
 using CQSDIContainer.Queries;
 using IQ.Platform.Framework.Common.CQS;
@@ -47,23 +48,27 @@ namespace CQSDIContainer
 		{
 			try
 			{
-				Console.WriteLine($"Result of {_syncQueryHandlerForValueType.GetType().FullName} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(11))}");
-				Console.WriteLine($"Result of {_syncQueryHandlerForValueType.GetType().FullName} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(11))}");
-				Console.WriteLine($"Result of {_syncQueryHandlerForValueType.GetType().FullName} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(11))}");
-				Console.WriteLine($"Result of {_syncQueryHandlerForValueType.GetType().FullName} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(11))}");
+				var nameOfSyncQueryHandlerForValueType = _syncQueryHandlerForValueType.GetType().FullName;
+				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(11))}");
+				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(11))}");
+				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(11))}");
+				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(11))}");
 
-				Console.WriteLine($"Result of {_syncQueryHandlerForReferenceType.GetType().FullName} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery("this is a string"))}");
-				Console.WriteLine($"Result of {_syncQueryHandlerForReferenceType.GetType().FullName} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery("this is a string"))}");
-				Console.WriteLine($"Result of {_syncQueryHandlerForReferenceType.GetType().FullName} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery("this is a string"))}");
-				Console.WriteLine($"Result of {_syncQueryHandlerForReferenceType.GetType().FullName} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery("this is a string"))}");
-			
-				Console.WriteLine($"Result of {_asyncQueryHandlerForValueType.GetType().FullName} = {await _asyncQueryHandlerForValueType.HandleAsync(new GetIntegerAsyncQuery(15))}");
-				Console.WriteLine($"Result of {_asyncQueryHandlerForValueType.GetType().FullName} = {await _asyncQueryHandlerForValueType.HandleAsync(new GetIntegerAsyncQuery(15))}");
-				Console.WriteLine($"Result of {_asyncQueryHandlerForValueType.GetType().FullName} = {await _asyncQueryHandlerForValueType.HandleAsync(new GetIntegerAsyncQuery(15))}");
+				var nameOfAsyncQueryHandlerTypeForReferenceType = _syncQueryHandlerForReferenceType.GetType().FullName;
+				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerTypeForReferenceType} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery("this is a string"))}");
+				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerTypeForReferenceType} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery("this is a string"))}");
+				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerTypeForReferenceType} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery("this is a string"))}");
+				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerTypeForReferenceType} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery("this is a string"))}");
 
-				Console.WriteLine($"Result of {_asyncQueryHandlerForReferenceType.GetType().FullName} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");
-				Console.WriteLine($"Result of {_asyncQueryHandlerForReferenceType.GetType().FullName} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");
-				Console.WriteLine($"Result of {_asyncQueryHandlerForReferenceType.GetType().FullName} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");
+				var nameOfAsyncQueryHandlerForValueType = _asyncQueryHandlerForValueType.GetType().FullName;
+				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerForValueType} = {await _asyncQueryHandlerForValueType.HandleAsync(new GetIntegerAsyncQuery(15))}");
+				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerForValueType} = {await _asyncQueryHandlerForValueType.HandleAsync(new GetIntegerAsyncQuery(15))}");
+				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerForValueType} = {await _asyncQueryHandlerForValueType.HandleAsync(new GetIntegerAsyncQuery(15))}");
+
+				var nameOfAsyncQueryHandlerToReferenceType = _asyncQueryHandlerForReferenceType.GetType().FullName;
+				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerToReferenceType} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");
+				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerToReferenceType} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");
+				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerToReferenceType} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");
 
 				_syncCommandHandler.Handle(new DoNothingAndDoSomethingCommand(3));
 				await _asyncCommandHandler.HandleAsync(new DoSomethingAsyncCommand());

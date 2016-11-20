@@ -64,8 +64,19 @@ namespace CQSDIContainer.Interceptors
 		/// </summary>
 		private enum MethodType
 		{
+			/// <summary>
+			/// Does not return Task or Task&lt;T>.
+			/// </summary>
 			Synchronous,
+
+			/// <summary>
+			/// Returns Task.
+			/// </summary>
 			AsynchronousAction,
+
+			/// <summary>
+			/// Returns Task&lt;T>.
+			/// </summary>
 			AsynchronousFunction
 		}
 

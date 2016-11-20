@@ -44,16 +44,16 @@ namespace CQSDIContainer.Interceptors
 				// retrieve the item from the cache
 				if (cacheItemFactoryInfo.ResultType.IsClass)
 				{
-					ExecuteGetReferenceTypeFromCache(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
+					ExecuteGetReferenceTypeFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
 				}
 				else
 				{
 					invocation.ReturnValue = _cache.Get(cacheKey, cacheItemFactoryInfo.ResultType, () =>
-					{
-						Console.WriteLine($"I'm caching something for cache key {cacheKey}");
-						invocation.Proceed();
-						return invocation.ReturnValue;
-					}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+						{
+							Console.WriteLine($"I'm caching something for cache key {cacheKey}");
+							invocation.Proceed();
+							return invocation.ReturnValue;
+						}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
 				}
 			}
 		}
@@ -78,19 +78,13 @@ namespace CQSDIContainer.Interceptors
 
 				// retrieve the item from the cache
 				if (cacheItemFactoryInfo.ResultType.IsClass)
-					ExecuteGetReferenceTypeAsyncFromCache(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
+					ExecuteGetReferenceTypeAsyncFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
 				else
-					ExecuteGetValueTypeAsyncFromCache(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
+					ExecuteGetValueTypeAsyncFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
 			}
 		}
 
 		#region Common Helpers
-
-		private static string GetCacheKey(CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory, IInvocation invocation)
-		{
-			var cacheKeyForCQSHandlerArgument = cacheItemFactory.BuildKeyForQueryMethod.Invoke(cacheItemFactoryInfo.FactoryInstance, new[] { invocation.Arguments.FirstOrDefault() });
-			return $"{cacheKeyForCQSHandlerArgument}|{cacheItemFactoryInfo.QueryType.FullName}|{cacheItemFactoryInfo.ResultType.FullName}";
-		}
 
 		private static CacheItemFactoryInfo GetQueryCacheItemFactory(Type invocationTargetType, IKernel kernel)
 		{
@@ -119,46 +113,54 @@ namespace CQSDIContainer.Interceptors
 			return new CacheItemFactoryMethods(buildCacheKeyForQueryMethod, getTimeToLiveProperty);
 		}
 
-		#region
+		private static string GetCacheKey(CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory, IInvocation invocation)
+		{
+			var cacheKeyForCQSHandlerArgument = cacheItemFactory.BuildKeyForQueryMethod.Invoke(cacheItemFactoryInfo.FactoryInstance, new[] { invocation.Arguments.FirstOrDefault() });
+			return $"{cacheKeyForCQSHandlerArgument}|{cacheItemFactoryInfo.QueryType.FullName}|{cacheItemFactoryInfo.ResultType.FullName}";
+		}
+
+		#region Async Method Handling
+
+		private static readonly ConcurrentDictionary<Type, MethodInfo> _handleAsyncMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
+		private static readonly MethodInfo _handleAsyncMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Static | BindingFlags.NonPublic);
 
 		private static async Task<T> HandleAsyncWithResult<T>(Task<T> task)
 		{
 			return await task;
 		}
 
-		private static readonly MethodInfo _handleAsyncMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Static | BindingFlags.NonPublic);
-
 		private static void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var mi = _handleAsyncMethodInfo.MakeGenericMethod(resultType);
-			invocation.ReturnValue = mi.Invoke(null, new[] { invocation.ReturnValue });
+			var methodInfo = _handleAsyncMethodLookup.GetOrAdd(resultType, _handleAsyncMethodInfo.MakeGenericMethod(resultType));
+			invocation.ReturnValue = methodInfo.Invoke(null, new[] { invocation.ReturnValue });
 		}
 
 		#endregion
 
-		#endregion
+		#endregion // common helpers
 
 		#region Synchronous Cache Retrieval Helpers
 
-		private static readonly MethodInfo _getReferenceTypeFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetReferenceTypeFromCacheWithReflection), BindingFlags.Static | BindingFlags.NonPublic);
+		private static readonly ConcurrentDictionary<Type, MethodInfo> _referenceTypeSyncFetcherMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
+		private static readonly MethodInfo _getReferenceTypeFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetReferenceTypeFromCache), BindingFlags.Static | BindingFlags.NonPublic);
 
-		private static T GetReferenceTypeFromCacheWithReflection<T>(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+		private static T GetReferenceTypeFromCache<T>(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
 			where T : class
 		{
 			return cache.Get<T>(cacheKey, () =>
-			{
-				Console.WriteLine($"I'm caching something for cache key '{cacheKey}'");
-				invocation.Proceed();
-				return (dynamic)invocation.ReturnValue;
-			}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+				{
+					Console.WriteLine($"I'm caching something for cache key '{cacheKey}'");
+					invocation.Proceed();
+					return (dynamic)invocation.ReturnValue;
+				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
 		}
 
-		private static void ExecuteGetReferenceTypeFromCache(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+		private static void ExecuteGetReferenceTypeFromCacheUsingReflection(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
 		{
 			var resultType = invocation.Method.ReturnType;
-			var mi = _getReferenceTypeFromCacheMethodInfo.MakeGenericMethod(resultType);
-			invocation.ReturnValue = mi.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory });
+			var methodInfo = _referenceTypeSyncFetcherMethodLookup.GetOrAdd(resultType, _getReferenceTypeFromCacheMethodInfo.MakeGenericMethod(resultType));
+			invocation.ReturnValue = methodInfo.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory });
 		}
 
 		#endregion
@@ -167,9 +169,10 @@ namespace CQSDIContainer.Interceptors
 
 		#region ... for reference types
 
-		private static readonly MethodInfo _getReferenceTypeAsyncFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetReferenceTypeAsyncFromCacheWithReflection), BindingFlags.Static | BindingFlags.NonPublic);
+		private static readonly ConcurrentDictionary<Type, MethodInfo> _referenceTypeAsyncFetcherMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
+		private static readonly MethodInfo _getReferenceTypeAsyncFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetReferenceTypeAsyncFromCache), BindingFlags.Static | BindingFlags.NonPublic);
 
-		private static Task<T> GetReferenceTypeAsyncFromCacheWithReflection<T>(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+		private static Task<T> GetReferenceTypeAsyncFromCache<T>(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
 			where T : class
 		{
 			return cache.GetAsync<T>(cacheKey, () =>
@@ -180,19 +183,20 @@ namespace CQSDIContainer.Interceptors
 					return (dynamic)invocation.ReturnValue;
 				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
 		}
-		
-		private static void ExecuteGetReferenceTypeAsyncFromCache(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+
+		private static void ExecuteGetReferenceTypeAsyncFromCacheUsingReflection(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var mi = _getReferenceTypeAsyncFromCacheMethodInfo.MakeGenericMethod(resultType);
-			invocation.ReturnValue = mi.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory });
+			var methodInfo = _referenceTypeAsyncFetcherMethodLookup.GetOrAdd(resultType, _getReferenceTypeAsyncFromCacheMethodInfo.MakeGenericMethod(resultType));
+			invocation.ReturnValue = methodInfo.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory });
 		}
 
 		#endregion
 
 		#region ... for value types
 
-		private static readonly MethodInfo _getValueTypeAsyncFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetValueTypeAsyncFromCacheWithReflection), BindingFlags.Static | BindingFlags.NonPublic);
+		private static readonly ConcurrentDictionary<Type, MethodInfo> _valueTypeAsyncFetcherMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
+		private static readonly MethodInfo _getValueTypeAsyncFromCacheMethodInfo = typeof(CacheQueryResultInterceptor).GetMethod(nameof(GetValueTypeAsyncFromCache), BindingFlags.Static | BindingFlags.NonPublic);
 
 		private static async Task<T> ConvertTaskToAppropriateType<T>(Task<object> task)
 			where T : struct
@@ -201,9 +205,10 @@ namespace CQSDIContainer.Interceptors
 			return (T)result;
 		}
 
-		private static Task<T> GetValueTypeAsyncFromCacheWithReflection<T>(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+		private static Task<T> GetValueTypeAsyncFromCache<T>(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
 			where T : struct
 		{
+			// cache.GetAsync returns Task<object>, so must convert to appropriate Task<T>
 			return ConvertTaskToAppropriateType<T>(cache.GetAsync(cacheKey, cacheItemFactoryInfo.ResultType, async () =>
 				{
 					Console.WriteLine($"I'm caching something for cache key '{cacheKey}'");
@@ -212,12 +217,12 @@ namespace CQSDIContainer.Interceptors
 					return await (dynamic)invocation.ReturnValue;
 				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null)));
 		}
-
-		private static void ExecuteGetValueTypeAsyncFromCache(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
+		
+		private static void ExecuteGetValueTypeAsyncFromCacheUsingReflection(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var mi = _getValueTypeAsyncFromCacheMethodInfo.MakeGenericMethod(resultType);
-			invocation.ReturnValue = mi.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory });
+			var methodInfo = _valueTypeAsyncFetcherMethodLookup.GetOrAdd(resultType, _getValueTypeAsyncFromCacheMethodInfo.MakeGenericMethod(resultType));
+			invocation.ReturnValue = methodInfo.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory });
 		}
 
 		#endregion
@@ -253,7 +258,5 @@ namespace CQSDIContainer.Interceptors
 		}
 
 		#endregion
-
-		
 	}
 }
