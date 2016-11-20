@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Castle.Core;
+using Castle.Core.Interceptor;
 using Castle.DynamicProxy;
 
 namespace CQSDIContainer.Interceptors
@@ -15,8 +17,15 @@ namespace CQSDIContainer.Interceptors
 	/// http://www.codeproject.com/Articles/1080517/Aspect-Oriented-Programming-using-Interceptors-wit
 	/// http://stackoverflow.com/questions/28099669/intercept-async-method-that-returns-generic-task-via-dynamicproxy
 	/// </remarks>
-	public abstract class CQSInterceptor : IInterceptor
+	public abstract class CQSInterceptor : IInterceptor, IOnBehalfAware
 	{
+		private ComponentModel _componentModel;
+
+		public void SetInterceptedComponentModel(ComponentModel target)
+		{
+			_componentModel = target;
+		}
+
 		/// <summary>
 		/// Intercept a handler invocation and wrap some cross-cutting concern around it.
 		/// </summary>
@@ -29,6 +38,11 @@ namespace CQSDIContainer.Interceptors
 			else
 				InterceptSync(invocation);
 		}
+
+		/// <summary>
+		/// Indicates if the interceptor should be applied to nested handlers.
+		/// </summary>
+		protected abstract bool ApplyToNestedHandlers { get; }
 
 		/// <summary>
 		/// Interception logic for synchronous handlers.

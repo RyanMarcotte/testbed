@@ -5,10 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using IQ.Platform.Framework.Common.CQS;
 
-namespace CQSDIContainer.QueryDecorators.Interfaces
+namespace CQSDIContainer.Queries.Caching
 {
-	public interface IDecorateAsyncQueryHandler<in TQuery, TResult> : IAsyncQueryHandler<TQuery, TResult>
+	public interface IQueryCacheItemFactory<in TQuery, TResult>
 		where TQuery : IQuery<TResult>
 	{
+		string BuildKeyForQuery(TQuery query);
+
+		TimeSpan TimeToLive { get; }
 	}
 }

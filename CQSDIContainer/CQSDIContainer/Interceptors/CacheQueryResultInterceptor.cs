@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Castle.DynamicProxy;
 using Castle.MicroKernel;
-using CQSDIContainer.QueryDecorators.Interfaces;
+using CQSDIContainer.Queries.Caching;
 using DoubleCache;
 using IQ.Platform.Framework.Common.CQS;
 
@@ -26,6 +26,8 @@ namespace CQSDIContainer.Interceptors
 			_cache = cache;
 			_kernel = kernel;
 		}
+
+		protected override bool ApplyToNestedHandlers => true;
 
 		protected override void InterceptSync(IInvocation invocation)
 		{

@@ -20,7 +20,7 @@ namespace CQSDIContainer
 			var container = new WindsorContainer();
 			container.AddFacility<TypedFactoryFacility>();
 			container.Install(new CacheInstaller());
-			container.Install(new CQSInstaller(true));
+			container.Install(new CQSInstaller());
 			container.Install(new MockRQApplicationServiceInstaller());
 
 			Console.WriteLine("Finished installing");

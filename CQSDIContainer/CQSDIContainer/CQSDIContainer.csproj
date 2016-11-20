@@ -70,12 +70,6 @@
   <ItemGroup>
     <Compile Include="Attributes\HandleCommandAsynchronouslyAttribute.cs" />
     <Compile Include="Attributes\LogExecutionTimeToConsoleAttribute.cs" />
-    <Compile Include="CommandDecorators\ExecuteAsynchronouslyCommandHandlerDecorator.cs" />
-    <Compile Include="CommandDecorators\Interfaces\IDecorateAsyncCommandHandler.cs" />
-    <Compile Include="CommandDecorators\Interfaces\IDecorateCommandHandler.cs" />
-    <Compile Include="CommandDecorators\Interfaces\IDecorateAsyncResultCommandHandler.cs" />
-    <Compile Include="CommandDecorators\Interfaces\IDecorateResultCommandHandler.cs" />
-    <Compile Include="CommandDecorators\LogExecutionTimeToConsoleCommandHandlerDecorator.cs" />
     <Compile Include="Commands\DoSomethingAsyncCommand.cs" />
     <Compile Include="Commands\DoSomethingAsyncCommandHandler.cs" />
     <Compile Include="Commands\DoSomethingAsyncWithResultCommand.cs" />
@@ -83,7 +77,6 @@
     <Compile Include="Commands\DoSomethingWithResultCommand.cs" />
     <Compile Include="Commands\DoSomethingWithResultCommandHandler.cs" />
     <Compile Include="Contributors\QueryResultCachingContributor.cs" />
-    <Compile Include="CQSFactory.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ZDoNothingAndDoSomethingCommand.cs" />
     <Compile Include="Commands\DoNothingAndDoSomethingCommand.cs" />
@@ -97,13 +90,17 @@
     <Compile Include="Installers\CQSInstaller.cs" />
     <Compile Include="Installers\MockRQApplicationServiceInstaller.cs" />
     <Compile Include="Interceptors\CacheQueryResultInterceptor.cs" />
+    <Compile Include="Interceptors\ExceptionLogging\ExceptionLoggerForCQS.cs" />
+    <Compile Include="Interceptors\ExceptionLogging\Interfaces\ILogExceptionsFromCQSHandlers.cs" />
+    <Compile Include="Interceptors\MetricsLogging\ExecutionTimeLogger.cs" />
+    <Compile Include="Interceptors\MetricsLogging\Interfaces\ILogExecutionTimeOfCQSHandlers.cs" />
     <Compile Include="Interceptors\_CQSInterceptor.cs" />
     <Compile Include="Interceptors\LogAnyExceptionsInterceptor.cs" />
     <Compile Include="Interceptors\LogExecutionTimeToConsoleInterceptor.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="MockRQApplicationServiceUsingCQSFactory.cs" />
     <Compile Include="MockRQApplicationServiceUsingDI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queries\Caching\IQueryCacheItemFactory.cs" />
     <Compile Include="Queries\GetIntegerAsyncQuery.cs" />
     <Compile Include="Queries\GetIntegerAsyncQueryCacheItemFactory.cs" />
     <Compile Include="Queries\GetIntegerAsyncQueryHandler.cs" />
@@ -119,12 +116,7 @@
     <Compile Include="Queries\GetTupleQuery.cs" />
     <Compile Include="Queries\GetTupleQueryCacheItemFactory.cs" />
     <Compile Include="Queries\GetTupleQueryHandler.cs" />
-    <Compile Include="QueryDecorators\CacheReferenceTypeResultQueryHandlerDecorator.cs" />
-    <Compile Include="QueryDecorators\CacheValueTypeResultQueryHandlerDecorator.cs" />
-    <Compile Include="QueryDecorators\Interfaces\IDecorateAsyncQueryHandler.cs" />
-    <Compile Include="QueryDecorators\Interfaces\IDecorateQueryHandler.cs" />
-    <Compile Include="QueryDecorators\Interfaces\IQueryCacheItemFactory.cs" />
-    <Compile Include="QueryDecorators\LogExecutionTimeToConsoleQueryHandlerDecorator.cs" />
+    <Compile Include="SubResolvers\CQSHandlerSubResolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

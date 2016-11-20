@@ -6,30 +6,44 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Castle.DynamicProxy;
+using CQSDIContainer.Interceptors.MetricsLogging.Interfaces;
 
 namespace CQSDIContainer.Interceptors
 {
 	public class LogExecutionTimeToConsoleInterceptor : CQSInterceptor
 	{
+		private readonly ILogExecutionTimeOfCQSHandlers _executionTimeLogger;
+
+		public LogExecutionTimeToConsoleInterceptor(ILogExecutionTimeOfCQSHandlers executionTimeLogger)
+		{
+			if (executionTimeLogger == null)
+				throw new ArgumentNullException(nameof(executionTimeLogger));
+
+			_executionTimeLogger = executionTimeLogger;
+		}
+
+		protected override bool ApplyToNestedHandlers => false;
+
 		protected override void InterceptSync(IInvocation invocation)
 		{
 			var begin = DateTime.UtcNow;
 			invocation.Proceed();
-			LogExecutionTime(invocation, begin);
+			LogExecutionTime(invocation.Method.DeclaringType, _executionTimeLogger, begin);
 		}
 
 		protected override void InterceptAsync(IInvocation invocation, AsynchronousMethodType methodType)
 		{
+			var handlerType = invocation.Method.DeclaringType;
 			var begin = DateTime.UtcNow;
 			invocation.Proceed();
 			switch (methodType)
 			{
 				case AsynchronousMethodType.Action:
-					invocation.ReturnValue = HandleAsync((Task)invocation.ReturnValue, invocation, begin);
+					invocation.ReturnValue = HandleAsync((Task)invocation.ReturnValue, handlerType, _executionTimeLogger, begin);
 					break;
 
 				case AsynchronousMethodType.Function:
-					ExecuteHandleAsyncWithResultUsingReflection(invocation, begin);
+					ExecuteHandleAsyncWithResultUsingReflection(invocation, handlerType, _executionTimeLogger, begin);
 					break;
 
 				default:
@@ -37,33 +51,33 @@ namespace CQSDIContainer.Interceptors
 			}
 		}
 
-		private static async Task HandleAsync(Task task, IInvocation invocation, DateTime begin)
+		private static async Task HandleAsync(Task task, Type handlerType, ILogExecutionTimeOfCQSHandlers executionTimeLogger, DateTime begin)
 		{
 			await task;
-			LogExecutionTime(invocation, begin);
+			LogExecutionTime(handlerType, executionTimeLogger, begin);
 		}
 
-		private static async Task<T> HandleAsyncWithResult<T>(Task<T> task, IInvocation invocation, DateTime begin)
+		private static async Task<T> HandleAsyncWithResult<T>(Task<T> task, Type handlerType, ILogExecutionTimeOfCQSHandlers executionTimeLogger, DateTime begin)
 		{
 			var result = await task;
-			LogExecutionTime(invocation, begin);
+			LogExecutionTime(handlerType, executionTimeLogger, begin);
 			return result;
 		}
 
 		private static readonly ConcurrentDictionary<Type, MethodInfo> _genericMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
 		private static readonly MethodInfo _handleAsyncMethodInfo = typeof(LogExecutionTimeToConsoleInterceptor).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Static | BindingFlags.NonPublic);
-		
-		private static void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation, DateTime begin)
+
+		private static void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation, Type handlerType, ILogExecutionTimeOfCQSHandlers executionTimeLogger, DateTime begin)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
 			var methodInfo = _genericMethodLookup.GetOrAdd(resultType, _handleAsyncMethodInfo.MakeGenericMethod(resultType));
-			invocation.ReturnValue = methodInfo.Invoke(null, new[] { invocation.ReturnValue, invocation, begin });
+			invocation.ReturnValue = methodInfo.Invoke(null, new[] { invocation.ReturnValue, handlerType, executionTimeLogger, begin });
 		}
 
-		private static void LogExecutionTime(IInvocation invocation, DateTime begin)
+		private static void LogExecutionTime(Type handlerType, ILogExecutionTimeOfCQSHandlers executionTimeLogger, DateTime begin)
 		{
 			var end = DateTime.UtcNow;
-			Console.WriteLine($"{invocation.Method.DeclaringType} measured time: {(end - begin).TotalMilliseconds} ms");
+			executionTimeLogger.LogExecutionTime(handlerType, end - begin);
 		}
 	}
 }
