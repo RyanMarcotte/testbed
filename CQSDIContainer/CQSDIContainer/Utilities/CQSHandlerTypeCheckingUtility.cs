@@ -20,7 +20,10 @@ namespace CQSDIContainer.Utilities
 		/// <returns></returns>
 		public static bool IsQueryHandler(Type type)
 		{
-			return type.IsGenericType && _queryHandlerTypes.Contains(type.GetGenericTypeDefinition());
+			if (type.IsInterface)
+				return IsQueryHandlerInterface(type);
+			
+			return type.IsClass && type.GetInterfaces().Any(IsQueryHandlerInterface);
 		}
 
 		/// <summary>
@@ -30,7 +33,10 @@ namespace CQSDIContainer.Utilities
 		/// <returns></returns>
 		public static bool IsCommandHandler(Type type)
 		{
-			return type.IsGenericType && _commandHandlerTypes.Contains(type.GetGenericTypeDefinition());
+			if (type.IsInterface)
+				return IsCommandHandlerInterface(type);
+
+			return type.IsClass && type.GetInterfaces().Any(IsCommandHandlerInterface);
 		}
 
 		/// <summary>
@@ -42,6 +48,8 @@ namespace CQSDIContainer.Utilities
 		{
 			return IsQueryHandler(type) || IsCommandHandler(type);
 		}
+
+		#region Internals
 
 		private static readonly IEnumerable<Type> _queryHandlerTypes = new HashSet<Type>
 			{
@@ -56,5 +64,17 @@ namespace CQSDIContainer.Utilities
 				typeof(IResultCommandHandler<,>),
 				typeof(IAsyncResultCommandHandler<,>)
 			};
+
+		private static bool IsQueryHandlerInterface(Type type)
+		{
+			return type.IsGenericType && _queryHandlerTypes.Contains(type.GetGenericTypeDefinition());
+		}
+
+		private static bool IsCommandHandlerInterface(Type type)
+		{
+			return type.IsGenericType && _commandHandlerTypes.Contains(type.GetGenericTypeDefinition());
+		}
+
+		#endregion
 	}
 }

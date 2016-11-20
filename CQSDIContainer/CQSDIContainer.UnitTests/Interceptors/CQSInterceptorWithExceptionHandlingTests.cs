@@ -20,8 +20,8 @@ namespace CQSDIContainer.UnitTests.Interceptors
 	/// <summary>
 	/// Unit tests for the <see cref="CQSInterceptorWithExceptionHandling"/> abstract class.
 	/// </summary>
-	public class CQSInterceptorWithExceptionHandlingTests
-    {
+	public class CQSInterceptorWithExceptionHandlingTests : CQSInterceptorTestsBase
+	{
 		[Theory]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.Synchronous)]
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.Synchronous)]
@@ -29,12 +29,13 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
-		public void ShouldAlwaysCallOnBeginInvocationMethod(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		public void ShouldAlwaysCallOnBeginInvocationMethod(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.OnBeginInvocationCalled.Should().BeFalse();
 
 			try
 			{
+				sut.SetInterceptedComponentModel(componentModel);
 				sut.Intercept(invocation);
 			}
 			catch (InvocationFailedException)
@@ -52,12 +53,13 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
-		public void ShouldAlwaysCallOnEndInvocationMethod(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		public void ShouldAlwaysCallOnEndInvocationMethod(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.OnEndInvocationCalled.Should().BeFalse();
 
 			try
 			{
+				sut.SetInterceptedComponentModel(componentModel);
 				sut.Intercept(invocation);
 			}
 			catch (InvocationFailedException)
@@ -72,8 +74,9 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.Synchronous)]
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
-		public void ShouldNotCallOnExceptionMethodIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		public void ShouldNotCallOnExceptionMethodIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
+			sut.SetInterceptedComponentModel(componentModel);
 			Action act = () => sut.Intercept(invocation);
 			act.ShouldNotThrow<Exception>();
 			sut.OnExceptionCalled.Should().BeFalse("Exception should not have been thrown!");
@@ -83,8 +86,9 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.Synchronous)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
-		public void ShouldCallOnExceptionMethodIfInvocationThrowsException(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		public void ShouldCallOnExceptionMethodIfInvocationThrowsException(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
+			sut.SetInterceptedComponentModel(componentModel);
 			Action act = () => sut.Intercept(invocation);
 			act.ShouldThrow<InvocationFailedException>();
 			sut.OnExceptionCalled.Should().BeTrue("Exception should have been thrown!");
@@ -99,6 +103,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 				: base(new Fixture()
 					.Customize(new AutoFakeItEasyCustomization())
 					.Customize(new InvocationCustomization(invocationCompletesSuccessfully, methodType))
+					.Customize(new ComponentModelCustomization(GetComponentModelTypeFromMethodType(methodType)))
 					.Customize(new CQSInterceptorWithExceptionHandlingCustomization()))
 			{
 				

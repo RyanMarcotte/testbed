@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using Castle.Core;
 using Castle.Core.Interceptor;
 using Castle.DynamicProxy;
+using CQSDIContainer.Utilities;
 
 namespace CQSDIContainer.Interceptors
 {
@@ -21,22 +23,53 @@ namespace CQSDIContainer.Interceptors
 	{
 		private ComponentModel _componentModel;
 
-		public void SetInterceptedComponentModel(ComponentModel target)
-		{
-			_componentModel = target;
-		}
-
 		/// <summary>
 		/// Intercept a handler invocation and wrap some cross-cutting concern around it.
 		/// </summary>
 		/// <param name="invocation">The handler invocation being intercepted.</param>
 		public void Intercept(IInvocation invocation)
 		{
+			if (!CQSHandlerTypeCheckingUtility.IsCQSHandler(_componentModel.Implementation))
+				throw new InvalidOperationException("A CQS interceptor may only intercept CQS handlers!!");
+
 			var methodType = GetMethodType(invocation.Method);
-			if (methodType == MethodType.AsynchronousAction || methodType == MethodType.AsynchronousFunction)
-				InterceptAsync(invocation, _componentModel, methodType == MethodType.AsynchronousAction ? AsynchronousMethodType.Action : AsynchronousMethodType.Function);
+			if (!ApplyToNestedHandlers)
+			{
+				invocation.Proceed();
+				switch (methodType)
+				{
+					case MethodType.AsynchronousAction:
+						invocation.ReturnValue = HandleAsync((Task)invocation.ReturnValue);
+						break;
+
+					case MethodType.AsynchronousFunction:
+						ExecuteHandleAsyncWithResultUsingReflection(invocation);
+						break;
+
+					case MethodType.Synchronous:
+						break;
+
+					default:
+						throw new ArgumentOutOfRangeException($"Invalid method type '{methodType}'!!");
+				}
+			}
 			else
-				InterceptSync(invocation, _componentModel);
+			{
+				// we're not intercepting the outermost handler's Handle method, so intercept the invocation
+				if (methodType == MethodType.AsynchronousAction || methodType == MethodType.AsynchronousFunction)
+					InterceptAsync(invocation, _componentModel, methodType == MethodType.AsynchronousAction ? AsynchronousMethodType.Action : AsynchronousMethodType.Function);
+				else
+					InterceptSync(invocation, _componentModel);
+			}
+		}
+
+		/// <summary>
+		/// Cache the component model associated with the intercepted invocation.
+		/// </summary>
+		/// <param name="target">The component model.</param>
+		public void SetInterceptedComponentModel(ComponentModel target)
+		{
+			_componentModel = target;
 		}
 
 		/// <summary>
@@ -59,21 +92,7 @@ namespace CQSDIContainer.Interceptors
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
 		protected abstract void InterceptAsync(IInvocation invocation, ComponentModel componentModel, AsynchronousMethodType methodType);
 
-		/// <summary>
-		/// Determines if a method is synchronous or asynchronous.
-		/// </summary>
-		/// <param name="method">The method info.</param>
-		/// <returns></returns>
-		private static MethodType GetMethodType(MethodInfo method)
-		{
-			var returnType = method.ReturnType;
-			if (returnType == typeof(Task))
-				return MethodType.AsynchronousAction;
-			if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
-				return MethodType.AsynchronousFunction;
-
-			return MethodType.Synchronous;
-		}
+		#region Enums
 
 		/// <summary>
 		/// Indicates the type of method.
@@ -111,5 +130,47 @@ namespace CQSDIContainer.Interceptors
 			/// </summary>
 			Function
 		}
-	}	
+
+		#endregion
+
+		#region Helper Methods
+
+		/// <summary>
+		/// Determines if a method is synchronous or asynchronous.
+		/// </summary>
+		/// <param name="method">The method info.</param>
+		/// <returns></returns>
+		private static MethodType GetMethodType(MethodInfo method)
+		{
+			var returnType = method.ReturnType;
+			if (returnType == typeof(Task))
+				return MethodType.AsynchronousAction;
+			if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+				return MethodType.AsynchronousFunction;
+
+			return MethodType.Synchronous;
+		}
+
+		private static async Task HandleAsync(Task task)
+		{
+			await task;
+		}
+
+		private static async Task<T> HandleAsyncWithResult<T>(Task<T> task)
+		{
+			return await task;
+		}
+
+		private static readonly ConcurrentDictionary<Type, MethodInfo> _genericMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
+		private static readonly MethodInfo _handleAsyncWithResultMethodInfo = typeof(CQSInterceptor).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Static | BindingFlags.NonPublic);
+
+		private static void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation)
+		{
+			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
+			var methodInfo = _genericMethodLookup.GetOrAdd(resultType, _handleAsyncWithResultMethodInfo.MakeGenericMethod(resultType));
+			invocation.ReturnValue = methodInfo.Invoke(null, new[] { invocation.ReturnValue });
+		}
+
+		#endregion
+	}
 }
