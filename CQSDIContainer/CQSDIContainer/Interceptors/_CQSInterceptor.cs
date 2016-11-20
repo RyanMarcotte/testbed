@@ -33,8 +33,9 @@ namespace CQSDIContainer.Interceptors
 				throw new InvalidOperationException("A CQS interceptor may only intercept CQS handlers!!");
 
 			var methodType = GetMethodType(invocation.Method);
-			if (!ApplyToNestedHandlers)
+			if (!ApplyToNestedHandlers) // and some kind of check to see if we're running a nested handler
 			{
+				// proceed with invocation without running through interceptor
 				invocation.Proceed();
 				switch (methodType)
 				{
