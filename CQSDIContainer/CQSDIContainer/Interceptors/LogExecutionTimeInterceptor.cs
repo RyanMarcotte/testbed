@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Castle.Core;
 using Castle.DynamicProxy;
+using CQSDIContainer.Attributes;
 using CQSDIContainer.Interceptors.MetricsLogging.Interfaces;
 
 namespace CQSDIContainer.Interceptors
@@ -34,7 +35,8 @@ namespace CQSDIContainer.Interceptors
 		protected override void OnEndInvocation(ComponentModel componentModel)
 		{
 			var end = DateTime.UtcNow;
-			_executionTimeLogger.LogExecutionTime(componentModel.Implementation, end - _begin);
+			var threshold = TimeSpan.FromMilliseconds(componentModel.Implementation.GetCustomAttribute<LogExecutionTimeAttribute>()?.ThresholdInMilliseconds ?? LogExecutionTimeAttribute.MaximumThreshold);
+			_executionTimeLogger.LogExecutionTime(componentModel.Implementation, end - _begin, threshold);
 		}
 	}
 }
