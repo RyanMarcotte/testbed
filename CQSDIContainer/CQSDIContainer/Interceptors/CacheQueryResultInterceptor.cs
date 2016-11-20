@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
+using Castle.Core;
 using Castle.DynamicProxy;
 using Castle.MicroKernel;
 using CQSDIContainer.Queries.Caching;
@@ -29,7 +30,7 @@ namespace CQSDIContainer.Interceptors
 
 		protected override bool ApplyToNestedHandlers => true;
 
-		protected override void InterceptSync(IInvocation invocation)
+		protected override void InterceptSync(IInvocation invocation, ComponentModel componentModel)
 		{
 			var cacheItemFactoryInfo = _cacheItemFactoryInfoLookup.GetOrAdd(invocation.InvocationTarget.GetType(), type => GetQueryCacheItemFactory(type, _kernel));
 			if (cacheItemFactoryInfo == null)
@@ -60,7 +61,7 @@ namespace CQSDIContainer.Interceptors
 			}
 		}
 
-		protected override void InterceptAsync(IInvocation invocation, AsynchronousMethodType methodType)
+		protected override void InterceptAsync(IInvocation invocation, ComponentModel componentModel, AsynchronousMethodType methodType)
 		{
 			if (methodType == AsynchronousMethodType.Action)
 				throw new InvalidOperationException("All async queries should return Task<T>!!");

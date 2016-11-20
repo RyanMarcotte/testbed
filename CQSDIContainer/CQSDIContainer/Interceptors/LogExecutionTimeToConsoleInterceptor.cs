@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Castle.Core;
 using Castle.DynamicProxy;
 using CQSDIContainer.Interceptors.MetricsLogging.Interfaces;
 
@@ -24,16 +25,16 @@ namespace CQSDIContainer.Interceptors
 
 		protected override bool ApplyToNestedHandlers => false;
 
-		protected override void InterceptSync(IInvocation invocation)
+		protected override void InterceptSync(IInvocation invocation, ComponentModel componentModel)
 		{
 			var begin = DateTime.UtcNow;
 			invocation.Proceed();
-			LogExecutionTime(invocation.Method.DeclaringType, _executionTimeLogger, begin);
+			LogExecutionTime(componentModel.Implementation, _executionTimeLogger, begin);
 		}
 
-		protected override void InterceptAsync(IInvocation invocation, AsynchronousMethodType methodType)
+		protected override void InterceptAsync(IInvocation invocation, ComponentModel componentModel, AsynchronousMethodType methodType)
 		{
-			var handlerType = invocation.Method.DeclaringType;
+			var handlerType = componentModel.Implementation;
 			var begin = DateTime.UtcNow;
 			invocation.Proceed();
 			switch (methodType)

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Castle.Core;
 using Castle.DynamicProxy;
 using CQSDIContainer.Interceptors.ExceptionLogging.Interfaces;
 
@@ -24,7 +25,7 @@ namespace CQSDIContainer.Interceptors
 
 		protected override bool ApplyToNestedHandlers => false;
 
-		protected override void InterceptSync(IInvocation invocation)
+		protected override void InterceptSync(IInvocation invocation, ComponentModel componentModel)
 		{
 			try
 			{
@@ -37,7 +38,7 @@ namespace CQSDIContainer.Interceptors
 			}
 		}
 
-		protected override void InterceptAsync(IInvocation invocation, AsynchronousMethodType methodType)
+		protected override void InterceptAsync(IInvocation invocation, ComponentModel componentModel, AsynchronousMethodType methodType)
 		{
 			try
 			{

@@ -7,7 +7,7 @@ namespace CQSDIContainer.Interceptors.MetricsLogging
 	{
 		public void LogExecutionTime(Type handlerType, TimeSpan executionTime)
 		{
-			Console.WriteLine($"{handlerType} measured time: {executionTime.TotalMilliseconds} ms");
+			Console.WriteLine($"[{handlerType}] measured time: {executionTime.TotalMilliseconds} ms");
 		}
 	}
 }

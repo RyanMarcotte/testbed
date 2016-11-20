@@ -34,9 +34,9 @@ namespace CQSDIContainer.Interceptors
 		{
 			var methodType = GetMethodType(invocation.Method);
 			if (methodType == MethodType.AsynchronousAction || methodType == MethodType.AsynchronousFunction)
-				InterceptAsync(invocation, methodType == MethodType.AsynchronousAction ? AsynchronousMethodType.Action : AsynchronousMethodType.Function);
+				InterceptAsync(invocation, _componentModel, methodType == MethodType.AsynchronousAction ? AsynchronousMethodType.Action : AsynchronousMethodType.Function);
 			else
-				InterceptSync(invocation);
+				InterceptSync(invocation, _componentModel);
 		}
 
 		/// <summary>
@@ -48,14 +48,16 @@ namespace CQSDIContainer.Interceptors
 		/// Interception logic for synchronous handlers.
 		/// </summary>
 		/// <param name="invocation">The invocation.</param>
-		protected abstract void InterceptSync(IInvocation invocation);
+		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
+		protected abstract void InterceptSync(IInvocation invocation, ComponentModel componentModel);
 
 		/// <summary>
 		/// Interception logic for asynchronous handlers.
 		/// </summary>
 		/// <param name="invocation">The invocation.</param>
 		/// <param name="methodType">The asynchronous method type.</param>
-		protected abstract void InterceptAsync(IInvocation invocation, AsynchronousMethodType methodType);
+		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
+		protected abstract void InterceptAsync(IInvocation invocation, ComponentModel componentModel, AsynchronousMethodType methodType);
 
 		/// <summary>
 		/// Determines if a method is synchronous or asynchronous.
