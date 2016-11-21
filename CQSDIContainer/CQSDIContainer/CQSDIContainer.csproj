@@ -95,8 +95,11 @@
     <Compile Include="Interceptors\CacheQueryResultInterceptor.cs" />
     <Compile Include="Interceptors\ExceptionLogging\ExceptionLoggerForCQSHandlers.cs" />
     <Compile Include="Interceptors\ExceptionLogging\Interfaces\ILogExceptionsFromCQSHandlers.cs" />
+    <Compile Include="Interceptors\DisableInterceptionForNestedHandlersInterceptor.cs" />
     <Compile Include="Interceptors\MetricsLogging\ExecutionTimeLoggerForCQSHandlers.cs" />
     <Compile Include="Interceptors\MetricsLogging\Interfaces\ILogExecutionTimeOfCQSHandlers.cs" />
+    <Compile Include="Interceptors\Session\CQSHandlerSession.cs" />
+    <Compile Include="Interceptors\Session\Interfaces\ICQSHandlerSession.cs" />
     <Compile Include="Interceptors\TransactionScopeInterceptor.cs" />
     <Compile Include="Interceptors\_CQSInterceptor.cs" />
     <Compile Include="Interceptors\LogAnyExceptionsInterceptor.cs" />
@@ -121,6 +124,7 @@
     <Compile Include="Queries\GetTupleQuery.cs" />
     <Compile Include="Queries\GetTupleQueryCacheItemFactory.cs" />
     <Compile Include="Queries\GetTupleQueryHandler.cs" />
+    <Compile Include="ScopeAccessors\CQSHandlerSessionScopeAccessor.cs" />
     <Compile Include="Utilities\CQSHandlerTypeCheckingUtility.cs" />
   </ItemGroup>
   <ItemGroup>

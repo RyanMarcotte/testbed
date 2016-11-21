@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using Castle.Core;
+using CQSDIContainer.Interceptors.Session.Interfaces;
 
 namespace CQSDIContainer.Interceptors
 {

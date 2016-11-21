@@ -73,7 +73,9 @@ namespace CQSDIContainer
 				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerToReferenceType} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");
 				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerToReferenceType} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");*/
 
-				_syncCommandHandler.Handle(new DoNothingAndDoSomethingCommand(3));
+				for (int n = 0; n < 3; ++n)
+					_syncCommandHandler.Handle(new DoNothingAndDoSomethingCommand(n));
+				
 				await _asyncCommandHandler.HandleAsync(new DoSomethingAsyncCommand());
 				Console.WriteLine($"Result of {_syncCommandHandlerWithResult.GetType().FullName} = {_syncCommandHandlerWithResult.Handle(new DoSomethingWithResultCommand(3, 0))}");
 				Console.WriteLine($"Result of {_asyncCommandHandlerWithResult.GetType().FullName} = {await _asyncCommandHandlerWithResult.HandleAsync(new DoSomethingAsyncWithResultCommand(), new CancellationToken())}");

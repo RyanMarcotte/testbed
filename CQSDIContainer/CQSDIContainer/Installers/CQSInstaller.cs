@@ -10,13 +10,15 @@ using Castle.MicroKernel.ModelBuilder;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using CQSDIContainer.Contributors;
 using CQSDIContainer.Interceptors;
 using CQSDIContainer.Interceptors.ExceptionLogging;
 using CQSDIContainer.Interceptors.ExceptionLogging.Interfaces;
 using CQSDIContainer.Interceptors.MetricsLogging;
 using CQSDIContainer.Interceptors.MetricsLogging.Interfaces;
+using CQSDIContainer.Interceptors.Session;
+using CQSDIContainer.Interceptors.Session.Interfaces;
 using CQSDIContainer.Queries.Caching;
+using CQSDIContainer.ScopeAccessors;
 using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.Installers
@@ -29,6 +31,7 @@ namespace CQSDIContainer.Installers
 				container.Kernel.ComponentModelBuilder.AddContributor((IContributeComponentModelConstruction)Activator.CreateInstance(contributor));;
 			
 			container
+				//.Register(Component.For<ICQSHandlerSession>().ImplementedBy<CQSHandlerSession>().LifestyleScoped<CQSHandlerSessionScopeAccessor>())
 				.Register(Component.For<ILogExceptionsFromCQSHandlers>().ImplementedBy<ExceptionLoggerForCQSHandlers>().LifestyleTransient())
 				.Register(Component.For<ILogExecutionTimeOfCQSHandlers>().ImplementedBy<ExecutionTimeLoggerForCQSHandlers>().LifestyleTransient())
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(IInterceptor)).WithServiceBase().LifestyleTransient())
@@ -43,7 +46,8 @@ namespace CQSDIContainer.Installers
 
 		private static void ApplyCommonInterceptors(ComponentRegistration componentRegistration)
 		{
-			var x = componentRegistration.Interceptors(InterceptorReference.ForType<LogAnyExceptionsInterceptor>()).Last;
+			var i = componentRegistration.Interceptors(InterceptorReference.ForType<LogAnyExceptionsInterceptor>()).Last;
+			var j = componentRegistration.Interceptors(InterceptorReference.ForType<DisableInterceptionForNestedHandlersInterceptor>()).Last;
 		}
 	}
 }

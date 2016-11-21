@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Castle.Core;
 using Castle.Core.Interceptor;
 using Castle.DynamicProxy;
+using CQSDIContainer.Interceptors.Session;
+using CQSDIContainer.Interceptors.Session.Interfaces;
 using CQSDIContainer.Utilities;
 
 namespace CQSDIContainer.Interceptors
@@ -21,6 +23,8 @@ namespace CQSDIContainer.Interceptors
 	/// </remarks>
 	public abstract class CQSInterceptor : IInterceptor, IOnBehalfAware
 	{
+		private static readonly ConcurrentDictionary<IInvocation, ICQSHandlerSession> _invocationSessionCache = new ConcurrentDictionary<IInvocation, ICQSHandlerSession>();
+		private static readonly ConcurrentDictionary<IInvocation, int> _invocationSessionDepth = new ConcurrentDictionary<IInvocation, int>();
 		private ComponentModel _componentModel;
 
 		/// <summary>
@@ -32,8 +36,10 @@ namespace CQSDIContainer.Interceptors
 			if (!CQSHandlerTypeCheckingUtility.IsCQSHandler(_componentModel.Implementation))
 				throw new InvalidOperationException("A CQS interceptor may only intercept CQS handlers!!");
 
+			InvocationSession = _invocationSessionCache.GetOrAdd(invocation, new CQSHandlerSession());
+			_invocationSessionDepth.AddOrUpdate(invocation, 1, (key, oldValue) => oldValue + 1);
 			var methodType = GetMethodType(invocation.Method);
-			if (!ApplyToNestedHandlers) // and some kind of check to see if we're running a nested handler
+			if (!ApplyToNestedHandlers && InvocationSession.InterceptorsDisabled)
 			{
 				// proceed with invocation without running through interceptor
 				invocation.Proceed();
@@ -62,6 +68,15 @@ namespace CQSDIContainer.Interceptors
 				else
 					InterceptSync(invocation, _componentModel);
 			}
+
+			int currentInterceptorCount;
+			_invocationSessionDepth.TryGetValue(invocation, out currentInterceptorCount);
+			_invocationSessionDepth.TryUpdate(invocation, currentInterceptorCount - 1, currentInterceptorCount);
+			if (currentInterceptorCount != 1)
+				return;
+
+			ICQSHandlerSession removedInvocationSession;
+			_invocationSessionCache.TryRemove(invocation, out removedInvocationSession);
 		}
 
 		/// <summary>
@@ -72,6 +87,11 @@ namespace CQSDIContainer.Interceptors
 		{
 			_componentModel = target;
 		}
+
+		/// <summary>
+		/// Gets information about the current invocation session.
+		/// </summary>
+		protected ICQSHandlerSession InvocationSession { get; private set; }
 
 		/// <summary>
 		/// Indicates if the interceptor should be applied to nested handlers.

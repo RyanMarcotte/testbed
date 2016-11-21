@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using Castle.Core;
 using Castle.DynamicProxy;
 using CQSDIContainer.Interceptors;
+using CQSDIContainer.Interceptors.Session.Interfaces;
 using CQSDIContainer.UnitTests.Customizations;
+using FakeItEasy;
 using FluentAssertions;
 using IQ.Platform.Framework.Common;
 using IQ.Platform.Framework.Common.CQS;
@@ -147,6 +149,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 		private class CQSInterceptorCustomization : ICustomization
 		{
+			private readonly Guid _id = Guid.NewGuid();
 			private readonly bool _applyToNestedHandlers;
 
 			public CQSInterceptorCustomization(bool applyToNestedHandlers)

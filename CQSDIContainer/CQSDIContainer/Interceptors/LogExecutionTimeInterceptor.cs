@@ -9,6 +9,7 @@ using Castle.Core;
 using Castle.DynamicProxy;
 using CQSDIContainer.Attributes;
 using CQSDIContainer.Interceptors.MetricsLogging.Interfaces;
+using CQSDIContainer.Interceptors.Session.Interfaces;
 
 namespace CQSDIContainer.Interceptors
 {

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Castle.Core;
 using Castle.DynamicProxy;
 using Castle.MicroKernel;
+using CQSDIContainer.Interceptors.Session.Interfaces;
 using CQSDIContainer.Queries.Caching;
 using DoubleCache;
 using IQ.Platform.Framework.Common.CQS;
