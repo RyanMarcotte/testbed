@@ -3,7 +3,7 @@
 namespace CQSDIContainer.Attributes
 {
 	/// <summary>
-	/// Attribute for tagging command handlers and query handlers that will have their execution time logged.
+	/// Attribute for tagging CQS handlers that will opt in to have their execution time logged.
 	/// An optional threshold parameter can be used to perform additional work if execution time is above a certain amount.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]

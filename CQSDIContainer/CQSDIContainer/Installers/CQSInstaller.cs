@@ -13,6 +13,8 @@ using Castle.Windsor;
 using CQSDIContainer.Contributors;
 using CQSDIContainer.Contributors.Interfaces;
 using CQSDIContainer.Interceptors;
+using CQSDIContainer.Interceptors.Caching;
+using CQSDIContainer.Interceptors.Caching.Interfaces;
 using CQSDIContainer.Interceptors.ExceptionLogging;
 using CQSDIContainer.Interceptors.ExceptionLogging.Interfaces;
 using CQSDIContainer.Interceptors.MetricsLogging;
@@ -27,39 +29,49 @@ namespace CQSDIContainer.Installers
 	{
 		public void Install(IWindsorContainer container, IConfigurationStore store)
 		{
-			// create a child container for resolving nested CQS handler dependencies
-			// (a handler is nested if it must be injected as a dependency into another handler)
-			var childContainer = new WindsorContainer();
-			RegisterCQSContributors(childContainer, isForNestedHandlers: true);
-			RegisterCQSHandlers(childContainer, ApplyNestedHandlerConfiguration);
-			container.AddChildContainer(childContainer);
-
-			// register all CQS-related objects
-			container.Kernel.Resolver.AddSubResolver(new NestedCQSHandlerResolver(childContainer.Kernel));
-			RegisterCQSContributors(container, isForNestedHandlers: false);
-			RegisterCQSHandlers(container, ApplyCommonConfiguration);
+			// register all objects required to support CQS
 			container
+				.Register(Component.For<ICacheItemFactoryInstanceRepository>().ImplementedBy<CacheItemFactoryInstanceRepository>().LifestyleTransient())
 				.Register(Component.For<ILogExceptionsFromCQSHandlers>().ImplementedBy<ExceptionLoggerForCQSHandlers>().LifestyleTransient())
 				.Register(Component.For<ILogExecutionTimeOfCQSHandlers>().ImplementedBy<ExecutionTimeLoggerForCQSHandlers>().LifestyleTransient())
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(IInterceptor)).WithServiceBase().LifestyleTransient())
-				.Register(Classes.FromThisAssembly().BasedOn(typeof(IQueryCacheItemFactory<,>)).WithServiceBase().LifestyleSingleton());
-		}
-		
-		private static void RegisterCQSHandlers(IWindsorContainer container, Action<ComponentRegistration> componentRegistrationAction)
-		{
-			container
-				.Register(Classes.FromThisAssembly().BasedOn(typeof(ICommandHandler<>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction))
-				.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncCommandHandler<>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction))
-				.Register(Classes.FromThisAssembly().BasedOn(typeof(IResultCommandHandler<,>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction))
-				.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncResultCommandHandler<,>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction))
-				.Register(Classes.FromThisAssembly().BasedOn(typeof(IQueryHandler<,>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction))
-				.Register(Classes.FromThisAssembly().BasedOn(typeof(IAsyncQueryHandler<,>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction));
+				.Register(Classes.FromThisAssembly().BasedOn(typeof(ICQSInterceptorContributor)).WithServiceSelf().LifestyleTransient())
+				.Register(Classes.FromThisAssembly().BasedOn(typeof(IQueryCacheItemFactory<,>)).WithServiceBase().LifestyleSingleton())
+				.Register(AllCQSContributorsAndHandlers(container, container, false, ApplyCommonConfiguration));
+
+			// create a child container for resolving nested CQS handler dependencies
+			// (a handler is nested if it must be injected as a dependency into another handler)
+			var childContainer = new WindsorContainer();
+			childContainer.Register(AllCQSContributorsAndHandlers(childContainer, container, true, ApplyNestedHandlerConfiguration));
+
+			// add the child container, then add a sub-resolver that will be responsible for resolving nested handlers
+			container.AddChildContainer(childContainer);
+			container.Kernel.Resolver.AddSubResolver(new NestedCQSHandlerResolver(childContainer.Kernel));
 		}
 
-		private static void RegisterCQSContributors(IWindsorContainer container, bool isForNestedHandlers)
+		private static IRegistration[] AllCQSContributorsAndHandlers(IWindsorContainer container, IWindsorContainer containerToUseForResolution, bool isForNestedHandlers, Action<ComponentRegistration> componentRegistrationAction)
 		{
+			foreach (var contributor in GetCQSContributors(containerToUseForResolution, isForNestedHandlers))
+				container.Kernel.ComponentModelBuilder.AddContributor(contributor);
+
+			return GetAllCQSHandlerRegistrations(componentRegistrationAction).ToArray();
+		}
+
+		private static IEnumerable<IRegistration> GetAllCQSHandlerRegistrations(Action<ComponentRegistration> componentRegistrationAction)
+		{
+			yield return Classes.FromThisAssembly().BasedOn(typeof(ICommandHandler<>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction);
+			yield return Classes.FromThisAssembly().BasedOn(typeof(IAsyncCommandHandler<>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction);
+			yield return Classes.FromThisAssembly().BasedOn(typeof(IResultCommandHandler<,>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction);
+			yield return Classes.FromThisAssembly().BasedOn(typeof(IAsyncResultCommandHandler<,>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction);
+			yield return Classes.FromThisAssembly().BasedOn(typeof(IQueryHandler<,>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction);
+			yield return Classes.FromThisAssembly().BasedOn(typeof(IAsyncQueryHandler<,>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction);
+		}
+
+		private static IEnumerable<ICQSInterceptorContributor> GetCQSContributors(IWindsorContainer containerToUseForResolution, bool isForNestedHandlers)
+		{
+			var arguments = new Dictionary<string, object> { { "isContributingToComponentModelConstructionForNestedCQSHandlers", isForNestedHandlers } };
 			foreach (var contributor in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsClass && !x.IsAbstract && typeof(ICQSInterceptorContributor).IsAssignableFrom(x)))
-				container.Kernel.ComponentModelBuilder.AddContributor((IContributeComponentModelConstruction)Activator.CreateInstance(contributor, new object[] { isForNestedHandlers }));
+				yield return (ICQSInterceptorContributor)containerToUseForResolution.Resolve(contributor, arguments);
 		}
 
 		private static void ApplyCommonConfiguration(ComponentRegistration componentRegistration)

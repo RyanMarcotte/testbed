@@ -10,6 +10,8 @@ using Castle.Core;
 using Castle.DynamicProxy;
 using Castle.MicroKernel;
 using CQSDIContainer.Interceptors.Attributes;
+using CQSDIContainer.Interceptors.Caching;
+using CQSDIContainer.Interceptors.Caching.Interfaces;
 using CQSDIContainer.Queries.Caching;
 using DoubleCache;
 using IQ.Platform.Framework.Common.CQS;
@@ -19,20 +21,28 @@ namespace CQSDIContainer.Interceptors
 	[ApplyToNestedHandlers]
 	public class CacheQueryResultInterceptor : CQSInterceptor
 	{
-		private static readonly ConcurrentDictionary<Type, CacheItemFactoryInfo> _cacheItemFactoryInfoLookup = new ConcurrentDictionary<Type, CacheItemFactoryInfo>();
 		private static readonly ConcurrentDictionary<object, CacheItemFactoryMethods> _cacheItemFactoryMethodLookup = new ConcurrentDictionary<object, CacheItemFactoryMethods>();
 		private readonly ICacheAside _cache;
 		private readonly IKernel _kernel;
+		private readonly ICacheItemFactoryInstanceRepository _cacheItemFactoryInstanceRepository;
 
-		public CacheQueryResultInterceptor(ICacheAside cache, IKernel kernel)
+		public CacheQueryResultInterceptor(ICacheAside cache, IKernel kernel, ICacheItemFactoryInstanceRepository cacheItemFactoryInstanceRepository)
 		{
+			if (cache == null)
+				throw new ArgumentNullException(nameof(cache));
+			if (kernel == null)
+				throw new ArgumentNullException(nameof(kernel));
+			if (cacheItemFactoryInstanceRepository == null)
+				throw new ArgumentNullException(nameof(cacheItemFactoryInstanceRepository));
+
 			_cache = cache;
 			_kernel = kernel;
+			_cacheItemFactoryInstanceRepository = cacheItemFactoryInstanceRepository;
 		}
 
 		protected override void InterceptSync(IInvocation invocation, ComponentModel componentModel)
 		{
-			var cacheItemFactoryInfo = _cacheItemFactoryInfoLookup.GetOrAdd(invocation.InvocationTarget.GetType(), type => GetQueryCacheItemFactory(type, _kernel));
+			var cacheItemFactoryInfo = _cacheItemFactoryInstanceRepository.GetCacheItemFactoryInformationForType(invocation.InvocationTarget.GetType(), _kernel);
 			if (cacheItemFactoryInfo == null)
 			{
 				// no caching is required
@@ -69,7 +79,7 @@ namespace CQSDIContainer.Interceptors
 			if (methodType == AsynchronousMethodType.Action)
 				throw new InvalidOperationException("All async queries should return Task<T>!!");
 
-			var cacheItemFactoryInfo = _cacheItemFactoryInfoLookup.GetOrAdd(invocation.InvocationTarget.GetType(), type => GetQueryCacheItemFactory(type, _kernel));
+			var cacheItemFactoryInfo = _cacheItemFactoryInstanceRepository.GetCacheItemFactoryInformationForType(invocation.InvocationTarget.GetType(), _kernel);
 			if (cacheItemFactoryInfo == null)
 			{
 				// no caching is required
@@ -91,24 +101,6 @@ namespace CQSDIContainer.Interceptors
 		}
 
 		#region Common Helpers
-
-		private static CacheItemFactoryInfo GetQueryCacheItemFactory(Type invocationTargetType, IKernel kernel)
-		{
-			// make sure that the invocation target type is a query handler
-			var queryHandlerInterface = invocationTargetType.GetInterfaces().FirstOrDefault();
-			var queryHandlerGenericInterface = queryHandlerInterface?.GetGenericTypeDefinition();
-			if (queryHandlerGenericInterface == null || (queryHandlerGenericInterface != typeof(IQueryHandler<,>) && queryHandlerGenericInterface != typeof(IAsyncQueryHandler<,>)))
-				return null;
-
-			// check if an implementation of IQueryCacheItemFactory<,> has been given for the <TQuery, TResult> pair
-			// we assume that query cache item factories have been registered as singletons
-			var queryType = queryHandlerInterface.GenericTypeArguments[0];
-			var resultType = queryHandlerInterface.GenericTypeArguments[1];
-			var queryCacheItemFactoryType = typeof(IQueryCacheItemFactory<,>).MakeGenericType(queryType, resultType);
-			var queryCacheItemFactoryInstance = kernel.HasComponent(queryCacheItemFactoryType) ? kernel.Resolve(queryCacheItemFactoryType) : null;
-
-			return queryCacheItemFactoryInstance != null ? new CacheItemFactoryInfo(queryType, resultType, queryCacheItemFactoryInstance) : null;
-		}
 
 		private static CacheItemFactoryMethods BuildMethodInfoForCacheItemFactoryInstance(object instance)
 		{
@@ -236,20 +228,6 @@ namespace CQSDIContainer.Interceptors
 		#endregion
 
 		#region Internal Classes
-
-		private class CacheItemFactoryInfo
-		{
-			public CacheItemFactoryInfo(Type queryType, Type resultType, object factoryInstance)
-			{
-				QueryType = queryType;
-				ResultType = resultType;
-				FactoryInstance = factoryInstance;
-			}
-
-			public Type QueryType { get; }
-			public Type ResultType { get; }
-			public object FactoryInstance { get; }
-		}
 
 		private class CacheItemFactoryMethods
 		{
