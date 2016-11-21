@@ -21,6 +21,8 @@ namespace CQSDIContainer.Interceptors
 	[ApplyToNestedHandlers]
 	public class CacheQueryResultInterceptor : CQSInterceptor
 	{
+		private const string NO_QUERY_CACHE_ITEM_FACTORY_INFO_FOUND = "The interceptor cannot handle query caching if no factory information for the type exists!!  (possibly an error in QueryResultCachingContributor...)";
+
 		private static readonly ConcurrentDictionary<object, CacheItemFactoryMethods> _cacheItemFactoryMethodLookup = new ConcurrentDictionary<object, CacheItemFactoryMethods>();
 		private readonly ICacheAside _cache;
 		private readonly IKernel _kernel;
@@ -44,33 +46,28 @@ namespace CQSDIContainer.Interceptors
 		{
 			var cacheItemFactoryInfo = _cacheItemFactoryInstanceRepository.GetCacheItemFactoryInformationForType(invocation.InvocationTarget.GetType(), _kernel);
 			if (cacheItemFactoryInfo == null)
+				throw new InvalidOperationException(NO_QUERY_CACHE_ITEM_FACTORY_INFO_FOUND);
+			
+			// create key for retrieving the item from the cache
+			var cacheItemFactory = _cacheItemFactoryMethodLookup.GetOrAdd(cacheItemFactoryInfo.FactoryInstance, BuildMethodInfoForCacheItemFactoryInstance);
+			var cacheKey = GetCacheKey(cacheItemFactoryInfo, cacheItemFactory, invocation);
+				
+			// retrieve the item from the cache
+			if (cacheItemFactoryInfo.ResultType.IsClass)
 			{
-				// no caching is required
-				invocation.Proceed();
+				ExecuteGetReferenceTypeFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
 			}
 			else
 			{
-				// create key for retrieving the item from the cache
-				var cacheItemFactory = _cacheItemFactoryMethodLookup.GetOrAdd(cacheItemFactoryInfo.FactoryInstance, BuildMethodInfoForCacheItemFactoryInstance);
-				var cacheKey = GetCacheKey(cacheItemFactoryInfo, cacheItemFactory, invocation);
-				
-				// retrieve the item from the cache
-				if (cacheItemFactoryInfo.ResultType.IsClass)
-				{
-					ExecuteGetReferenceTypeFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
-				}
-				else
-				{
-					bool cacheHit = true;
-					invocation.ReturnValue = _cache.Get(cacheKey, cacheItemFactoryInfo.ResultType, () =>
-						{
-							cacheHit = false;
-							invocation.Proceed();
-							return invocation.ReturnValue;
-						}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+				bool cacheHit = true;
+				invocation.ReturnValue = _cache.Get(cacheKey, cacheItemFactoryInfo.ResultType, () =>
+					{
+						cacheHit = false;
+						invocation.Proceed();
+						return invocation.ReturnValue;
+					}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
 
-					Console.WriteLine(cacheHit ? $"Cache hit for cache key '{cacheKey}'!!" : $"I'm caching something for cache key '{cacheKey}'");
-				}
+				Console.WriteLine(cacheHit ? $"Cache hit for cache key '{cacheKey}'!!" : $"I'm caching something for cache key '{cacheKey}'");
 			}
 		}
 
@@ -81,23 +78,17 @@ namespace CQSDIContainer.Interceptors
 
 			var cacheItemFactoryInfo = _cacheItemFactoryInstanceRepository.GetCacheItemFactoryInformationForType(invocation.InvocationTarget.GetType(), _kernel);
 			if (cacheItemFactoryInfo == null)
-			{
-				// no caching is required
-				invocation.Proceed();
-				ExecuteHandleAsyncWithResultUsingReflection(invocation);
-			}
-			else
-			{
-				// create key for retrieving the item from the cache
-				var cacheItemFactory = _cacheItemFactoryMethodLookup.GetOrAdd(cacheItemFactoryInfo.FactoryInstance, BuildMethodInfoForCacheItemFactoryInstance);
-				var cacheKey = GetCacheKey(cacheItemFactoryInfo, cacheItemFactory, invocation);
+				throw new InvalidOperationException(NO_QUERY_CACHE_ITEM_FACTORY_INFO_FOUND);
+			
+			// create key for retrieving the item from the cache
+			var cacheItemFactory = _cacheItemFactoryMethodLookup.GetOrAdd(cacheItemFactoryInfo.FactoryInstance, BuildMethodInfoForCacheItemFactoryInstance);
+			var cacheKey = GetCacheKey(cacheItemFactoryInfo, cacheItemFactory, invocation);
 
-				// retrieve the item from the cache
-				if (cacheItemFactoryInfo.ResultType.IsClass)
-					ExecuteGetReferenceTypeAsyncFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
-				else
-					ExecuteGetValueTypeAsyncFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
-			}
+			// retrieve the item from the cache
+			if (cacheItemFactoryInfo.ResultType.IsClass)
+				ExecuteGetReferenceTypeAsyncFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
+			else
+				ExecuteGetValueTypeAsyncFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory);
 		}
 
 		#region Common Helpers

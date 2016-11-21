@@ -97,13 +97,13 @@ namespace CQSDIContainer.Interceptors
 			return await task;
 		}
 
-		private static readonly ConcurrentDictionary<Type, MethodInfo> _genericMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
+		private static readonly ConcurrentDictionary<Type, MethodInfo> _genericHandleAsyncWithResultMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
 		private static readonly MethodInfo _handleAsyncWithResultMethodInfo = typeof(CQSInterceptorWithExceptionHandling).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Static | BindingFlags.NonPublic);
 
 		private static void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var methodInfo = _genericMethodLookup.GetOrAdd(resultType, _handleAsyncWithResultMethodInfo.MakeGenericMethod(resultType));
+			var methodInfo = _genericHandleAsyncWithResultMethodLookup.GetOrAdd(resultType, _handleAsyncWithResultMethodInfo.MakeGenericMethod(resultType));
 			invocation.ReturnValue = methodInfo.Invoke(null, new[] { invocation.ReturnValue });
 		}
 
