@@ -25,6 +25,13 @@ namespace CQSDIContainer.Interceptors
 
 		protected override void OnReceiveReturnValueFromInvocation(ComponentModel componentModel, object returnValue)
 		{
+			if (returnValue == null)
+				return;
+			if (returnValue is Task)
+			{
+				int x = 0;
+			}
+			
 			// TODO: look at result and determine if it's a failure
 		}
 

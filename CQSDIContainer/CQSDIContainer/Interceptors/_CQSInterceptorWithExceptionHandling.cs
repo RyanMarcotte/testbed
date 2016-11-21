@@ -71,7 +71,7 @@ namespace CQSDIContainer.Interceptors
 				switch (methodType)
 				{
 					case AsynchronousMethodType.Action:
-						invocation.ReturnValue = HandleAsync((Task)invocation.ReturnValue);
+						HandleAsync((Task)invocation.ReturnValue).GetAwaiter().GetResult();
 						break;
 
 					case AsynchronousMethodType.Function:

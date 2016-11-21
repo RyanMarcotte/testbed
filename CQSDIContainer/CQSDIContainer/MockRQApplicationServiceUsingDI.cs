@@ -75,11 +75,11 @@ namespace CQSDIContainer
 				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerToReferenceType} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");
 				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerToReferenceType} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");*/
 
-				/*for (int n = 4; n < 8; ++n)
+				for (int n = 4; n < 8; ++n)
 				{
 					_syncCommandHandler.Handle(new DoNothingAndDoSomethingCommand(n / 2));
 					Console.WriteLine();
-				}*/
+				}
 
 				Console.WriteLine("--[[ async command handler test ]]--");
 				await _asyncCommandHandler.HandleAsync(new DoSomethingAsyncCommand());
