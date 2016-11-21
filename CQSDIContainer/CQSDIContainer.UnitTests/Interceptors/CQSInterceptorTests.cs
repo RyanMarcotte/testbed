@@ -7,12 +7,9 @@ using System.Threading.Tasks;
 using Castle.Core;
 using Castle.DynamicProxy;
 using CQSDIContainer.Interceptors;
-using CQSDIContainer.Interceptors.Session.Interfaces;
+using CQSDIContainer.Interceptors.Attributes;
 using CQSDIContainer.UnitTests.Customizations;
-using FakeItEasy;
 using FluentAssertions;
-using IQ.Platform.Framework.Common;
-using IQ.Platform.Framework.Common.CQS;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoFakeItEasy;
 using Ploeh.AutoFixture.Xunit2;
@@ -49,30 +46,6 @@ namespace CQSDIContainer.UnitTests.Interceptors
 			}
 
 			throwInvalidOperationException.Should().BeTrue();
-		}
-
-		[Theory]
-		[CQSInterceptorIsInterceptingNestedHandlerArrangement(false, InvocationMethodType.Synchronous)]
-		[CQSInterceptorIsInterceptingNestedHandlerArrangement(true, InvocationMethodType.Synchronous)]
-		[CQSInterceptorIsInterceptingNestedHandlerArrangement(false, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorIsInterceptingNestedHandlerArrangement(true, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorIsInterceptingNestedHandlerArrangement(false, InvocationMethodType.AsynchronousFunction)]
-		[CQSInterceptorIsInterceptingNestedHandlerArrangement(true, InvocationMethodType.AsynchronousFunction)]
-		public void ShouldNeverCallInterceptSyncMethodOrInterceptAsyncMethodIfExecutingNestedHandler(CQSInterceptorImpl sut, IInvocation invocation, ComponentModel componentModel)
-		{
-			sut.SetInterceptedComponentModel(componentModel);
-			
-			try
-			{
-				sut.Intercept(invocation);
-			}
-			catch (InvocationFailedException)
-			{
-				// eat it because we expect it
-			}
-			
-			sut.InterceptSyncCalled.Should().BeFalse();
-			sut.InterceptAsyncCalled.Should().BeFalse();
 		}
 
 		[Theory]
@@ -159,7 +132,10 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 			public void Customize(IFixture fixture)
 			{
-				fixture.Register(() => new CQSInterceptorImpl(_applyToNestedHandlers));
+				if (_applyToNestedHandlers)
+					fixture.Register<CQSInterceptorImpl>(() => new CQSInterceptorThatAppliesToNestedHandlersImpl());
+				else
+					fixture.Register(() => new CQSInterceptorImpl());
 			}
 		}
 
@@ -169,25 +145,24 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 		public class CQSInterceptorImpl : CQSInterceptor
 		{
-			public CQSInterceptorImpl(bool applyToNestedHandlers)
-			{
-				ApplyToNestedHandlers = applyToNestedHandlers;
-			}
-
-			protected override bool ApplyToNestedHandlers { get; }
-
 			public bool InterceptSyncCalled { get; private set; }
 			public bool InterceptAsyncCalled { get; private set; }
 
-			protected override void InterceptSync(IInvocation invocation, ComponentModel componentModel)
+			protected sealed override void InterceptSync(IInvocation invocation, ComponentModel componentModel)
 			{
 				InterceptSyncCalled = true;
 			}
 
-			protected override void InterceptAsync(IInvocation invocation, ComponentModel componentModel, AsynchronousMethodType methodType)
+			protected sealed override void InterceptAsync(IInvocation invocation, ComponentModel componentModel, AsynchronousMethodType methodType)
 			{
 				InterceptAsyncCalled = true;
 			}
+		}
+
+		[ApplyToNestedHandlers]
+		public class CQSInterceptorThatAppliesToNestedHandlersImpl : CQSInterceptorImpl
+		{
+			
 		}
 
 		#endregion

@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 using Castle.Core;
 using Castle.Core.Interceptor;
 using Castle.DynamicProxy;
-using CQSDIContainer.Interceptors.Session;
-using CQSDIContainer.Interceptors.Session.Interfaces;
 using CQSDIContainer.Utilities;
 
 namespace CQSDIContainer.Interceptors
@@ -23,8 +21,6 @@ namespace CQSDIContainer.Interceptors
 	/// </remarks>
 	public abstract class CQSInterceptor : IInterceptor, IOnBehalfAware
 	{
-		private static readonly ConcurrentDictionary<IInvocation, ICQSHandlerSession> _invocationSessionCache = new ConcurrentDictionary<IInvocation, ICQSHandlerSession>();
-		private static readonly ConcurrentDictionary<IInvocation, int> _invocationSessionDepth = new ConcurrentDictionary<IInvocation, int>();
 		private ComponentModel _componentModel;
 
 		/// <summary>
@@ -36,47 +32,11 @@ namespace CQSDIContainer.Interceptors
 			if (!CQSHandlerTypeCheckingUtility.IsCQSHandler(_componentModel.Implementation))
 				throw new InvalidOperationException("A CQS interceptor may only intercept CQS handlers!!");
 
-			InvocationSession = _invocationSessionCache.GetOrAdd(invocation, new CQSHandlerSession());
-			_invocationSessionDepth.AddOrUpdate(invocation, 1, (key, oldValue) => oldValue + 1);
 			var methodType = GetMethodType(invocation.Method);
-			if (!ApplyToNestedHandlers && InvocationSession.InterceptorsDisabled)
-			{
-				// proceed with invocation without running through interceptor
-				invocation.Proceed();
-				switch (methodType)
-				{
-					case MethodType.AsynchronousAction:
-						invocation.ReturnValue = HandleAsync((Task)invocation.ReturnValue);
-						break;
-
-					case MethodType.AsynchronousFunction:
-						ExecuteHandleAsyncWithResultUsingReflection(invocation);
-						break;
-
-					case MethodType.Synchronous:
-						break;
-
-					default:
-						throw new ArgumentOutOfRangeException($"Invalid method type '{methodType}'!!");
-				}
-			}
+			if (methodType == MethodType.AsynchronousAction || methodType == MethodType.AsynchronousFunction)
+				InterceptAsync(invocation, _componentModel, methodType == MethodType.AsynchronousAction ? AsynchronousMethodType.Action : AsynchronousMethodType.Function);
 			else
-			{
-				// we're not intercepting the outermost handler's Handle method, so intercept the invocation
-				if (methodType == MethodType.AsynchronousAction || methodType == MethodType.AsynchronousFunction)
-					InterceptAsync(invocation, _componentModel, methodType == MethodType.AsynchronousAction ? AsynchronousMethodType.Action : AsynchronousMethodType.Function);
-				else
-					InterceptSync(invocation, _componentModel);
-			}
-
-			int currentInterceptorCount;
-			_invocationSessionDepth.TryGetValue(invocation, out currentInterceptorCount);
-			_invocationSessionDepth.TryUpdate(invocation, currentInterceptorCount - 1, currentInterceptorCount);
-			if (currentInterceptorCount != 1)
-				return;
-
-			ICQSHandlerSession removedInvocationSession;
-			_invocationSessionCache.TryRemove(invocation, out removedInvocationSession);
+				InterceptSync(invocation, _componentModel);
 		}
 
 		/// <summary>
@@ -87,16 +47,6 @@ namespace CQSDIContainer.Interceptors
 		{
 			_componentModel = target;
 		}
-
-		/// <summary>
-		/// Gets information about the current invocation session.
-		/// </summary>
-		protected ICQSHandlerSession InvocationSession { get; private set; }
-
-		/// <summary>
-		/// Indicates if the interceptor should be applied to nested handlers.
-		/// </summary>
-		protected abstract bool ApplyToNestedHandlers { get; }
 
 		/// <summary>
 		/// Interception logic for synchronous handlers.
@@ -170,26 +120,6 @@ namespace CQSDIContainer.Interceptors
 				return MethodType.AsynchronousFunction;
 
 			return MethodType.Synchronous;
-		}
-
-		private static async Task HandleAsync(Task task)
-		{
-			await task;
-		}
-
-		private static async Task<T> HandleAsyncWithResult<T>(Task<T> task)
-		{
-			return await task;
-		}
-
-		private static readonly ConcurrentDictionary<Type, MethodInfo> _genericMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
-		private static readonly MethodInfo _handleAsyncWithResultMethodInfo = typeof(CQSInterceptor).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Static | BindingFlags.NonPublic);
-
-		private static void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation)
-		{
-			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var methodInfo = _genericMethodLookup.GetOrAdd(resultType, _handleAsyncWithResultMethodInfo.MakeGenericMethod(resultType));
-			invocation.ReturnValue = methodInfo.Invoke(null, new[] { invocation.ReturnValue });
 		}
 
 		#endregion

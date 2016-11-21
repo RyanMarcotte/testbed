@@ -128,7 +128,6 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 		public class CQSInterceptorWithExceptionHandlingImpl : CQSInterceptorWithExceptionHandling
 		{
-			protected override bool ApplyToNestedHandlers => true;
 			public bool OnBeginInvocationCalled { get; private set; }
 			public bool OnEndInvocationCalled { get; private set; }
 			public bool OnExceptionCalled { get; private set; }

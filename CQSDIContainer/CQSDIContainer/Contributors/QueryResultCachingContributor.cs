@@ -4,21 +4,23 @@ using Castle.Core;
 using Castle.MicroKernel;
 using Castle.MicroKernel.ModelBuilder;
 using CQSDIContainer.Interceptors;
+using CQSDIContainer.Queries.Caching;
 using CQSDIContainer.Utilities;
 
 namespace CQSDIContainer.Contributors
 {
-	public class QueryResultCachingContributor : IContributeComponentModelConstruction
+	public class QueryResultCachingContributor : CQSInterceptorContributor<CacheQueryResultInterceptor>
 	{
-		public void ProcessModel(IKernel kernel, ComponentModel model)
+		public QueryResultCachingContributor(bool isContributingToComponentModelConstructionForNestedCQSHandlers)
+			: base(isContributingToComponentModelConstructionForNestedCQSHandlers)
 		{
-			// only queries can be cached
-			var interfaces = model.Implementation.GetInterfaces();
-			if (!interfaces.Any() || !interfaces.Any(CQSHandlerTypeCheckingUtility.IsQueryHandler))
-				return;
+		}
 
-			// add the interceptor
-			model.Interceptors.Add(InterceptorReference.ForType<CacheQueryResultInterceptor>());
+		protected override InterceptorUsageOptions HandlerTypesToApplyTo => InterceptorUsageOptions.QueryHandlersOnly;
+
+		protected override bool ShouldApplyInterceptor(IKernel kernel, ComponentModel model)
+		{
+			return true;
 		}
 	}
 }

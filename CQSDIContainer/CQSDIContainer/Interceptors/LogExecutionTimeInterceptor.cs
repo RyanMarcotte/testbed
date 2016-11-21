@@ -9,7 +9,6 @@ using Castle.Core;
 using Castle.DynamicProxy;
 using CQSDIContainer.Attributes;
 using CQSDIContainer.Interceptors.MetricsLogging.Interfaces;
-using CQSDIContainer.Interceptors.Session.Interfaces;
 
 namespace CQSDIContainer.Interceptors
 {
@@ -25,8 +24,6 @@ namespace CQSDIContainer.Interceptors
 
 			_executionTimeLogger = executionTimeLogger;
 		}
-
-		protected override bool ApplyToNestedHandlers => false;
 
 		protected override void OnBeginInvocation(ComponentModel componentModel)
 		{

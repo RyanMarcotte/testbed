@@ -6,9 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Castle.Core;
-using Castle.DynamicProxy;
 using CQSDIContainer.Interceptors.ExceptionLogging.Interfaces;
-using CQSDIContainer.Interceptors.Session.Interfaces;
 
 namespace CQSDIContainer.Interceptors
 {
@@ -23,8 +21,6 @@ namespace CQSDIContainer.Interceptors
 
 			_exceptionLogger = exceptionLogger;
 		}
-
-		protected override bool ApplyToNestedHandlers => false;
 
 		protected override void OnException(ComponentModel componentModel, Exception ex)
 		{

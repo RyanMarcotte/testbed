@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using Castle.Core;
-using CQSDIContainer.Interceptors.Session.Interfaces;
 
 namespace CQSDIContainer.Interceptors
 {
@@ -13,8 +12,6 @@ namespace CQSDIContainer.Interceptors
 	{
 		private TransactionScope _scope;
 		private bool _transactionCompletedSuccessfully = true;
-
-		protected override bool ApplyToNestedHandlers => false;
 
 		protected override void OnBeginInvocation(ComponentModel componentModel)
 		{

@@ -7,8 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Castle.Core;
 using Castle.DynamicProxy;
-using CQSDIContainer.Interceptors.ExceptionLogging.Interfaces;
-using CQSDIContainer.Interceptors.Session.Interfaces;
 
 namespace CQSDIContainer.Interceptors
 {

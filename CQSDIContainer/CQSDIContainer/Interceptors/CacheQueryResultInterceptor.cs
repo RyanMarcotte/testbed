@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 using Castle.Core;
 using Castle.DynamicProxy;
 using Castle.MicroKernel;
-using CQSDIContainer.Interceptors.Session.Interfaces;
+using CQSDIContainer.Interceptors.Attributes;
 using CQSDIContainer.Queries.Caching;
 using DoubleCache;
 using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.Interceptors
 {
+	[ApplyToNestedHandlers]
 	public class CacheQueryResultInterceptor : CQSInterceptor
 	{
 		private static readonly ConcurrentDictionary<Type, CacheItemFactoryInfo> _cacheItemFactoryInfoLookup = new ConcurrentDictionary<Type, CacheItemFactoryInfo>();
@@ -28,8 +29,6 @@ namespace CQSDIContainer.Interceptors
 			_cache = cache;
 			_kernel = kernel;
 		}
-
-		protected override bool ApplyToNestedHandlers => true;
 
 		protected override void InterceptSync(IInvocation invocation, ComponentModel componentModel)
 		{

@@ -13,18 +13,20 @@ using CQSDIContainer.Utilities;
 
 namespace CQSDIContainer.Contributors
 {
-	public class TransactionScopeContributor : IContributeComponentModelConstruction
+	public class TransactionScopeContributor : CQSInterceptorContributor<TransactionScopeInterceptor>
 	{
-		public void ProcessModel(IKernel kernel, ComponentModel model)
+		public TransactionScopeContributor(bool isContributingToComponentModelConstructionForNestedCQSHandlers)
+			: base(isContributingToComponentModelConstructionForNestedCQSHandlers)
 		{
-			// only CQS command handlers can be wrapped in a transaction scope
-			var interfaces = model.Implementation.GetInterfaces();
-			if (!interfaces.Any() || !interfaces.Any(CQSHandlerTypeCheckingUtility.IsCommandHandler))
-				return;
 
-			// add the interceptor (unless the handler had NoTransactionScopeAttribute applied to it)
-			if (model.Implementation.GetCustomAttribute<NoTransactionScopeAttribute>() == null)
-				model.Interceptors.Add(InterceptorReference.ForType<TransactionScopeInterceptor>());
+		}
+
+		protected override InterceptorUsageOptions HandlerTypesToApplyTo => InterceptorUsageOptions.CommandHandlersOnly;
+
+		protected override bool ShouldApplyInterceptor(IKernel kernel, ComponentModel model)
+		{
+			// interceptor is opt-out
+			return model.Implementation.GetCustomAttribute<NoTransactionScopeAttribute>() == null;
 		}
 	}
 }
