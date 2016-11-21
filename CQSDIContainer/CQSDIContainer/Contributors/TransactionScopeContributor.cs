@@ -21,7 +21,7 @@ namespace CQSDIContainer.Contributors
 
 		}
 
-		protected override InterceptorUsageOptions HandlerTypesToApplyTo => InterceptorUsageOptions.CommandHandlersOnly;
+		public override InterceptorUsageOptions HandlerTypesToApplyTo => InterceptorUsageOptions.CommandHandlersOnly;
 
 		protected override bool ShouldApplyInterceptor(IKernel kernel, ComponentModel model)
 		{

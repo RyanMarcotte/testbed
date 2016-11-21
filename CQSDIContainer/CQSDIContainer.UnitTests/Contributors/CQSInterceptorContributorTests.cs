@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Castle.Core;
@@ -12,7 +13,6 @@ using CQSDIContainer.Interceptors;
 using CQSDIContainer.Interceptors.Attributes;
 using CQSDIContainer.UnitTests.Customizations;
 using CQSDIContainer.UnitTests.TestUtilities;
-using FakeItEasy;
 using FluentAssertions;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoFakeItEasy;
@@ -25,46 +25,22 @@ namespace CQSDIContainer.UnitTests.Contributors
 	{
 		[Theory] // should not apply interceptor...
 		#region ... if handler is wrong type (HandlerTypesToApplyTo does not include the handler type)
-		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(HandlerType.Query, InterceptorUsageOptions.None)]
-		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(HandlerType.AsyncQuery, InterceptorUsageOptions.None)]
-		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(HandlerType.Command, InterceptorUsageOptions.None)]
-		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(HandlerType.ResultCommand, InterceptorUsageOptions.None)]
-		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(HandlerType.AsyncCommand, InterceptorUsageOptions.None)]
-		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(HandlerType.AsyncResultCommand, InterceptorUsageOptions.None)]
-		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(HandlerType.Query, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(HandlerType.AsyncQuery, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(HandlerType.Command, InterceptorUsageOptions.QueryHandlersOnly)]
-		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(HandlerType.ResultCommand, InterceptorUsageOptions.QueryHandlersOnly)]
-		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(HandlerType.AsyncCommand, InterceptorUsageOptions.QueryHandlersOnly)]
-		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(HandlerType.AsyncResultCommand, InterceptorUsageOptions.QueryHandlersOnly)]
+		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(InterceptorUsageOptions.None)]
+		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(InterceptorUsageOptions.CommandHandlersOnly)]
+		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(InterceptorUsageOptions.QueryHandlersOnly)]
+		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(InterceptorUsageOptions.AllHandlers)]
 		#endregion
 		#region # ... if handler type has indicated that no interceptor should be applied (ShouldApplyInterceptor returns false)
-		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(HandlerType.Query, InterceptorUsageOptions.QueryHandlersOnly)]
-		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(HandlerType.Query, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(HandlerType.AsyncQuery, InterceptorUsageOptions.QueryHandlersOnly)]
-		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(HandlerType.AsyncQuery, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(HandlerType.Command, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(HandlerType.Command, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(HandlerType.AsyncCommand, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(HandlerType.AsyncCommand, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(HandlerType.ResultCommand, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(HandlerType.ResultCommand, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(HandlerType.AsyncResultCommand, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(HandlerType.AsyncResultCommand, InterceptorUsageOptions.AllHandlers)]
+		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(InterceptorUsageOptions.None)]
+		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(InterceptorUsageOptions.QueryHandlersOnly)]
+		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(InterceptorUsageOptions.CommandHandlersOnly)]
+		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(InterceptorUsageOptions.AllHandlers)]
 		#endregion
-		#region ... if we're applying an interceptor to a nested handler and the interceptor does not support it
-		[CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement(HandlerType.Query, InterceptorUsageOptions.QueryHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement(HandlerType.Query, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement(HandlerType.AsyncQuery, InterceptorUsageOptions.QueryHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement(HandlerType.AsyncQuery, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement(HandlerType.Command, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement(HandlerType.Command, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement(HandlerType.AsyncCommand, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement(HandlerType.AsyncCommand, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement(HandlerType.ResultCommand, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement(HandlerType.ResultCommand, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement(HandlerType.AsyncResultCommand, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement(HandlerType.AsyncResultCommand, InterceptorUsageOptions.AllHandlers)]
+		#region ... if we're applying an interceptor to a nested handler and the interceptor does not support interception of nested handlers
+		[ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.None)]
+		[ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.QueryHandlersOnly)]
+		[ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.CommandHandlersOnly)]
+		[ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.AllHandlers)]
 		#endregion
 		public void ShouldNotApplyInterceptor(ICQSInterceptorContributor sut, IKernel kernel, ComponentModel model)
 		{
@@ -73,35 +49,21 @@ namespace CQSDIContainer.UnitTests.Contributors
 			model.HasInterceptors.Should().BeFalse();
 		}
 
-		// TODO: fix this up
 		[Theory] // should apply interceptor...
 		#region ... if handler is the correct type and we're intercepting a non-nested handler
-		[CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement(HandlerType.Query, InterceptorUsageOptions.QueryHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement(HandlerType.AsyncQuery, InterceptorUsageOptions.QueryHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement(HandlerType.Command, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement(HandlerType.AsyncCommand, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement(HandlerType.ResultCommand, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement(HandlerType.AsyncResultCommand, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement(HandlerType.Query, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement(HandlerType.AsyncQuery, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement(HandlerType.Command, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement(HandlerType.AsyncCommand, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement(HandlerType.ResultCommand, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement(HandlerType.AsyncResultCommand, InterceptorUsageOptions.AllHandlers)]
+		[ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.QueryHandlersOnly)]
+		[ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.CommandHandlersOnly)]
+		[ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.AllHandlers)]
 		#endregion
-		#region ... if handler is the correct type, we're intercepting a nested handler, and the intercept supports intercepting nested handlers
-		[CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement(HandlerType.Query, InterceptorUsageOptions.QueryHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement(HandlerType.AsyncQuery, InterceptorUsageOptions.QueryHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement(HandlerType.Command, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement(HandlerType.AsyncCommand, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement(HandlerType.ResultCommand, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement(HandlerType.AsyncResultCommand, InterceptorUsageOptions.CommandHandlersOnly)]
-		[CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement(HandlerType.Query, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement(HandlerType.AsyncQuery, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement(HandlerType.Command, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement(HandlerType.AsyncCommand, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement(HandlerType.ResultCommand, InterceptorUsageOptions.AllHandlers)]
-		[CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement(HandlerType.AsyncResultCommand, InterceptorUsageOptions.AllHandlers)]
+		#region ... if handler is the correct type, we're intercepting a **non-nested** handler, and the interceptor does not support intercepting nested handlers
+		[ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.QueryHandlersOnly)]
+		[ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.CommandHandlersOnly)]
+		[ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.AllHandlers)]
+		#endregion
+		#region ... if handler is the correct type, we're intercepting a **nested** handler, and the intercept supports intercepting nested handlers
+		[ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.QueryHandlersOnly)]
+		[ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.CommandHandlersOnly)]
+		[ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.AllHandlers)]
 		#endregion
 		public void ShouldApplyInterceptor(ICQSInterceptorContributor sut, IKernel kernel, ComponentModel model)
 		{
@@ -151,14 +113,28 @@ namespace CQSDIContainer.UnitTests.Contributors
 
 		private abstract class CQSInterceptorContributorArrangement : AutoDataAttribute
 		{
-			protected CQSInterceptorContributorArrangement(HandlerType handlerType, bool isApplyingInterceptorThatCanInterceptNestedHandlers, bool isHandlerNested, InterceptorUsageOptions usageOptions, bool shouldApplyInterceptor)
+			protected CQSInterceptorContributorArrangement(InterceptorUsageOptions usageOptions, bool isApplyingInterceptorThatCanInterceptNestedHandlers, bool isHandlerNested, bool shouldApplyInterceptor)
 				: base(new Fixture()
 					.Customize(new AutoFakeItEasyCustomization())
-					.Customize(new ComponentModelCustomization(GetTypeForComponentModel(handlerType)))
+					.Customize(new ComponentModelCustomization()) // we're going to overwrite that parameter, but need to generate one first
 					.Customize(new CQSInterceptorCustomization(isApplyingInterceptorThatCanInterceptNestedHandlers, isHandlerNested, usageOptions, shouldApplyInterceptor))
 					.Customize(new KernelCustomization()))
 			{
 			}
+
+			public sealed override IEnumerable<object[]> GetData(MethodInfo testMethod)
+			{
+				var data = base.GetData(testMethod).FirstOrDefault();
+				if (data == null)
+					throw new InvalidOperationException("Wrong test data format!!");
+
+				// we overwrite the ComponentModel parameter that will be passed to the unit test method
+				var cqsContributor = (ICQSInterceptorContributor)data[0];
+				foreach (var type in HandlerTypeLookup[cqsContributor.HandlerTypesToApplyTo])
+					yield return new[] { data[0], data[1], ComponentModelCustomization.BuildComponentModel(GetTypeForComponentModel(type)) };
+			}
+
+			protected abstract IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<HandlerType>> HandlerTypeLookup { get; }
 		}
 
 		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
@@ -166,18 +142,19 @@ namespace CQSDIContainer.UnitTests.Contributors
 		{
 			private static readonly IFixture _randomizerFixture = new Fixture().Customize(new AutoFakeItEasyCustomization());
 
-			public CQSInterceptorContributorWithWrongHandlerTypeArrangement(HandlerType handlerType, InterceptorUsageOptions usageOptions)
-				: base(handlerType, _randomizerFixture.Create<bool>(), _randomizerFixture.Create<bool>(), usageOptions, _randomizerFixture.Create<bool>())
+			public CQSInterceptorContributorWithWrongHandlerTypeArrangement(InterceptorUsageOptions usageOptions)
+				: base(usageOptions, _randomizerFixture.Create<bool>(), _randomizerFixture.Create<bool>(), _randomizerFixture.Create<bool>())
 			{
 			}
-		}
 
-		private abstract class CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningTrueArrangement : CQSInterceptorContributorArrangement
-		{
-			protected CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningTrueArrangement(HandlerType handlerType, bool isApplyingInterceptorThatCanInterceptNestedHandlers, bool isHandlerNested, InterceptorUsageOptions usageOptions)
-				: base(handlerType, isApplyingInterceptorThatCanInterceptNestedHandlers, isHandlerNested, usageOptions, true)
-			{
-			}
+			// match a usage option against all invalid handler types
+			protected override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<HandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<HandlerType>>
+				{
+					{ InterceptorUsageOptions.None, Enum.GetValues(typeof(HandlerType)).Cast<HandlerType>() },
+					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { HandlerType.Command, HandlerType.AsyncCommand, HandlerType.ResultCommand, HandlerType.AsyncResultCommand} },
+					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { HandlerType.Query, HandlerType.AsyncQuery } },
+					{ InterceptorUsageOptions.AllHandlers, Enumerable.Empty<HandlerType>() }
+				};
 		}
 
 		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
@@ -185,35 +162,72 @@ namespace CQSDIContainer.UnitTests.Contributors
 		{
 			private static readonly IFixture _randomizerFixture = new Fixture().Customize(new AutoFakeItEasyCustomization());
 
-			public CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(HandlerType handlerType, InterceptorUsageOptions usageOptions)
-				: base(handlerType, _randomizerFixture.Create<bool>(), _randomizerFixture.Create<bool>(), usageOptions, false)
+			public CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(InterceptorUsageOptions usageOptions)
+				: base(usageOptions, _randomizerFixture.Create<bool>(), _randomizerFixture.Create<bool>(), false)
+			{
+
+			}
+
+			// match a usage option against the correct handler types
+			protected override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<HandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<HandlerType>>
+				{
+					{ InterceptorUsageOptions.None, Enumerable.Empty<HandlerType>() },
+					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { HandlerType.Command, HandlerType.AsyncCommand, HandlerType.ResultCommand, HandlerType.AsyncResultCommand} },
+					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { HandlerType.Query, HandlerType.AsyncQuery } },
+					{ InterceptorUsageOptions.AllHandlers, Enum.GetValues(typeof(HandlerType)).Cast<HandlerType>() }
+				};
+		}
+
+		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+		private abstract class CQSInterceptorContributorWithCorrectHandlerTypeAndHaveApplyInterceptorMethodReturningTrueArrangement : CQSInterceptorContributorArrangement
+		{
+			protected CQSInterceptorContributorWithCorrectHandlerTypeAndHaveApplyInterceptorMethodReturningTrueArrangement(InterceptorUsageOptions usageOptions, bool isApplyingInterceptorThatCanInterceptNestedHandlers, bool isHandlerNested)
+				: base(usageOptions, isApplyingInterceptorThatCanInterceptNestedHandlers, isHandlerNested, true)
+			{
+				
+			}
+
+			protected sealed override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<HandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<HandlerType>>
+				{
+					{ InterceptorUsageOptions.None, Enumerable.Empty<HandlerType>() },
+					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { HandlerType.Query, HandlerType.AsyncQuery } },
+					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { HandlerType.Command, HandlerType.AsyncCommand, HandlerType.ResultCommand, HandlerType.AsyncResultCommand} },
+					{ InterceptorUsageOptions.AllHandlers, Enum.GetValues(typeof(HandlerType)).Cast<HandlerType>() }
+				};
+		}
+
+		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+		private class ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement : CQSInterceptorContributorWithCorrectHandlerTypeAndHaveApplyInterceptorMethodReturningTrueArrangement
+		{
+			public ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions usageOptions)
+				: base(usageOptions, false, true)
 			{
 			}
 		}
 
 		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-		private class CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement : CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningTrueArrangement
+		private class ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement : CQSInterceptorContributorWithCorrectHandlerTypeAndHaveApplyInterceptorMethodReturningTrueArrangement
 		{
-			public CQSInterceptorContributorApplyingInterceptorNotSupportingNestedHandlerInterceptionToNestedHandlerArrangement(HandlerType handlerType, InterceptorUsageOptions usageOptions)
-				: base(handlerType, false, true, usageOptions)
+			public ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions usageOptions)
+				: base(usageOptions, false, false)
 			{
 			}
 		}
 
 		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-		private class CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement : CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningTrueArrangement
+		private class ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement : CQSInterceptorContributorWithCorrectHandlerTypeAndHaveApplyInterceptorMethodReturningTrueArrangement
 		{
-			public CQSInterceptorContributorApplyingInterceptorThatDoesNotSupportNestedHandlersToNestedHandlerArrangement(HandlerType handlerType, InterceptorUsageOptions usageOptions)
-				: base(handlerType, false, true, usageOptions)
+			public ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions usageOptions)
+				: base(usageOptions, true, false)
 			{
 			}
 		}
 
 		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-		private class CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement : CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningTrueArrangement
+		private class ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement : CQSInterceptorContributorWithCorrectHandlerTypeAndHaveApplyInterceptorMethodReturningTrueArrangement
 		{
-			public CQSInterceptorContributorApplyingInterceptorThatSupportsNestedHandlerInterceptionsToNestedHandlerArrangement(HandlerType handlerType, InterceptorUsageOptions usageOptions)
-				: base(handlerType, true, true, usageOptions)
+			public ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions usageOptions)
+				: base(usageOptions, true, true)
 			{
 			}
 		}
@@ -246,14 +260,6 @@ namespace CQSDIContainer.UnitTests.Contributors
 			}
 		}
 
-		private class KernelCustomization : ICustomization
-		{
-			public void Customize(IFixture fixture)
-			{
-				fixture.Register(A.Fake<IKernel>);
-			}
-		}
-
 		#endregion
 
 		#region Implementation
@@ -269,13 +275,15 @@ namespace CQSDIContainer.UnitTests.Contributors
 				_shouldApplyInterceptor = shouldApplyInterceptor;
 			}
 
-			protected override InterceptorUsageOptions HandlerTypesToApplyTo { get; }
+			public override InterceptorUsageOptions HandlerTypesToApplyTo { get; }
 
 			protected override bool ShouldApplyInterceptor(IKernel kernel, ComponentModel model)
 			{
 				return _shouldApplyInterceptor;
 			}
 		}
+
+		#region Interceptor implementations
 
 		// ReSharper disable once ClassNeverInstantiated.Local
 		private class CQSInterceptorImpl : CQSInterceptor
@@ -305,6 +313,8 @@ namespace CQSDIContainer.UnitTests.Contributors
 				throw new NotImplementedException();
 			}
 		}
+
+		#endregion
 
 		#endregion
 	}

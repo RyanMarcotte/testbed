@@ -16,7 +16,7 @@ namespace CQSDIContainer.Contributors
 		{
 		}
 
-		protected override InterceptorUsageOptions HandlerTypesToApplyTo => InterceptorUsageOptions.QueryHandlersOnly;
+		public override InterceptorUsageOptions HandlerTypesToApplyTo => InterceptorUsageOptions.QueryHandlersOnly;
 
 		protected override bool ShouldApplyInterceptor(IKernel kernel, ComponentModel model)
 		{

@@ -15,18 +15,32 @@ namespace CQSDIContainer.UnitTests.Customizations
 	/// </summary>
 	public class ComponentModelCustomization : ICustomization
 	{
+		private readonly bool _hasComponentType;
 		private readonly Type _componentType;
+
+		public ComponentModelCustomization()
+		{
+			_hasComponentType = false;
+		}
 
 		public ComponentModelCustomization(Type componentType)
 		{
+			_hasComponentType = true;
 			_componentType = componentType;
 		}
 
 		public void Customize(IFixture fixture)
 		{
-			var componentName = new ComponentName(_componentType.FullName, false);
-			var componentModel = new ComponentModel(componentName, _componentType.GetInterfaces(), _componentType, new Dictionary<object, object>());
-			fixture.Register(() => componentModel);
+			if (_hasComponentType)
+				fixture.Register(() => BuildComponentModel(_componentType));
+			else
+				fixture.Register(() => new ComponentModel());
+		}
+
+		public static ComponentModel BuildComponentModel(Type componentType)
+		{
+			var componentName = new ComponentName(componentType.FullName, false);
+			return new ComponentModel(componentName, componentType.GetInterfaces(), componentType, new Dictionary<object, object>());
 		}
 	}
 }

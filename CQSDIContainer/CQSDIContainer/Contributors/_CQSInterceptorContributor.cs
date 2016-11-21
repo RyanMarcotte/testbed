@@ -59,12 +59,12 @@ namespace CQSDIContainer.Contributors
 		/// <summary>
 		/// Indicates if the contributor is managing the application of interceptors to nested CQS handlers.
 		/// </summary>
-		protected bool IsContributingToComponentModelConstructionForNestedCQSHandlers { get; }
+		public bool IsContributingToComponentModelConstructionForNestedCQSHandlers { get; }
 
 		/// <summary>
 		/// Indicates which types of handlers to apply the interceptor to.
 		/// </summary>
-		protected abstract InterceptorUsageOptions HandlerTypesToApplyTo { get; }
+		public abstract InterceptorUsageOptions HandlerTypesToApplyTo { get; }
 
 		/// <summary>
 		/// Indicates if the interceptor should be applied to the component model corresponding to a CQS handler.
