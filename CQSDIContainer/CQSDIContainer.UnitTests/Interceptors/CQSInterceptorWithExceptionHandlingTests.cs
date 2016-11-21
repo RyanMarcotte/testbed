@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Castle.Core;
 using Castle.DynamicProxy;
@@ -32,7 +33,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
-		public void ShouldAlwaysCallOnBeginInvocationMethod(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
+		public void ShouldAlwaysCallOnBeginInvocationMethodOnce(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.NumberOfTimesOnBeginInvocationCalled.Should().Be(0);
 
@@ -58,7 +59,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
-		public void ShouldAlwaysCallOnEndInvocationMethod(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
+		public void ShouldAlwaysCallOnEndInvocationMethodOnce(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.NumberOfTimesOnEndInvocationCalled.Should().Be(0);
 
@@ -141,23 +142,27 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 		public class CQSInterceptorWithExceptionHandlingImpl : CQSInterceptorWithExceptionHandling
 		{
-			public int NumberOfTimesOnBeginInvocationCalled { get; private set; }
-			public int NumberOfTimesOnEndInvocationCalled { get; private set; }
-			public int NumberOfTimesOnExceptionCalled { get; private set; }
+			private int _numberOfTimesOnBeginInvocationCalled;
+			private int _numberOfTimesOnEndInvocationCalled;
+			private int _numberOfTimesOnExceptionCalled;
+
+			public int NumberOfTimesOnBeginInvocationCalled => _numberOfTimesOnBeginInvocationCalled;
+			public int NumberOfTimesOnEndInvocationCalled => _numberOfTimesOnEndInvocationCalled;
+			public int NumberOfTimesOnExceptionCalled => _numberOfTimesOnExceptionCalled;
 
 			protected override void OnBeginInvocation(ComponentModel componentModel)
 			{
-				NumberOfTimesOnBeginInvocationCalled++;
+				Interlocked.Increment(ref _numberOfTimesOnBeginInvocationCalled);
 			}
 
 			protected override void OnEndInvocation(ComponentModel componentModel)
 			{
-				NumberOfTimesOnEndInvocationCalled++;
+				Interlocked.Increment(ref _numberOfTimesOnEndInvocationCalled);
 			}
 
 			protected override void OnException(ComponentModel componentModel, Exception ex)
 			{
-				NumberOfTimesOnExceptionCalled++;
+				Interlocked.Increment(ref _numberOfTimesOnExceptionCalled);
 			}
 		}
 

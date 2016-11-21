@@ -12,6 +12,10 @@ namespace CQSDIContainer.Commands
 	{
 		public Result<Unit, DoSomethingWithResultCommandHandlerErrorCode> Handle(DoSomethingWithResultCommand command)
 		{
+			Console.WriteLine();
+			Console.WriteLine("HANDLING COMMAND WITH RESULT");
+			Console.WriteLine();
+
 			if (command.Denominator == 0)
 				return Result.Fail<Unit, DoSomethingWithResultCommandHandlerErrorCode>(DoSomethingWithResultCommandHandlerErrorCode.DenominatorIsZero);
 

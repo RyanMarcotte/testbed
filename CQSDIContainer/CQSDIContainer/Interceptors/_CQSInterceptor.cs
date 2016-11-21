@@ -32,11 +32,15 @@ namespace CQSDIContainer.Interceptors
 			if (!CQSHandlerTypeCheckingUtility.IsCQSHandler(_componentModel.Implementation))
 				throw new InvalidOperationException("A CQS interceptor may only intercept CQS handlers!!");
 
+			Console.WriteLine($"<< begin {GetType()} intercept >>");
+			
 			var methodType = GetMethodType(invocation.Method);
 			if (methodType == MethodType.AsynchronousAction || methodType == MethodType.AsynchronousFunction)
 				InterceptAsync(invocation, _componentModel, methodType == MethodType.AsynchronousAction ? AsynchronousMethodType.Action : AsynchronousMethodType.Function);
 			else
 				InterceptSync(invocation, _componentModel);
+
+			Console.WriteLine($"<< end {GetType()} intercept >>");
 		}
 
 		/// <summary>

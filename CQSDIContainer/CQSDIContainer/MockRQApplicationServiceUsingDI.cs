@@ -78,13 +78,16 @@ namespace CQSDIContainer
 					_syncCommandHandler.Handle(new DoNothingAndDoSomethingCommand(n / 2));
 					Console.WriteLine();
 				}*/
-				
+
+				Console.WriteLine("--[[ async command handler test ]]--");
 				await _asyncCommandHandler.HandleAsync(new DoSomethingAsyncCommand());
 				Console.WriteLine();
 
-				/*Console.WriteLine($"Result of {_syncCommandHandlerWithResult.GetType().FullName} = {_syncCommandHandlerWithResult.Handle(new DoSomethingWithResultCommand(3, 0))}");
-				Console.WriteLine();*/
+				Console.WriteLine("--[[ synchronous command (with result) handler test ]]--");
+				Console.WriteLine($"Result of {_syncCommandHandlerWithResult.GetType().FullName} = {_syncCommandHandlerWithResult.Handle(new DoSomethingWithResultCommand(3, 0))}");
+				Console.WriteLine();
 
+				Console.WriteLine("--[[ async command (with result) handler test ]]--");
 				Console.WriteLine($"Result of {_asyncCommandHandlerWithResult.GetType().FullName} = {await _asyncCommandHandlerWithResult.HandleAsync(new DoSomethingAsyncWithResultCommand(), new CancellationToken())}");
 				Console.WriteLine();
 			}

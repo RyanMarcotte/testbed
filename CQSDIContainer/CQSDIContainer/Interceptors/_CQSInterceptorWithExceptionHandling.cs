@@ -63,11 +63,11 @@ namespace CQSDIContainer.Interceptors
 				switch (methodType)
 				{
 					case AsynchronousMethodType.Action:
-						invocation.ReturnValue = HandleAsync((Task)invocation.ReturnValue, componentModel);
+						invocation.ReturnValue = HandleAsync((Task)invocation.ReturnValue);
 						break;
 
 					case AsynchronousMethodType.Function:
-						ExecuteHandleAsyncWithResultUsingReflection(invocation, componentModel);
+						ExecuteHandleAsyncWithResultUsingReflection(invocation);
 						break;
 
 					default:
@@ -85,50 +85,26 @@ namespace CQSDIContainer.Interceptors
 			}
 		}
 
-		#region Helper Methods
+		#region Helper Methods (for async)
 
-		private async Task HandleAsync(Task task, ComponentModel componentModel)
+		private static async Task HandleAsync(Task task)
 		{
-			try
-			{
-				await task;
-			}
-			catch (Exception ex)
-			{
-				OnException(componentModel, ex);
-				throw;
-			}
-			finally
-			{
-				OnEndInvocation(componentModel);
-			}
+			await task;
 		}
 
-		private async Task<T> HandleAsyncWithResult<T>(Task<T> task, ComponentModel componentModel)
+		private static async Task<T> HandleAsyncWithResult<T>(Task<T> task)
 		{
-			try
-			{
-				return await task;
-			}
-			catch (Exception ex)
-			{
-				OnException(componentModel, ex);
-				throw;
-			}
-			finally
-			{
-				OnEndInvocation(componentModel);
-			}
+			return await task;
 		}
 
 		private static readonly ConcurrentDictionary<Type, MethodInfo> _genericMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
-		private static readonly MethodInfo _handleAsyncWithResultMethodInfo = typeof(CQSInterceptorWithExceptionHandling).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly MethodInfo _handleAsyncWithResultMethodInfo = typeof(CQSInterceptorWithExceptionHandling).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Static | BindingFlags.NonPublic);
 
-		private void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation, ComponentModel componentModel)
+		private static void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
 			var methodInfo = _genericMethodLookup.GetOrAdd(resultType, _handleAsyncWithResultMethodInfo.MakeGenericMethod(resultType));
-			invocation.ReturnValue = methodInfo.Invoke(this, new[] { invocation.ReturnValue, componentModel });
+			invocation.ReturnValue = methodInfo.Invoke(null, new[] { invocation.ReturnValue });
 		}
 
 		#endregion

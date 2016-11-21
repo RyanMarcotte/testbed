@@ -12,7 +12,12 @@ namespace CQSDIContainer.Commands
 	{
 		public async Task HandleAsync(DoSomethingAsyncCommand command, CancellationToken cancellationToken = new CancellationToken())
 		{
-			await Task.Run(() => Console.WriteLine("this is an async command"), cancellationToken);
+			await Task.Run(() =>
+			{
+				Console.WriteLine();
+				Console.WriteLine("HANDLING ASYNC COMMAND!!");
+				Console.WriteLine();
+			}, cancellationToken);
 		}
 	}
 }

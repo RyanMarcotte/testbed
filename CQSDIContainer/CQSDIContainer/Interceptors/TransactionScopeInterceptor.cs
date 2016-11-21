@@ -13,10 +13,13 @@ namespace CQSDIContainer.Interceptors
 	{
 		private TransactionScope _scope;
 		private bool _transactionCompletedSuccessfully = true;
+		private static readonly object _consoleWriteLock = new object();
 
 		protected override void OnBeginInvocation(ComponentModel componentModel)
 		{
-			Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] begin transaction scope for {componentModel.Implementation}");
+			lock (_consoleWriteLock)
+				Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] begin transaction scope for {componentModel.Implementation}");
+
 			_scope = new TransactionScope();
 		}
 
@@ -24,11 +27,15 @@ namespace CQSDIContainer.Interceptors
 		{
 			if (_transactionCompletedSuccessfully)
 			{
-				Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] transaction completed successfully for {componentModel.Implementation}");
+				lock (_consoleWriteLock)
+					Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] transaction completed successfully for {componentModel.Implementation}");
+
 				_scope.Complete();
 			}
+			
+			lock (_consoleWriteLock)
+				Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] ending transaction scope for {componentModel.Implementation}");
 
-			Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] ending transaction scope for {componentModel.Implementation}");
 			_scope.Dispose();
 		}
 

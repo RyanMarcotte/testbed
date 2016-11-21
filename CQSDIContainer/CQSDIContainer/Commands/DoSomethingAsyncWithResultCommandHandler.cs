@@ -13,7 +13,14 @@ namespace CQSDIContainer.Commands
 	{
 		public async Task<Result<Unit, DoSomethingAsyncWithResultCommandHandlerErrorCode>> HandleAsync(DoSomethingAsyncWithResultCommand command, CancellationToken cancellationToken)
 		{
-			return await Task.Run(() => Result.Fail<Unit, DoSomethingAsyncWithResultCommandHandlerErrorCode>(DoSomethingAsyncWithResultCommandHandlerErrorCode.ErrorOccurred), cancellationToken);
+			return await Task.Run(() =>
+			{
+				Console.WriteLine();
+				Console.WriteLine("HANDLING ASYNC COMMAND WITH RESULT");
+				Console.WriteLine();
+
+				return Result.Fail<Unit, DoSomethingAsyncWithResultCommandHandlerErrorCode>(DoSomethingAsyncWithResultCommandHandlerErrorCode.ErrorOccurred);
+			}, cancellationToken);
 		}
 	}
 

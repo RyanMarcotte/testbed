@@ -23,8 +23,6 @@ namespace CQSDIContainer
 			container.AddFacility<TypedFactoryFacility>();
 			container.Install(FromAssembly.This());
 
-			Console.WriteLine("Finished installing");
-
 			var service = container.Resolve<IRQApplicationServiceMock>();
 			service.DoStuff().GetAwaiter().GetResult();
 		}
