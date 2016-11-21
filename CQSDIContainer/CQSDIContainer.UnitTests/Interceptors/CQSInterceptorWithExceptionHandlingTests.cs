@@ -51,6 +51,38 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousFunction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousAction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
+		public void ShouldCallOnReceiveReturnValueFromInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
+		{
+			sut.NumberOfTimesOnReceiveReturnValueFromInvocationCalled.Should().Be(0);
+
+			sut.SetInterceptedComponentModel(componentModel);
+			Action act = () => sut.Intercept(invocation);
+
+			act.ShouldNotThrow<Exception>();
+			sut.NumberOfTimesOnReceiveReturnValueFromInvocationCalled.Should().Be(1);
+		}
+
+		[Theory]
+		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousFunction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousAction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
+		public void ShouldNotCallOnReceiveReturnValueFromInvocationMethodIfInvocationThrowsException(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
+		{
+			sut.NumberOfTimesOnReceiveReturnValueFromInvocationCalled.Should().Be(0);
+
+			sut.SetInterceptedComponentModel(componentModel);
+			Action act = () => sut.Intercept(invocation);
+
+			act.ShouldThrow<InvocationFailedException>();
+			sut.NumberOfTimesOnReceiveReturnValueFromInvocationCalled.Should().Be(0);
+		}
+
+		[Theory]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousFunction)]
@@ -143,16 +175,23 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		public class CQSInterceptorWithExceptionHandlingImpl : CQSInterceptorWithExceptionHandling
 		{
 			private int _numberOfTimesOnBeginInvocationCalled;
+			private int _numberOfTimesOnReceiveReturnValueFromInvocationCalled;
 			private int _numberOfTimesOnEndInvocationCalled;
 			private int _numberOfTimesOnExceptionCalled;
 
 			public int NumberOfTimesOnBeginInvocationCalled => _numberOfTimesOnBeginInvocationCalled;
+			public int NumberOfTimesOnReceiveReturnValueFromInvocationCalled => _numberOfTimesOnReceiveReturnValueFromInvocationCalled;
 			public int NumberOfTimesOnEndInvocationCalled => _numberOfTimesOnEndInvocationCalled;
 			public int NumberOfTimesOnExceptionCalled => _numberOfTimesOnExceptionCalled;
 
 			protected override void OnBeginInvocation(ComponentModel componentModel)
 			{
 				Interlocked.Increment(ref _numberOfTimesOnBeginInvocationCalled);
+			}
+
+			protected override void OnReceiveReturnValueFromInvocation(ComponentModel componentModel, object returnValue)
+			{
+				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromInvocationCalled);
 			}
 
 			protected override void OnEndInvocation(ComponentModel componentModel)

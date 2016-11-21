@@ -48,14 +48,14 @@ namespace CQSDIContainer
 		{
 			try
 			{
-				Console.WriteLine("--[[ query handler test ]]--");
+				/*Console.WriteLine("--[[ query handler test ]]--");
 				var nameOfSyncQueryHandlerForValueType = _syncQueryHandlerForValueType.GetType().FullName;
 				const int intSyncQueryParameter = 11;
 				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(intSyncQueryParameter))}");
 				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(intSyncQueryParameter))}");
 				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(intSyncQueryParameter))}");
 				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(intSyncQueryParameter))}");
-				Console.WriteLine();
+				Console.WriteLine();*/
 
 				/*var nameOfAsyncQueryHandlerTypeForReferenceType = _syncQueryHandlerForReferenceType.GetType().FullName;
 				const string stringQueryParameter = "this is a string";
@@ -81,7 +81,7 @@ namespace CQSDIContainer
 					Console.WriteLine();
 				}*/
 
-				/*Console.WriteLine("--[[ async command handler test ]]--");
+				Console.WriteLine("--[[ async command handler test ]]--");
 				await _asyncCommandHandler.HandleAsync(new DoSomethingAsyncCommand());
 				Console.WriteLine();
 
@@ -91,7 +91,7 @@ namespace CQSDIContainer
 
 				Console.WriteLine("--[[ async command (with result) handler test ]]--");
 				Console.WriteLine($"Result of {_asyncCommandHandlerWithResult.GetType().FullName} = {await _asyncCommandHandlerWithResult.HandleAsync(new DoSomethingAsyncWithResultCommand(), new CancellationToken())}");
-				Console.WriteLine();*/
+				Console.WriteLine();
 			}
 			catch
 			{

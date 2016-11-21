@@ -23,6 +23,11 @@ namespace CQSDIContainer.Interceptors
 			_scope = new TransactionScope();
 		}
 
+		protected override void OnReceiveReturnValueFromInvocation(ComponentModel componentModel, object returnValue)
+		{
+			// TODO: look at result and determine if it's a failure
+		}
+
 		protected override void OnEndInvocation(ComponentModel componentModel)
 		{
 			if (_transactionCompletedSuccessfully)
