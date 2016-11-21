@@ -8,6 +8,7 @@ using Castle.Core;
 using Castle.DynamicProxy;
 using CQSDIContainer.Interceptors;
 using CQSDIContainer.UnitTests.Customizations;
+using CQSDIContainer.UnitTests.TestUtilities;
 using FakeItEasy;
 using FluentAssertions;
 using Ploeh.AutoFixture;
@@ -20,11 +21,13 @@ namespace CQSDIContainer.UnitTests.Interceptors
 	/// <summary>
 	/// Unit tests for the <see cref="CQSInterceptorWithExceptionHandling"/> abstract class.
 	/// </summary>
-	public class CQSInterceptorWithExceptionHandlingTests : CQSInterceptorTestsBase
+	public class CQSInterceptorWithExceptionHandlingTests
 	{
 		[Theory]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.Synchronous)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.Synchronous)]
+		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousFunction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousFunction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
@@ -47,8 +50,10 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.Synchronous)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.Synchronous)]
+		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousFunction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousFunction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
@@ -71,7 +76,8 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.Synchronous)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousFunction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
 		public void ShouldNotCallOnExceptionMethodIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
@@ -83,7 +89,8 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.Synchronous)]
+		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousFunction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
 		public void ShouldCallOnExceptionMethodIfInvocationThrowsException(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
@@ -103,7 +110,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 				: base(new Fixture()
 					.Customize(new AutoFakeItEasyCustomization())
 					.Customize(new InvocationCustomization(invocationCompletesSuccessfully, methodType))
-					.Customize(new ComponentModelCustomization(GetComponentModelTypeFromMethodType(methodType)))
+					.Customize(new ComponentModelCustomization(ComponentModelFactory.GetCommandHandlerComponentModelTypeFromMethodType(methodType)))
 					.Customize(new CQSInterceptorWithExceptionHandlingCustomization()))
 			{
 				

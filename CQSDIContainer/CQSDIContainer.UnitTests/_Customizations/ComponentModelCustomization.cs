@@ -7,6 +7,7 @@ using Castle.Core;
 using Castle.DynamicProxy;
 using Ploeh.AutoFixture;
 
+// ReSharper disable once CheckNamespace
 namespace CQSDIContainer.UnitTests.Customizations
 {
 	/// <summary>

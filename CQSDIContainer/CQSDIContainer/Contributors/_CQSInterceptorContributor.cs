@@ -14,6 +14,29 @@ using CQSDIContainer.Utilities;
 
 namespace CQSDIContainer.Contributors
 {
+	public enum InterceptorUsageOptions
+	{
+		/// <summary>
+		/// The interceptor will apply to no handlers.
+		/// </summary>
+		None,
+
+		/// <summary>
+		/// The interceptor will only apply to query handlers.
+		/// </summary>
+		QueryHandlersOnly,
+
+		/// <summary>
+		/// The interceptor will only apply to command handlers.
+		/// </summary>
+		CommandHandlersOnly,
+
+		/// <summary>
+		/// The interceptor will apply to any handler.
+		/// </summary>
+		AllHandlers
+	}
+
 	/// <summary>
 	/// Base class for component model construction contributors used to apply interceptors to CQS handlers.
 	/// </summary>
@@ -21,29 +44,6 @@ namespace CQSDIContainer.Contributors
 	public abstract class CQSInterceptorContributor<TInterceptorType> : ICQSInterceptorContributor
 		where TInterceptorType : CQSInterceptor
 	{
-		protected enum InterceptorUsageOptions
-		{
-			/// <summary>
-			/// The interceptor will apply to no handlers.
-			/// </summary>
-			None,
-
-			/// <summary>
-			/// The interceptor will only apply to query handlers.
-			/// </summary>
-			QueryHandlersOnly,
-
-			/// <summary>
-			/// The interceptor will only apply to command handlers.
-			/// </summary>
-			CommandHandlersOnly,
-
-			/// <summary>
-			/// The interceptor will apply to any handler.
-			/// </summary>
-			AllHandlers
-		}
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CQSInterceptorContributor{TInterceptorType}"/> class.
 		/// </summary>
@@ -108,7 +108,10 @@ namespace CQSDIContainer.Contributors
 					throw new ArgumentOutOfRangeException();
 			}
 
-			if (ShouldApplyInterceptor(kernel, model) && (!IsContributingToComponentModelConstructionForNestedCQSHandlers || typeof(TInterceptorType).GetCustomAttribute<ApplyToNestedHandlersAttribute>() != null))
+			var shouldApplyInterceptor = ShouldApplyInterceptor(kernel, model);
+			var shouldApplyToNestedHandler = typeof(TInterceptorType).GetCustomAttribute<ApplyToNestedHandlersAttribute>() != null;
+
+			if (shouldApplyInterceptor && (!IsContributingToComponentModelConstructionForNestedCQSHandlers || shouldApplyToNestedHandler))
 				model.Interceptors.Add(InterceptorReference.ForType<TInterceptorType>());
 		}
 	}

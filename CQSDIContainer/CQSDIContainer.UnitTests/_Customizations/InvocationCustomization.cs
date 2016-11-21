@@ -9,6 +9,7 @@ using CQSDIContainer.UnitTests.Interceptors;
 using FakeItEasy;
 using Ploeh.AutoFixture;
 
+// ReSharper disable once CheckNamespace
 namespace CQSDIContainer.UnitTests.Customizations
 {
 	/// <summary>
@@ -16,7 +17,8 @@ namespace CQSDIContainer.UnitTests.Customizations
 	/// </summary>
 	public enum InvocationMethodType
 	{
-		Synchronous,
+		SynchronousAction,
+		SynchronousFunction,
 		AsynchronousAction,
 		AsynchronousFunction
 	}
@@ -53,8 +55,11 @@ namespace CQSDIContainer.UnitTests.Customizations
 
 			switch (_invocationMethodType)
 			{
-				case InvocationMethodType.Synchronous:
+				case InvocationMethodType.SynchronousAction:
 					A.CallTo(() => invocation.ReturnValue).Returns(typeof(void));
+					break;
+				case InvocationMethodType.SynchronousFunction:
+					A.CallTo(() => invocation.ReturnValue).Returns(SynchronousFunction(new object()));
 					break;
 				case InvocationMethodType.AsynchronousAction:
 					A.CallTo(() => invocation.ReturnValue).Returns(AsynchronousAction());
@@ -78,23 +83,31 @@ namespace CQSDIContainer.UnitTests.Customizations
 		{
 			switch (invocationMethodType)
 			{
-				case InvocationMethodType.Synchronous:
-					return typeof(InvocationCustomization).GetMethod(nameof(SynchronousMethod), BindingFlags.Static | BindingFlags.NonPublic);
+				case InvocationMethodType.SynchronousAction:
+					return typeof(InvocationCustomization).GetMethod(nameof(SynchronousAction), BindingFlags.Static | BindingFlags.NonPublic);
+
+				case InvocationMethodType.SynchronousFunction:
+					return typeof(InvocationCustomization).GetMethod(nameof(SynchronousFunction), BindingFlags.Static | BindingFlags.NonPublic);
 
 				case InvocationMethodType.AsynchronousAction:
 					return typeof(InvocationCustomization).GetMethod(nameof(AsynchronousAction), BindingFlags.Static | BindingFlags.NonPublic);
 
 				case InvocationMethodType.AsynchronousFunction:
 					return typeof(InvocationCustomization).GetMethod(nameof(AsynchronousFunction), BindingFlags.Static | BindingFlags.NonPublic);
-
+					
 				default:
 					throw new ArgumentOutOfRangeException(nameof(invocationMethodType), invocationMethodType, null);
 			}
 		}
 
-		private static void SynchronousMethod()
+		private static void SynchronousAction()
 		{
 			// do nothing
+		}
+
+		private static object SynchronousFunction(object value)
+		{
+			return value;
 		}
 
 		private static async Task AsynchronousAction()

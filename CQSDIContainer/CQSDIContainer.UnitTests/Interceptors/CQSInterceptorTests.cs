@@ -9,6 +9,7 @@ using Castle.DynamicProxy;
 using CQSDIContainer.Interceptors;
 using CQSDIContainer.Interceptors.Attributes;
 using CQSDIContainer.UnitTests.Customizations;
+using CQSDIContainer.UnitTests.TestUtilities;
 using FluentAssertions;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoFakeItEasy;
@@ -17,13 +18,17 @@ using Xunit;
 
 namespace CQSDIContainer.UnitTests.Interceptors
 {
-	public class CQSInterceptorTests : CQSInterceptorTestsBase
+	public class CQSInterceptorTests
 	{
 		[Theory]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, false, InvocationMethodType.Synchronous)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, true, InvocationMethodType.Synchronous)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, false, InvocationMethodType.Synchronous)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, true, InvocationMethodType.Synchronous)]
+		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, false, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, true, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, false, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, true, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, false, InvocationMethodType.SynchronousFunction)]
+		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, true, InvocationMethodType.SynchronousFunction)]
+		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, false, InvocationMethodType.SynchronousFunction)]
+		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, true, InvocationMethodType.SynchronousFunction)]
 		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, false, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, true, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, false, InvocationMethodType.AsynchronousAction)]
@@ -49,8 +54,10 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[CQSInterceptorAlwaysAppliesArrangement(false, InvocationMethodType.Synchronous)]
-		[CQSInterceptorAlwaysAppliesArrangement(true, InvocationMethodType.Synchronous)]
+		[CQSInterceptorAlwaysAppliesArrangement(false, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorAlwaysAppliesArrangement(true, InvocationMethodType.SynchronousAction)]
+		[CQSInterceptorAlwaysAppliesArrangement(false, InvocationMethodType.SynchronousFunction)]
+		[CQSInterceptorAlwaysAppliesArrangement(true, InvocationMethodType.SynchronousFunction)]
 		public void ShouldOnlyCallInterceptSyncMethodIfInterceptingSynchronousMethod(CQSInterceptorImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.SetInterceptedComponentModel(componentModel);
@@ -95,7 +102,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 				: base(new Fixture()
 					.Customize(new AutoFakeItEasyCustomization())
 					.Customize(new InvocationCustomization(invocationCompletesSuccessfully, methodType))
-					.Customize(new ComponentModelCustomization(GetComponentModelTypeFromMethodType(methodType)))
+					.Customize(new ComponentModelCustomization(ComponentModelFactory.GetCommandHandlerComponentModelTypeFromMethodType(methodType)))
 					.Customize(new CQSInterceptorCustomization(false)))
 			{
 
@@ -109,7 +116,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 				: base(new Fixture()
 					.Customize(new AutoFakeItEasyCustomization())
 					.Customize(new InvocationCustomization(invocationCompletesSuccessfully, methodType))
-					.Customize(new ComponentModelCustomization(GetComponentModelTypeFromMethodType(methodType)))
+					.Customize(new ComponentModelCustomization(ComponentModelFactory.GetCommandHandlerComponentModelTypeFromMethodType(methodType)))
 					.Customize(new CQSInterceptorCustomization(true)))
 			{
 
