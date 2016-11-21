@@ -91,7 +91,6 @@ namespace CQSDIContainer.Interceptors
 		{
 			try
 			{
-				OnBeginInvocation(componentModel);
 				await task;
 			}
 			catch (Exception ex)
@@ -109,7 +108,6 @@ namespace CQSDIContainer.Interceptors
 		{
 			try
 			{
-				OnBeginInvocation(componentModel);
 				return await task;
 			}
 			catch (Exception ex)

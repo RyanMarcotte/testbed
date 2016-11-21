@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Castle.Core;
@@ -15,7 +16,7 @@ namespace CQSDIContainer.Interceptors
 
 		protected override void OnBeginInvocation(ComponentModel componentModel)
 		{
-			Console.WriteLine($"begin transaction scope for {componentModel.Implementation}");
+			Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] begin transaction scope for {componentModel.Implementation}");
 			_scope = new TransactionScope();
 		}
 
@@ -23,11 +24,11 @@ namespace CQSDIContainer.Interceptors
 		{
 			if (_transactionCompletedSuccessfully)
 			{
-				Console.WriteLine($"transaction completed successfully for {componentModel.Implementation}");
+				Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] transaction completed successfully for {componentModel.Implementation}");
 				_scope.Complete();
 			}
 
-			Console.WriteLine($"ending transaction scope for {componentModel.Implementation}");
+			Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] ending transaction scope for {componentModel.Implementation}");
 			_scope.Dispose();
 		}
 

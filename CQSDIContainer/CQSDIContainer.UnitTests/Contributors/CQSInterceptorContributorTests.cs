@@ -72,6 +72,29 @@ namespace CQSDIContainer.UnitTests.Contributors
 			model.HasInterceptors.Should().BeTrue();
 		}
 
+		[Theory]
+		#region ... if handler is the correct type and we're intercepting a non-nested handler
+		[ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.QueryHandlersOnly)]
+		[ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.CommandHandlersOnly)]
+		[ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.AllHandlers)]
+		#endregion
+		#region ... if handler is the correct type, we're intercepting a **non-nested** handler, and the interceptor does not support intercepting nested handlers
+		[ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.QueryHandlersOnly)]
+		[ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.CommandHandlersOnly)]
+		[ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.AllHandlers)]
+		#endregion
+		#region ... if handler is the correct type, we're intercepting a **nested** handler, and the intercept supports intercepting nested handlers
+		[ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.QueryHandlersOnly)]
+		[ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.CommandHandlersOnly)]
+		[ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions.AllHandlers)]
+		#endregion
+		public void ShouldOnlyApplyInterceptorOnce(ICQSInterceptorContributor sut, IKernel kernel, ComponentModel model)
+		{
+			sut.ProcessModel(kernel, model);
+			sut.ProcessModel(kernel, model);
+			model.Interceptors.Count.Should().Be(1);
+		}
+
 		#region Arrangements
 
 		private enum HandlerType

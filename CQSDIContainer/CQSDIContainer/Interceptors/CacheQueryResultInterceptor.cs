@@ -51,12 +51,15 @@ namespace CQSDIContainer.Interceptors
 				}
 				else
 				{
+					bool cacheHit = true;
 					invocation.ReturnValue = _cache.Get(cacheKey, cacheItemFactoryInfo.ResultType, () =>
 						{
-							Console.WriteLine($"I'm caching something for cache key {cacheKey}");
+							cacheHit = false;
 							invocation.Proceed();
 							return invocation.ReturnValue;
 						}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
+
+					Console.WriteLine(cacheHit ? $"Cache hit for cache key '{cacheKey}'!!" : $"I'm caching something for cache key '{cacheKey}'");
 				}
 			}
 		}

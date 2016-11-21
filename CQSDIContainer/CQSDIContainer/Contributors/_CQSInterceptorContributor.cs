@@ -110,9 +110,13 @@ namespace CQSDIContainer.Contributors
 
 			var shouldApplyInterceptor = ShouldApplyInterceptor(kernel, model);
 			var shouldApplyToNestedHandler = typeof(TInterceptorType).GetCustomAttribute<ApplyToNestedHandlersAttribute>() != null;
+			if (!shouldApplyInterceptor || (IsContributingToComponentModelConstructionForNestedCQSHandlers && !shouldApplyToNestedHandler))
+				return;
 
-			if (shouldApplyInterceptor && (!IsContributingToComponentModelConstructionForNestedCQSHandlers || shouldApplyToNestedHandler))
-				model.Interceptors.Add(InterceptorReference.ForType<TInterceptorType>());
+			var interceptorReference = InterceptorReference.ForType<TInterceptorType>();
+			var interceptorIsAlreadyApplied = model.Interceptors.Any(x => x.Equals(interceptorReference));
+			if (!interceptorIsAlreadyApplied)
+				model.Interceptors.Add(interceptorReference);
 		}
 	}
 }

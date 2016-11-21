@@ -30,8 +30,8 @@ namespace CQSDIContainer.Installers
 			// create a child container for resolving nested CQS handler dependencies
 			// (a handler is nested if it must be injected as a dependency into another handler)
 			var childContainer = new WindsorContainer();
+			RegisterCQSContributors(childContainer, isForNestedHandlers: true);
 			RegisterCQSHandlers(childContainer, ApplyNestedHandlerConfiguration);
-			RegisterCQSContributors(container, isForNestedHandlers: true);
 			container.AddChildContainer(childContainer);
 
 			// register all CQS-related objects

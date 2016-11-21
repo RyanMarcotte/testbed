@@ -34,7 +34,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
 		public void ShouldAlwaysCallOnBeginInvocationMethod(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
-			sut.OnBeginInvocationCalled.Should().BeFalse();
+			sut.NumberOfTimesOnBeginInvocationCalled.Should().Be(0);
 
 			try
 			{
@@ -46,7 +46,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 				// eat it because we expect it
 			}
 			
-			sut.OnBeginInvocationCalled.Should().BeTrue();
+			sut.NumberOfTimesOnBeginInvocationCalled.Should().Be(1);
 		}
 
 		[Theory]
@@ -60,7 +60,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
 		public void ShouldAlwaysCallOnEndInvocationMethod(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
-			sut.OnEndInvocationCalled.Should().BeFalse();
+			sut.NumberOfTimesOnEndInvocationCalled.Should().Be(0);
 
 			try
 			{
@@ -72,7 +72,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 				// eat it because we expect it
 			}
 
-			sut.OnEndInvocationCalled.Should().BeTrue();
+			sut.NumberOfTimesOnEndInvocationCalled.Should().Be(1);
 		}
 
 		[Theory]
@@ -82,10 +82,13 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
 		public void ShouldNotCallOnExceptionMethodIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
+			sut.NumberOfTimesOnExceptionCalled.Should().Be(0);
+
 			sut.SetInterceptedComponentModel(componentModel);
 			Action act = () => sut.Intercept(invocation);
+			
 			act.ShouldNotThrow<Exception>();
-			sut.OnExceptionCalled.Should().BeFalse("Exception should not have been thrown!");
+			sut.NumberOfTimesOnExceptionCalled.Should().Be(0, "Exception should not have been thrown!");
 		}
 
 		[Theory]
@@ -93,12 +96,15 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousFunction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousAction)]
 		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
-		public void ShouldCallOnExceptionMethodIfInvocationThrowsException(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
+		public void ShouldCallOnExceptionMethodOnceIfInvocationThrowsException(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
+			sut.NumberOfTimesOnExceptionCalled.Should().Be(0);
+
 			sut.SetInterceptedComponentModel(componentModel);
 			Action act = () => sut.Intercept(invocation);
+
 			act.ShouldThrow<InvocationFailedException>();
-			sut.OnExceptionCalled.Should().BeTrue("Exception should have been thrown!");
+			sut.NumberOfTimesOnExceptionCalled.Should().Be(1, "Exception should have been thrown!");
 		}
 
 		#region Arrangements
@@ -135,23 +141,23 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 		public class CQSInterceptorWithExceptionHandlingImpl : CQSInterceptorWithExceptionHandling
 		{
-			public bool OnBeginInvocationCalled { get; private set; }
-			public bool OnEndInvocationCalled { get; private set; }
-			public bool OnExceptionCalled { get; private set; }
+			public int NumberOfTimesOnBeginInvocationCalled { get; private set; }
+			public int NumberOfTimesOnEndInvocationCalled { get; private set; }
+			public int NumberOfTimesOnExceptionCalled { get; private set; }
 
 			protected override void OnBeginInvocation(ComponentModel componentModel)
 			{
-				OnBeginInvocationCalled = true;
+				NumberOfTimesOnBeginInvocationCalled++;
 			}
 
 			protected override void OnEndInvocation(ComponentModel componentModel)
 			{
-				OnEndInvocationCalled = true;
+				NumberOfTimesOnEndInvocationCalled++;
 			}
 
 			protected override void OnException(ComponentModel componentModel, Exception ex)
 			{
-				OnExceptionCalled = true;
+				NumberOfTimesOnExceptionCalled++;
 			}
 		}
 
