@@ -25,6 +25,16 @@ namespace CQSDIContainer.Interceptors
 			_scope = new TransactionScope();
 		}
 
+		protected override void OnReceiveReturnValueFromQueryHandlerInvocation(ComponentModel componentModel, object returnValue)
+		{
+			_transactionCompletedSuccessfully = true;
+		}
+
+		protected override void OnReceiveReturnValueFromAsyncQueryHandlerInvocation(ComponentModel componentModel, object returnValue)
+		{
+			_transactionCompletedSuccessfully = true;
+		}
+
 		protected override void OnReceiveReturnValueFromCommandHandlerInvocation(ComponentModel componentModel)
 		{
 			_transactionCompletedSuccessfully = true;
