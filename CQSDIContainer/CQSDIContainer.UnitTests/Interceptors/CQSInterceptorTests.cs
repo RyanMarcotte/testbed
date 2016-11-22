@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,22 +22,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 	public class CQSInterceptorTests
 	{
 		[Theory]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, false, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, true, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, false, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, true, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, false, InvocationMethodType.SynchronousFunction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, true, InvocationMethodType.SynchronousFunction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, false, InvocationMethodType.SynchronousFunction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, true, InvocationMethodType.SynchronousFunction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, false, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, true, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, false, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, true, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, false, InvocationMethodType.AsynchronousFunction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(false, true, InvocationMethodType.AsynchronousFunction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, false, InvocationMethodType.AsynchronousFunction)]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(true, true, InvocationMethodType.AsynchronousFunction)]
+		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler]
 		public void ShouldThrowExceptionIfInterceptingAMethodNotBelongingToACQSHandler(CQSInterceptorImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			bool throwInvalidOperationException = false;
@@ -54,10 +40,9 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[CQSInterceptorAlwaysAppliesArrangement(false, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorAlwaysAppliesArrangement(true, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorAlwaysAppliesArrangement(false, InvocationMethodType.SynchronousFunction)]
-		[CQSInterceptorAlwaysAppliesArrangement(true, InvocationMethodType.SynchronousFunction)]
+		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.Query)]
+		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.Command)]
+		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.ResultCommand)]
 		public void ShouldOnlyCallInterceptSyncMethodIfInterceptingSynchronousMethod(CQSInterceptorImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.SetInterceptedComponentModel(componentModel);
@@ -67,10 +52,9 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[CQSInterceptorAlwaysAppliesArrangement(false, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorAlwaysAppliesArrangement(true, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorAlwaysAppliesArrangement(false, InvocationMethodType.AsynchronousFunction)]
-		[CQSInterceptorAlwaysAppliesArrangement(true, InvocationMethodType.AsynchronousFunction)]
+		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.AsyncQuery)]
+		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.AsyncCommand)]
+		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.AsyncResultCommand)]
 		public void ShouldOnlyCallInterceptAsyncMethodIfInterceptingAsynchronousMethod(CQSInterceptorImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.SetInterceptedComponentModel(componentModel);
@@ -84,42 +68,55 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 		private class CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler : AutoDataAttribute
 		{
-			public CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler(bool applyToNestedHandlers, bool invocationCompletesSuccessfully, InvocationMethodType methodType)
+			public CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler()
 				: base(new Fixture()
 					.Customize(new AutoFakeItEasyCustomization())
-					.Customize(new InvocationCustomization(invocationCompletesSuccessfully, methodType))
-					.Customize(new ComponentModelCustomization(typeof(StringBuilder)))
-					.Customize(new CQSInterceptorCustomization(applyToNestedHandlers)))
+					.Customize(new CQSInvocationCustomization(false, CQSHandlerType.Query)) // doesn't matter since we're overwriting the data below
+					.Customize(new ComponentModelCustomization(typeof(IEnumerable<int>)))
+					.Customize(new CQSInterceptorCustomization(false))) // doesn't matter since we're overwriting the data below
 			{
 				
 			}
-		}
 
-		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-		private class CQSInterceptorIsInterceptingNestedHandlerArrangement : AutoDataAttribute
-		{
-			public CQSInterceptorIsInterceptingNestedHandlerArrangement(bool invocationCompletesSuccessfully, InvocationMethodType methodType)
-				: base(new Fixture()
-					.Customize(new AutoFakeItEasyCustomization())
-					.Customize(new InvocationCustomization(invocationCompletesSuccessfully, methodType))
-					.Customize(new ComponentModelCustomization(ComponentModelFactory.GetCommandHandlerComponentModelTypeFromMethodType(methodType)))
-					.Customize(new CQSInterceptorCustomization(false)))
+			public override IEnumerable<object[]> GetData(MethodInfo testMethod)
 			{
+				var data = base.GetData(testMethod).FirstOrDefault();
+				if (data == null)
+					throw new InvalidOperationException("No data received!!");
 
+				foreach (var handlerType in Enum.GetValues(typeof(CQSHandlerType)).Cast<CQSHandlerType>())
+				{
+					yield return new[] { CQSInterceptorCustomization.BuildCQSInterceptor(false), CQSInvocationCustomization.BuildInvocation(false, handlerType), data[2] };
+					yield return new[] { CQSInterceptorCustomization.BuildCQSInterceptor(true), CQSInvocationCustomization.BuildInvocation(false, handlerType), data[2] };
+					yield return new[] { CQSInterceptorCustomization.BuildCQSInterceptor(false), CQSInvocationCustomization.BuildInvocation(true, handlerType), data[2] };
+					yield return new[] { CQSInterceptorCustomization.BuildCQSInterceptor(true), CQSInvocationCustomization.BuildInvocation(true, handlerType), data[2] };
+				}
 			}
 		}
 
 		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-		private class CQSInterceptorAlwaysAppliesArrangement : AutoDataAttribute
+		private class CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement : AutoDataAttribute
 		{
-			public CQSInterceptorAlwaysAppliesArrangement(bool invocationCompletesSuccessfully, InvocationMethodType methodType)
+			private readonly CQSHandlerType _handlerType;
+
+			public CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType handlerType)
 				: base(new Fixture()
 					.Customize(new AutoFakeItEasyCustomization())
-					.Customize(new InvocationCustomization(invocationCompletesSuccessfully, methodType))
-					.Customize(new ComponentModelCustomization(ComponentModelFactory.GetCommandHandlerComponentModelTypeFromMethodType(methodType)))
-					.Customize(new CQSInterceptorCustomization(true)))
+					.Customize(new CQSInvocationCustomization(false, handlerType)) // doesn't matter since we're overwriting the data below
+					.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType)))
+					.Customize(new CQSInterceptorCustomization(true))) // interceptor applies to all handlers (nested or not)
 			{
+				_handlerType = handlerType;
+			}
 
+			public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+			{
+				var data = base.GetData(testMethod).FirstOrDefault();
+				if (data == null)
+					throw new InvalidOperationException("No data received!!");
+
+				yield return new[] { data[0], CQSInvocationCustomization.BuildInvocation(false, _handlerType), data[2] };
+				yield return new[] { data[0], CQSInvocationCustomization.BuildInvocation(true, _handlerType), data[2] };
 			}
 		}
 
@@ -129,7 +126,6 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 		private class CQSInterceptorCustomization : ICustomization
 		{
-			private readonly Guid _id = Guid.NewGuid();
 			private readonly bool _applyToNestedHandlers;
 
 			public CQSInterceptorCustomization(bool applyToNestedHandlers)
@@ -139,10 +135,12 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 			public void Customize(IFixture fixture)
 			{
-				if (_applyToNestedHandlers)
-					fixture.Register<CQSInterceptorImpl>(() => new CQSInterceptorThatAppliesToNestedHandlersImpl());
-				else
-					fixture.Register(() => new CQSInterceptorImpl());
+				fixture.Register(() => BuildCQSInterceptor(_applyToNestedHandlers));
+			}
+
+			public static CQSInterceptorImpl BuildCQSInterceptor(bool applyToNestedHandlers)
+			{
+				return applyToNestedHandlers ? new CQSInterceptorThatAppliesToNestedHandlersImpl() : new CQSInterceptorImpl();
 			}
 		}
 

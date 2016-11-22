@@ -6,14 +6,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Castle.Core;
+using IQ.Platform.Framework.Common;
 
 namespace CQSDIContainer.Interceptors
 {
 	public class TransactionScopeInterceptor : CQSInterceptorWithExceptionHandling
 	{
-		private TransactionScope _scope;
-		private bool _transactionCompletedSuccessfully = true;
 		private static readonly object _consoleWriteLock = new object();
+
+		private TransactionScope _scope;
+		private bool _transactionCompletedSuccessfully;
 
 		protected override void OnBeginInvocation(ComponentModel componentModel)
 		{
@@ -23,16 +25,24 @@ namespace CQSDIContainer.Interceptors
 			_scope = new TransactionScope();
 		}
 
-		protected override void OnReceiveReturnValueFromInvocation(ComponentModel componentModel, object returnValue)
+		protected override void OnReceiveReturnValueFromCommandHandlerInvocation(ComponentModel componentModel)
 		{
-			if (returnValue == null)
-				return;
-			if (returnValue is Task)
-			{
-				int x = 0;
-			}
-			
-			// TODO: look at result and determine if it's a failure
+			_transactionCompletedSuccessfully = true;
+		}
+
+		protected override void OnReceiveReturnValueFromResultCommandHandlerInvocation<TSuccess, TFailure>(ComponentModel componentModel, Result<TSuccess, TFailure> returnValue)
+		{
+			_transactionCompletedSuccessfully = returnValue.IsSuccessfull;
+		}
+
+		protected override void OnReceiveReturnValueFromAsyncCommandHandlerInvocation(ComponentModel componentModel, Task returnValue)
+		{
+			_transactionCompletedSuccessfully = true;
+		}
+
+		protected override void OnReceiveReturnValueFromAsyncResultCommandHandlerInvocation<TSuccess, TFailure>(ComponentModel componentModel, Result<TSuccess, TFailure> returnValue)
+		{
+			_transactionCompletedSuccessfully = returnValue.IsSuccessfull;
 		}
 
 		protected override void OnEndInvocation(ComponentModel componentModel)

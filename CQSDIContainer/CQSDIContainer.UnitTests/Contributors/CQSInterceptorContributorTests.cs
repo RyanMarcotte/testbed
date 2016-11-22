@@ -97,43 +97,6 @@ namespace CQSDIContainer.UnitTests.Contributors
 
 		#region Arrangements
 
-		private enum HandlerType
-		{
-			Query,
-			AsyncQuery,
-			Command,
-			AsyncCommand,
-			ResultCommand,
-			AsyncResultCommand
-		}
-
-		private static Type GetTypeForComponentModel(HandlerType handlerType)
-		{
-			switch (handlerType)
-			{
-				case HandlerType.Query:
-					return ComponentModelFactory.GetQueryHandlerComponentModelTypeFromMethodType(InvocationMethodType.SynchronousFunction);
-					
-				case HandlerType.AsyncQuery:
-					return ComponentModelFactory.GetQueryHandlerComponentModelTypeFromMethodType(InvocationMethodType.AsynchronousFunction);
-
-				case HandlerType.Command:
-					return ComponentModelFactory.GetCommandHandlerComponentModelTypeFromMethodType(InvocationMethodType.SynchronousAction);
-					
-				case HandlerType.AsyncCommand:
-					return ComponentModelFactory.GetCommandHandlerComponentModelTypeFromMethodType(InvocationMethodType.AsynchronousAction);
-
-				case HandlerType.ResultCommand:
-					return ComponentModelFactory.GetCommandHandlerComponentModelTypeFromMethodType(InvocationMethodType.SynchronousFunction);
-
-				case HandlerType.AsyncResultCommand:
-					return ComponentModelFactory.GetCommandHandlerComponentModelTypeFromMethodType(InvocationMethodType.AsynchronousFunction);
-
-				default:
-					throw new ArgumentOutOfRangeException(nameof(handlerType), handlerType, null);
-			}
-		}
-
 		private abstract class CQSInterceptorContributorArrangement : AutoDataAttribute
 		{
 			protected CQSInterceptorContributorArrangement(InterceptorUsageOptions usageOptions, bool isApplyingInterceptorThatCanInterceptNestedHandlers, bool isHandlerNested, bool shouldApplyInterceptor)
@@ -154,10 +117,10 @@ namespace CQSDIContainer.UnitTests.Contributors
 				// we overwrite the ComponentModel parameter that will be passed to the unit test method
 				var cqsContributor = (ICQSInterceptorContributor)data[0];
 				foreach (var type in HandlerTypeLookup[cqsContributor.HandlerTypesToApplyTo])
-					yield return new[] { data[0], data[1], ComponentModelCustomization.BuildComponentModel(GetTypeForComponentModel(type)) };
+					yield return new[] { data[0], data[1], ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(type)) };
 			}
 
-			protected abstract IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<HandlerType>> HandlerTypeLookup { get; }
+			protected abstract IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup { get; }
 		}
 
 		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
@@ -171,12 +134,12 @@ namespace CQSDIContainer.UnitTests.Contributors
 			}
 
 			// match a usage option against all invalid handler types
-			protected override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<HandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<HandlerType>>
+			protected override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>>
 				{
-					{ InterceptorUsageOptions.None, Enum.GetValues(typeof(HandlerType)).Cast<HandlerType>() },
-					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { HandlerType.Command, HandlerType.AsyncCommand, HandlerType.ResultCommand, HandlerType.AsyncResultCommand} },
-					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { HandlerType.Query, HandlerType.AsyncQuery } },
-					{ InterceptorUsageOptions.AllHandlers, Enumerable.Empty<HandlerType>() }
+					{ InterceptorUsageOptions.None, Enum.GetValues(typeof(CQSHandlerType)).Cast<CQSHandlerType>() },
+					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { CQSHandlerType.Command, CQSHandlerType.AsyncCommand, CQSHandlerType.ResultCommand, CQSHandlerType.AsyncResultCommand} },
+					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { CQSHandlerType.Query, CQSHandlerType.AsyncQuery } },
+					{ InterceptorUsageOptions.AllHandlers, Enumerable.Empty<CQSHandlerType>() }
 				};
 		}
 
@@ -192,12 +155,12 @@ namespace CQSDIContainer.UnitTests.Contributors
 			}
 
 			// match a usage option against the correct handler types
-			protected override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<HandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<HandlerType>>
+			protected override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>>
 				{
-					{ InterceptorUsageOptions.None, Enumerable.Empty<HandlerType>() },
-					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { HandlerType.Command, HandlerType.AsyncCommand, HandlerType.ResultCommand, HandlerType.AsyncResultCommand} },
-					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { HandlerType.Query, HandlerType.AsyncQuery } },
-					{ InterceptorUsageOptions.AllHandlers, Enum.GetValues(typeof(HandlerType)).Cast<HandlerType>() }
+					{ InterceptorUsageOptions.None, Enumerable.Empty<CQSHandlerType>() },
+					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { CQSHandlerType.Command, CQSHandlerType.AsyncCommand, CQSHandlerType.ResultCommand, CQSHandlerType.AsyncResultCommand} },
+					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { CQSHandlerType.Query, CQSHandlerType.AsyncQuery } },
+					{ InterceptorUsageOptions.AllHandlers, Enum.GetValues(typeof(CQSHandlerType)).Cast<CQSHandlerType>() }
 				};
 		}
 
@@ -210,12 +173,12 @@ namespace CQSDIContainer.UnitTests.Contributors
 				
 			}
 
-			protected sealed override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<HandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<HandlerType>>
+			protected sealed override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>>
 				{
-					{ InterceptorUsageOptions.None, Enumerable.Empty<HandlerType>() },
-					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { HandlerType.Query, HandlerType.AsyncQuery } },
-					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { HandlerType.Command, HandlerType.AsyncCommand, HandlerType.ResultCommand, HandlerType.AsyncResultCommand} },
-					{ InterceptorUsageOptions.AllHandlers, Enum.GetValues(typeof(HandlerType)).Cast<HandlerType>() }
+					{ InterceptorUsageOptions.None, Enumerable.Empty<CQSHandlerType>() },
+					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { CQSHandlerType.Query, CQSHandlerType.AsyncQuery } },
+					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { CQSHandlerType.Command, CQSHandlerType.AsyncCommand, CQSHandlerType.ResultCommand, CQSHandlerType.AsyncResultCommand} },
+					{ InterceptorUsageOptions.AllHandlers, Enum.GetValues(typeof(CQSHandlerType)).Cast<CQSHandlerType>() }
 				};
 		}
 

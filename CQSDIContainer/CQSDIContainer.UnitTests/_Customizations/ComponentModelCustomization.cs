@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Castle.Core;
 using Castle.DynamicProxy;
+using CQSDIContainer.UnitTests.TestUtilities;
 using Ploeh.AutoFixture;
 
 // ReSharper disable once CheckNamespace
@@ -40,7 +41,7 @@ namespace CQSDIContainer.UnitTests.Customizations
 		public static ComponentModel BuildComponentModel(Type componentType)
 		{
 			var componentName = new ComponentName(componentType.FullName, false);
-			return new ComponentModel(componentName, componentType.GetInterfaces(), componentType, new Dictionary<object, object>());
+			return new ComponentModel(componentName, new[] { componentType }, componentType, new Dictionary<object, object>());
 		}
 	}
 }

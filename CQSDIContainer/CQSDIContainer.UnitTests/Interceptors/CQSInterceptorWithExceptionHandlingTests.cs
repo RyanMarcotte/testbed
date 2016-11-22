@@ -12,6 +12,7 @@ using CQSDIContainer.UnitTests.Customizations;
 using CQSDIContainer.UnitTests.TestUtilities;
 using FakeItEasy;
 using FluentAssertions;
+using IQ.Platform.Framework.Common;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoFakeItEasy;
 using Ploeh.AutoFixture.Xunit2;
@@ -25,14 +26,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 	public class CQSInterceptorWithExceptionHandlingTests
 	{
 		[Theory]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousFunction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousFunction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
+		[CQSInterceptorWithExceptionHandlingAllConfigurationsArrangement]
 		public void ShouldAlwaysCallOnBeginInvocationMethodOnce(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.NumberOfTimesOnBeginInvocationCalled.Should().Be(0);
@@ -51,46 +45,168 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousFunction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
-		public void ShouldCallOnReceiveReturnValueFromInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
+		[CQSInterceptorWithExceptionHandlingArrangement(true, CQSHandlerType.Query)]
+		public void ShouldCallOnReceiveReturnValueFromQueryHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
-			sut.NumberOfTimesOnReceiveReturnValueFromInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(0);
 
 			sut.SetInterceptedComponentModel(componentModel);
 			Action act = () => sut.Intercept(invocation);
 
 			act.ShouldNotThrow<Exception>();
-			sut.NumberOfTimesOnReceiveReturnValueFromInvocationCalled.Should().Be(1);
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(1);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(0);
 		}
 
 		[Theory]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousFunction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, CQSHandlerType.AsyncQuery)]
+		public void ShouldCallOnReceiveReturnValueFromAsyncQueryHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
+		{
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(0);
+
+			sut.SetInterceptedComponentModel(componentModel);
+			Action act = () => sut.Intercept(invocation);
+
+			act.ShouldNotThrow<Exception>();
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(1);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(0);
+		}
+
+		[Theory]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, CQSHandlerType.Command)]
+		public void ShouldCallOnReceiveReturnValueFromCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
+		{
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(0);
+
+			sut.SetInterceptedComponentModel(componentModel);
+			Action act = () => sut.Intercept(invocation);
+
+			act.ShouldNotThrow<Exception>();
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(1);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(0);
+		}
+
+		[Theory]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, CQSHandlerType.ResultCommand)]
+		public void ShouldCallOnReceiveReturnValueFromResultCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
+		{
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(0);
+
+			sut.SetInterceptedComponentModel(componentModel);
+			Action act = () => sut.Intercept(invocation);
+
+			act.ShouldNotThrow<Exception>();
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(1);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(0);
+		}
+
+		[Theory]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, CQSHandlerType.AsyncCommand)]
+		public void ShouldCallOnReceiveReturnValueFromAsyncCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
+		{
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(0);
+
+			sut.SetInterceptedComponentModel(componentModel);
+			Action act = () => sut.Intercept(invocation);
+
+			act.ShouldNotThrow<Exception>();
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(1);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(0);
+		}
+
+		[Theory]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, CQSHandlerType.AsyncResultCommand)]
+		public void ShouldCallOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
+		{
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(0);
+
+			sut.SetInterceptedComponentModel(componentModel);
+			Action act = () => sut.Intercept(invocation);
+
+			act.ShouldNotThrow<Exception>();
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(1);
+		}
+
+		[Theory]
+		[CQSInterceptorWithExceptionHandlingAllConfigurationsArrangement(false)]
 		public void ShouldNotCallOnReceiveReturnValueFromInvocationMethodIfInvocationThrowsException(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
-			sut.NumberOfTimesOnReceiveReturnValueFromInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(0);
 
 			sut.SetInterceptedComponentModel(componentModel);
 			Action act = () => sut.Intercept(invocation);
 
 			act.ShouldThrow<InvocationFailedException>();
-			sut.NumberOfTimesOnReceiveReturnValueFromInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled.Should().Be(0);
+			sut.NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled.Should().Be(0);
 		}
 
 		[Theory]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousFunction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousFunction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
+		[CQSInterceptorWithExceptionHandlingAllConfigurationsArrangement]
 		public void ShouldAlwaysCallOnEndInvocationMethodOnce(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.NumberOfTimesOnEndInvocationCalled.Should().Be(0);
@@ -109,10 +225,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.SynchronousFunction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, InvocationMethodType.AsynchronousFunction)]
+		[CQSInterceptorWithExceptionHandlingAllConfigurationsArrangement(true)]
 		public void ShouldNotCallOnExceptionMethodIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.NumberOfTimesOnExceptionCalled.Should().Be(0);
@@ -125,10 +238,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.SynchronousFunction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousAction)]
-		[CQSInterceptorWithExceptionHandlingArrangement(false, InvocationMethodType.AsynchronousFunction)]
+		[CQSInterceptorWithExceptionHandlingAllConfigurationsArrangement(false)]
 		public void ShouldCallOnExceptionMethodOnceIfInvocationThrowsException(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.NumberOfTimesOnExceptionCalled.Should().Be(0);
@@ -145,14 +255,70 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 		private class CQSInterceptorWithExceptionHandlingArrangement : AutoDataAttribute
 		{
-			public CQSInterceptorWithExceptionHandlingArrangement(bool invocationCompletesSuccessfully, InvocationMethodType methodType)
+			public CQSInterceptorWithExceptionHandlingArrangement(bool invocationCompletesSuccessfully, CQSHandlerType methodType)
 				: base(new Fixture()
 					.Customize(new AutoFakeItEasyCustomization())
-					.Customize(new InvocationCustomization(invocationCompletesSuccessfully, methodType))
-					.Customize(new ComponentModelCustomization(ComponentModelFactory.GetCommandHandlerComponentModelTypeFromMethodType(methodType)))
+					.Customize(new CQSInvocationCustomization(invocationCompletesSuccessfully, methodType))
+					.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(methodType)))
 					.Customize(new CQSInterceptorWithExceptionHandlingCustomization()))
 			{
 				
+			}
+		}
+
+		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+		private class CQSInterceptorWithExceptionHandlingAllConfigurationsArrangement : AutoDataAttribute
+		{
+			private readonly bool? _invocationCompletesSuccessfully;
+
+			public CQSInterceptorWithExceptionHandlingAllConfigurationsArrangement()
+				: base(new Fixture()
+					.Customize(new AutoFakeItEasyCustomization())
+					.Customize(new CQSInvocationCustomization())
+					.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query)))
+					.Customize(new CQSInterceptorWithExceptionHandlingCustomization()))
+			{
+				_invocationCompletesSuccessfully = null;
+			}
+
+			public CQSInterceptorWithExceptionHandlingAllConfigurationsArrangement(bool invocationCompletesSuccessfully)
+				: base(new Fixture()
+					.Customize(new AutoFakeItEasyCustomization())
+					.Customize(new CQSInvocationCustomization())
+					.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query)))
+					.Customize(new CQSInterceptorWithExceptionHandlingCustomization()))
+			{
+				_invocationCompletesSuccessfully = invocationCompletesSuccessfully;
+			}
+
+			public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+			{
+				var data = base.GetData(testMethod).FirstOrDefault();
+				if (data == null)
+					throw new InvalidOperationException("Expected at least one item in the data!!");
+
+				foreach (var handlerType in Enum.GetValues(typeof(CQSHandlerType)).Cast<CQSHandlerType>())
+				{
+					if (_invocationCompletesSuccessfully == null || !_invocationCompletesSuccessfully.Value)
+					{
+						yield return new object[]
+						{
+							new CQSInterceptorWithExceptionHandlingImpl(),
+							CQSInvocationCustomization.BuildInvocation(false, handlerType),
+							ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))
+						};
+					}
+
+					if (_invocationCompletesSuccessfully == null || _invocationCompletesSuccessfully.Value)
+					{
+						yield return new object[]
+						{
+							new CQSInterceptorWithExceptionHandlingImpl(),
+							CQSInvocationCustomization.BuildInvocation(true, handlerType),
+							ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))
+						};
+					}
+				}
 			}
 		}
 
@@ -175,12 +341,22 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		public class CQSInterceptorWithExceptionHandlingImpl : CQSInterceptorWithExceptionHandling
 		{
 			private int _numberOfTimesOnBeginInvocationCalled;
-			private int _numberOfTimesOnReceiveReturnValueFromInvocationCalled;
+			private int _numberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled;
+			private int _numberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled;
+			private int _numberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled;
+			private int _numberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled;
+			private int _numberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled;
+			private int _numberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled;
 			private int _numberOfTimesOnEndInvocationCalled;
 			private int _numberOfTimesOnExceptionCalled;
 
 			public int NumberOfTimesOnBeginInvocationCalled => _numberOfTimesOnBeginInvocationCalled;
-			public int NumberOfTimesOnReceiveReturnValueFromInvocationCalled => _numberOfTimesOnReceiveReturnValueFromInvocationCalled;
+			public int NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled => _numberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled;
+			public int NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled => _numberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled;
+			public int NumberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled => _numberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled;
+			public int NumberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled => _numberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled;
+			public int NumberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled => _numberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled;
+			public int NumberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled => _numberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled;
 			public int NumberOfTimesOnEndInvocationCalled => _numberOfTimesOnEndInvocationCalled;
 			public int NumberOfTimesOnExceptionCalled => _numberOfTimesOnExceptionCalled;
 
@@ -189,9 +365,34 @@ namespace CQSDIContainer.UnitTests.Interceptors
 				Interlocked.Increment(ref _numberOfTimesOnBeginInvocationCalled);
 			}
 
-			protected override void OnReceiveReturnValueFromInvocation(ComponentModel componentModel, object returnValue)
+			protected override void OnReceiveReturnValueFromQueryHandlerInvocation(ComponentModel componentModel, object returnValue)
 			{
-				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromInvocationCalled);
+				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled);
+			}
+
+			protected override void OnReceiveReturnValueFromAsyncQueryHandlerInvocation(ComponentModel componentModel, object returnValue)
+			{
+				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled);
+			}
+
+			protected override void OnReceiveReturnValueFromCommandHandlerInvocation(ComponentModel componentModel)
+			{
+				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled);
+			}
+
+			protected override void OnReceiveReturnValueFromResultCommandHandlerInvocation<TSuccess, TFailure>(ComponentModel componentModel, Result<TSuccess, TFailure> returnValue)
+			{
+				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled);
+			}
+
+			protected override void OnReceiveReturnValueFromAsyncCommandHandlerInvocation(ComponentModel componentModel, Task returnValue)
+			{
+				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled);
+			}
+
+			protected override void OnReceiveReturnValueFromAsyncResultCommandHandlerInvocation<TSuccess, TFailure>(ComponentModel componentModel, Result<TSuccess, TFailure> returnValue)
+			{
+				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled);
 			}
 
 			protected override void OnEndInvocation(ComponentModel componentModel)
