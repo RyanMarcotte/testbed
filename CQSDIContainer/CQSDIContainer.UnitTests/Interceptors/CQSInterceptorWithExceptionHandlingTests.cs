@@ -278,6 +278,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 					.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query)))
 					.Customize(new CQSInterceptorWithExceptionHandlingCustomization()))
 			{
+				// we will test both successful and unsuccessful invocations
 				_invocationCompletesSuccessfully = null;
 			}
 
@@ -288,6 +289,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 					.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query)))
 					.Customize(new CQSInterceptorWithExceptionHandlingCustomization()))
 			{
+				// we will test either successful or unsuccessful invocations (not both)
 				_invocationCompletesSuccessfully = invocationCompletesSuccessfully;
 			}
 
