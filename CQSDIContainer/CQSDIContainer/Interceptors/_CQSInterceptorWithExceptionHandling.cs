@@ -39,13 +39,13 @@ namespace CQSDIContainer.Interceptors
 		protected virtual void OnReceiveReturnValueFromAsyncQueryHandlerInvocation(ComponentModel componentModel, object returnValue) { }
 
 		/// <summary>
-		/// Called immediately after successfully returning from the invocation of a synchronous invocation that does not return any value.
+		/// Called immediately after successfully returning from the invocation of a synchronous command handler invocation that does not return any value.
 		/// </summary>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
 		protected virtual void OnReceiveReturnValueFromCommandHandlerInvocation(ComponentModel componentModel) { }
 
 		/// <summary>
-		/// Called immediately after successfully returning from the invocation of an synchronous command handler that returns result.
+		/// Called immediately after successfully returning from the invocation of an synchronous command handler that returns a result.
 		/// </summary>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
 		/// <param name="returnValue">The value returned from the invocation.</param>
@@ -178,7 +178,7 @@ namespace CQSDIContainer.Interceptors
 
 			var handlerType = componentModel.Implementation.GetGenericTypeDefinition();
 			if (handlerType == typeof(IAsyncQueryHandler<,>))
-				OnReceiveReturnValueFromAsyncQueryHandlerInvocation(componentModel, invocation.ReturnValue);
+				OnReceiveReturnValueFromAsyncQueryHandlerInvocation(componentModel, ((dynamic)invocation.ReturnValue).Result);
 			else if (handlerType == typeof(IAsyncCommandHandler<>))
 				OnReceiveReturnValueFromAsyncCommandHandlerInvocation(componentModel);
 			else if (handlerType == typeof(IAsyncResultCommandHandler<,>))
