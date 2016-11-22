@@ -385,7 +385,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled);
 			}
 
-			protected override void OnReceiveReturnValueFromAsyncCommandHandlerInvocation(ComponentModel componentModel, Task returnValue)
+			protected override void OnReceiveReturnValueFromAsyncCommandHandlerInvocation(ComponentModel componentModel)
 			{
 				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled);
 			}

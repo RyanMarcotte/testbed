@@ -55,8 +55,7 @@ namespace CQSDIContainer.Interceptors
 		/// Called immediately after successfully returning from the invocation of an asynchronous command handler.
 		/// </summary>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
-		/// <param name="returnValue">The value returned from the invocation.</param>
-		protected virtual void OnReceiveReturnValueFromAsyncCommandHandlerInvocation(ComponentModel componentModel, Task returnValue) { }
+		protected virtual void OnReceiveReturnValueFromAsyncCommandHandlerInvocation(ComponentModel componentModel) { }
 
 		/// <summary>
 		/// Called immediately after successfully returning from the invocation of an asynchronous command handler that returns a result.
@@ -152,6 +151,21 @@ namespace CQSDIContainer.Interceptors
 				throw new UnrecognizedCQSHandlerTypeException(componentModel);
 		}
 
+		#region OnReceiveReturnValueFromSynchronousMethodInvocation helpers
+
+		private static readonly ConcurrentDictionary<Tuple<Type, Type>, MethodInfo> _onReceiveReturnValueFromSynchronousFunctionInvocationMethodLookup = new ConcurrentDictionary<Tuple<Type, Type>, MethodInfo>();
+		private static readonly MethodInfo _onReceiveReturnValueFromSynchronousFunctionInvocationMethodInfo = typeof(CQSInterceptorWithExceptionHandling).GetMethod(nameof(OnReceiveReturnValueFromResultCommandHandlerInvocation), BindingFlags.Instance | BindingFlags.NonPublic);
+
+		private void ExecuteOnReceiveReturnValueFromResultCommandHandlerInvocationUsingReflection(IInvocation invocation, ComponentModel componentModel)
+		{
+			var successResultType = invocation.Method.ReturnType.GetGenericArguments()[0];
+			var failureResultType = invocation.Method.ReturnType.GetGenericArguments()[1];
+			var methodInfo = _onReceiveReturnValueFromSynchronousFunctionInvocationMethodLookup.GetOrAdd(Tuple.Create(successResultType, failureResultType), _onReceiveReturnValueFromSynchronousFunctionInvocationMethodInfo.MakeGenericMethod(successResultType, failureResultType));
+			invocation.ReturnValue = methodInfo.Invoke(this, new[] { componentModel, invocation.ReturnValue });
+		}
+
+		#endregion
+
 		/// <summary>
 		/// Called immediately after successfully completing the asynchronous invocation.
 		/// </summary>
@@ -166,33 +180,28 @@ namespace CQSDIContainer.Interceptors
 			if (handlerType == typeof(IAsyncQueryHandler<,>))
 				OnReceiveReturnValueFromAsyncQueryHandlerInvocation(componentModel, invocation.ReturnValue);
 			else if (handlerType == typeof(IAsyncCommandHandler<>))
-				OnReceiveReturnValueFromAsyncCommandHandlerInvocation(componentModel, (Task)invocation.ReturnValue);
+				OnReceiveReturnValueFromAsyncCommandHandlerInvocation(componentModel);
 			else if (handlerType == typeof(IAsyncResultCommandHandler<,>))
 				ExecuteOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationUsingReflection(invocation, componentModel);
 			else
 				throw new UnrecognizedCQSHandlerTypeException(componentModel);
 		}
 
-		private static readonly ConcurrentDictionary<Tuple<Type, Type>, MethodInfo> _onReceiveReturnValueFromSynchronousFunctionInvocationMethodLookup = new ConcurrentDictionary<Tuple<Type, Type>, MethodInfo>();
+		#region OnReceiveReturnValueFromAsynchronousMethodInvocation helpers
+
 		private static readonly ConcurrentDictionary<Tuple<Type, Type>, MethodInfo> _onReceiveReturnValueFromAsynchronousFunctionInvocationMethodLookup = new ConcurrentDictionary<Tuple<Type, Type>, MethodInfo>();
-		private static readonly MethodInfo _onReceiveReturnValueFromSynchronousFunctionInvocationMethodInfo = typeof(CQSInterceptorWithExceptionHandling).GetMethod(nameof(OnReceiveReturnValueFromResultCommandHandlerInvocation), BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly MethodInfo _onReceiveReturnValueFromAsynchronousFunctionInvocationMethodInfo = typeof(CQSInterceptorWithExceptionHandling).GetMethod(nameof(OnReceiveReturnValueFromAsyncResultCommandHandlerInvocation), BindingFlags.Instance | BindingFlags.NonPublic);
-
-		private void ExecuteOnReceiveReturnValueFromResultCommandHandlerInvocationUsingReflection(IInvocation invocation, ComponentModel componentModel)
-		{
-			var successResultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var failureResultType = invocation.Method.ReturnType.GetGenericArguments()[1];
-			var methodInfo = _onReceiveReturnValueFromSynchronousFunctionInvocationMethodLookup.GetOrAdd(Tuple.Create(successResultType, failureResultType), _onReceiveReturnValueFromSynchronousFunctionInvocationMethodInfo.MakeGenericMethod(successResultType, failureResultType));
-			invocation.ReturnValue = methodInfo.Invoke(this, new[] { componentModel, invocation.ReturnValue });
-		}
-
+		
 		private void ExecuteOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationUsingReflection(IInvocation invocation, ComponentModel componentModel)
 		{
-			var successResultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var failureResultType = invocation.Method.ReturnType.GetGenericArguments()[1];
+			var taskType = invocation.Method.ReturnType.GetGenericArguments()[0];
+			var successResultType = taskType.GetGenericArguments()[0];
+			var failureResultType = taskType.GetGenericArguments()[1];
 			var methodInfo = _onReceiveReturnValueFromAsynchronousFunctionInvocationMethodLookup.GetOrAdd(Tuple.Create(successResultType, failureResultType), _onReceiveReturnValueFromAsynchronousFunctionInvocationMethodInfo.MakeGenericMethod(successResultType, failureResultType));
-			invocation.ReturnValue = methodInfo.Invoke(this, new[] { componentModel, invocation.ReturnValue });
+			invocation.ReturnValue = methodInfo.Invoke(this, new object[] { componentModel, ((dynamic)invocation.ReturnValue).Result });
 		}
+
+		#endregion
 
 		#region Enums
 

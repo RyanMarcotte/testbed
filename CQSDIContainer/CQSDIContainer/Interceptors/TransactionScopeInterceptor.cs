@@ -35,7 +35,7 @@ namespace CQSDIContainer.Interceptors
 			_transactionCompletedSuccessfully = returnValue.IsSuccessfull;
 		}
 
-		protected override void OnReceiveReturnValueFromAsyncCommandHandlerInvocation(ComponentModel componentModel, Task returnValue)
+		protected override void OnReceiveReturnValueFromAsyncCommandHandlerInvocation(ComponentModel componentModel)
 		{
 			_transactionCompletedSuccessfully = true;
 		}
