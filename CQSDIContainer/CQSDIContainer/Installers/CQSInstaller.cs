@@ -32,6 +32,7 @@ namespace CQSDIContainer.Installers
 			// register all objects required to support CQS
 			container
 				.Register(Component.For<ICacheItemFactoryInstanceRepository>().ImplementedBy<CacheItemFactoryInstanceRepository>().LifestyleTransient())
+				.Register(Component.For<ILogCacheHitsAndMissesForQueryHandlers>().ImplementedBy<CacheHitLoggerForQueryHandlers>().LifestyleTransient())
 				.Register(Component.For<ILogExceptionsFromCQSHandlers>().ImplementedBy<ExceptionLoggerForCQSHandlers>().LifestyleTransient())
 				.Register(Component.For<ILogExecutionTimeOfCQSHandlers>().ImplementedBy<ExecutionTimeLoggerForCQSHandlers>().LifestyleTransient())
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(IInterceptor)).WithServiceBase().LifestyleTransient())
