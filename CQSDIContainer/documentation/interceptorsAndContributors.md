@@ -60,8 +60,7 @@ You can find the collection of interceptors in RQ.Server.CQS [here](https://gith
 
 ## Contributors
 
-Castle.Windsor uses the concept of *contributors* to customize how interceptors are applied to invocations at registration-time (i.e. on application start-up).  
-Anyone wanting to do a deeper dive can consult the [Castle Windsor documentation](https://github.com/castleproject/Windsor/blob/master/docs/componentmodel-construction-contributors.md).  Again, we limit the scope of our discussion to how contributors are used in the RQ.Server.CQS framework.
+Castle.Windsor uses the concept of *contributors* to customize how interceptors are applied to invocations at registration-time (i.e. on application start-up).  Anyone wanting to do a deeper dive can consult the [Castle Windsor documentation](https://github.com/castleproject/Windsor/blob/master/docs/componentmodel-construction-contributors.md).  Again, we limit the scope of our discussion to how contributors are used in the RQ.Server.CQS framework.
 
 We have created an abstraction to make working with Castle.Windsor contributors easy: [the `CQSInterceptorContributor<TInterceptorType>` abstract class](https://github.com/RyanMarcotte/testbed/blob/CQSFactory-Documentation/CQSDIContainer/CQSDIContainer/Contributors/_CQSInterceptorContributor.cs).  A type constraint exists on `TInterceptorType`: it must be a `CQSInterceptor`.
 
