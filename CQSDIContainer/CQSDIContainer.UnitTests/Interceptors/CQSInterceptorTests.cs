@@ -22,7 +22,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 	public class CQSInterceptorTests
 	{
 		[Theory]
-		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler]
+		[CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandlerArrangement]
 		public void ShouldThrowExceptionIfInterceptingAMethodNotBelongingToACQSHandler(CQSInterceptorImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			bool throwInvalidOperationException = false;
@@ -66,9 +66,9 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		#region Arrangements
 
 		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-		private class CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler : AutoDataAttribute
+		private class CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandlerArrangement : AutoDataAttribute
 		{
-			public CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandler()
+			public CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandlerArrangement()
 				: base(new Fixture()
 					.Customize(new AutoFakeItEasyCustomization())
 					.Customize(new CQSInvocationCustomization(false, CQSHandlerType.Query)) // doesn't matter since we're overwriting the data below

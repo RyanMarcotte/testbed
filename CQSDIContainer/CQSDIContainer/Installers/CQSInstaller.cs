@@ -5,24 +5,21 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Castle.DynamicProxy;
-using Castle.MicroKernel.ModelBuilder;
-using Castle.MicroKernel.Proxy;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using CQSDIContainer.Contributors;
 using CQSDIContainer.Contributors.Interfaces;
-using CQSDIContainer.Interceptors;
 using CQSDIContainer.Interceptors.Caching;
 using CQSDIContainer.Interceptors.Caching.Interfaces;
 using CQSDIContainer.Interceptors.ExceptionLogging;
 using CQSDIContainer.Interceptors.ExceptionLogging.Interfaces;
 using CQSDIContainer.Interceptors.MetricsLogging;
 using CQSDIContainer.Interceptors.MetricsLogging.Interfaces;
+using CQSDIContainer.Interceptors.TransactionScopes;
+using CQSDIContainer.Interceptors.TransactionScopes.Interfaces;
 using CQSDIContainer.Queries.Caching;
 using CQSDIContainer.SubResolvers;
 using CQSDIContainer.Utilities;
-using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.Installers
 {
@@ -36,6 +33,7 @@ namespace CQSDIContainer.Installers
 				.Register(Component.For<ILogCacheHitsAndMissesForQueryHandlers>().ImplementedBy<CacheHitLoggerForQueryHandlers>().LifestyleTransient())
 				.Register(Component.For<ILogExceptionsFromCQSHandlers>().ImplementedBy<ExceptionLoggerForCQSHandlers>().LifestyleTransient())
 				.Register(Component.For<ILogExecutionTimeOfCQSHandlers>().ImplementedBy<ExecutionTimeLoggerForCQSHandlers>().LifestyleTransient())
+				.Register(Component.For<IManageTransactionScopesForCQSHandlers>().ImplementedBy<TransactionScopeManagerForCQSHandlers>().LifestyleTransient())
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(IInterceptor)).WithServiceBase().LifestyleTransient())
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(ICQSInterceptorContributor)).WithServiceSelf().LifestyleTransient())
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(IQueryCacheItemFactory<,>)).WithServiceBase().LifestyleSingleton());

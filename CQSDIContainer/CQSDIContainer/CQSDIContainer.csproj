@@ -93,6 +93,7 @@
     <Compile Include="Commands\DoSomethingCommandHandler.cs" />
     <Compile Include="Contributors\TransactionScopeContributor.cs" />
     <Compile Include="Interceptors\Exceptions\CQSHandlerClassImplementsMultipleCQSHandlerInterfacesException.cs" />
+    <Compile Include="Interceptors\Exceptions\TransactionScopeNotFoundForInvocationException.cs" />
     <Compile Include="Interceptors\Exceptions\UnexpectedCQSHandlerTypeException.cs" />
     <Compile Include="Interceptors\Exceptions\UnrecognizedCQSHandlerTypeException.cs" />
     <Compile Include="Interceptors\Enums\InvocationTypes.cs" />
@@ -104,6 +105,8 @@
     <Compile Include="Interceptors\Caching\CacheItemFactoryInstanceRepository.cs" />
     <Compile Include="Interceptors\Caching\Interfaces\ICacheItemFactoryInstanceRepository.cs" />
     <Compile Include="Interceptors\Caching\Interfaces\ILogCacheHitsAndMissesForQueryHandlers.cs" />
+    <Compile Include="Interceptors\TransactionScopes\Interfaces\IManageTransactionScopesForCQSHandlers.cs" />
+    <Compile Include="Interceptors\TransactionScopes\TransactionScopeManagerForCQSHandlers.cs" />
     <Compile Include="Interceptors\_InvocationInfo.cs" />
     <Compile Include="SubResolvers\NestedCQSHandlerResolver.cs" />
     <Compile Include="Interceptors\Attributes\ApplyToNestedHandlersAttribute.cs" />
