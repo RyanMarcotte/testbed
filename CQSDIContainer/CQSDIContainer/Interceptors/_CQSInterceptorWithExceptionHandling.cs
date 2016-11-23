@@ -7,8 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Castle.Core;
 using Castle.DynamicProxy;
-using CQSDIContainer.Exceptions;
-using CQSDIContainer.Infrastructure;
+using CQSDIContainer.Interceptors.Enums;
+using CQSDIContainer.Interceptors.Exceptions;
 using IQ.Platform.Framework.Common;
 using IQ.Platform.Framework.Common.CQS;
 
@@ -142,7 +142,7 @@ namespace CQSDIContainer.Interceptors
 			if (invocationTypes == InvocationTypes.None)
 				throw new UnrecognizedCQSHandlerTypeException(componentModel);
 			if (invocationTypes.IsMoreThanOneInvocationType())
-				throw new HandlerClassImplementsMultipleHandlerInterfacesException(componentModel.Implementation, invocationTypes);
+				throw new CQSHandlerClassImplementsMultipleCQSHandlerInterfacesException(componentModel.Implementation, invocationTypes);
 
 			if (invocationTypes.HasFlag(InvocationTypes.Query))
 				OnReceiveReturnValueFromQueryHandlerInvocation(componentModel, invocation.ReturnValue);
@@ -151,7 +151,7 @@ namespace CQSDIContainer.Interceptors
 			else if (invocationTypes.HasFlag(InvocationTypes.ResultCommand))
 				ExecuteOnReceiveReturnValueFromResultCommandHandlerInvocationUsingReflection(invocation, componentModel);
 			else
-				throw new UnexpectedHandlerTypeException(invocationTypes, InvocationTypes.Query | InvocationTypes.Command | InvocationTypes.ResultCommand);
+				throw new UnexpectedCQSHandlerTypeException(invocationTypes, InvocationTypes.Query | InvocationTypes.Command | InvocationTypes.ResultCommand);
 		}
 
 		#region OnReceiveReturnValueFromSynchronousMethodInvocation helpers
@@ -180,7 +180,7 @@ namespace CQSDIContainer.Interceptors
 			if (invocationTypes == InvocationTypes.None)
 				throw new UnrecognizedCQSHandlerTypeException(componentModel);
 			if (invocationTypes.IsMoreThanOneInvocationType())
-				throw new HandlerClassImplementsMultipleHandlerInterfacesException(componentModel.Implementation, invocationTypes);
+				throw new CQSHandlerClassImplementsMultipleCQSHandlerInterfacesException(componentModel.Implementation, invocationTypes);
 
 			if (invocationTypes.HasFlag(InvocationTypes.AsyncQuery))
 				OnReceiveReturnValueFromAsyncQueryHandlerInvocation(componentModel, ((dynamic)invocation.ReturnValue).Result);
@@ -189,7 +189,7 @@ namespace CQSDIContainer.Interceptors
 			else if (invocationTypes.HasFlag(InvocationTypes.AsyncResultCommand))
 				ExecuteOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationUsingReflection(invocation, componentModel);
 			else
-				throw new UnexpectedHandlerTypeException(invocationTypes, InvocationTypes.AsyncQuery | InvocationTypes.AsyncCommand | InvocationTypes.AsyncResultCommand);
+				throw new UnexpectedCQSHandlerTypeException(invocationTypes, InvocationTypes.AsyncQuery | InvocationTypes.AsyncCommand | InvocationTypes.AsyncResultCommand);
 		}
 
 		#region OnReceiveReturnValueFromAsynchronousMethodInvocation helpers

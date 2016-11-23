@@ -12,7 +12,6 @@ using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using CQSDIContainer.Contributors;
 using CQSDIContainer.Contributors.Interfaces;
-using CQSDIContainer.Infrastructure;
 using CQSDIContainer.Interceptors;
 using CQSDIContainer.Interceptors.Caching;
 using CQSDIContainer.Interceptors.Caching.Interfaces;

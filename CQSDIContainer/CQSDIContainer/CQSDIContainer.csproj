@@ -92,10 +92,10 @@
     <Compile Include="Commands\DoSomethingCommand.cs" />
     <Compile Include="Commands\DoSomethingCommandHandler.cs" />
     <Compile Include="Contributors\TransactionScopeContributor.cs" />
-    <Compile Include="Exceptions\HandlerClassImplementsMultipleHandlerInterfacesException.cs" />
-    <Compile Include="Exceptions\UnexpectedHandlerTypeException.cs" />
-    <Compile Include="Exceptions\UnrecognizedCQSHandlerTypeException.cs" />
-    <Compile Include="Infrastructure\InvocationTypes.cs" />
+    <Compile Include="Interceptors\Exceptions\CQSHandlerClassImplementsMultipleCQSHandlerInterfacesException.cs" />
+    <Compile Include="Interceptors\Exceptions\UnexpectedCQSHandlerTypeException.cs" />
+    <Compile Include="Interceptors\Exceptions\UnrecognizedCQSHandlerTypeException.cs" />
+    <Compile Include="Interceptors\Enums\InvocationTypes.cs" />
     <Compile Include="Installers\CacheInstaller.cs" />
     <Compile Include="Installers\CQSInstaller.cs" />
     <Compile Include="Installers\MockRQApplicationServiceInstaller.cs" />

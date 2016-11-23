@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Castle.Core;
-using CQSDIContainer.Infrastructure;
 using CQSDIContainer.Utilities;
-using IQ.Platform.Framework.Common.CQS;
 
-namespace CQSDIContainer.Exceptions
+namespace CQSDIContainer.Interceptors.Exceptions
 {
 	public class UnrecognizedCQSHandlerTypeException : Exception
 	{

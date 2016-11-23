@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using IQ.Platform.Framework.Common.CQS;
 
-namespace CQSDIContainer.Infrastructure
+namespace CQSDIContainer.Interceptors.Enums
 {
+	/// <summary>
+	/// Enumeration of CQS handler invocation types.
+	/// </summary>
 	[Flags]
 	public enum InvocationTypes
 	{
@@ -19,6 +19,9 @@ namespace CQSDIContainer.Infrastructure
 		AsyncResultCommand = 32
 	}
 
+	/// <summary>
+	/// Extension methods for the <see cref="InvocationTypes"/> enum.
+	/// </summary>
 	public static class InvocationTypesExtensions
 	{
 		/// <summary>
