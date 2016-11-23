@@ -60,7 +60,10 @@ You can find the collection of interceptors in RQ.Server.CQS [here](https://gith
 
 ## Contributors
 
-Castle.Windsor uses the concept of *contributors* to customize how interceptors are applied to invocations at registration-time (i.e. on application start-up).  We have created an abstraction to make working with Castle.Windsor contributors easy: [the `CQSInterceptorContributor<TInterceptorType>` abstract class](https://github.com/RyanMarcotte/testbed/blob/CQSFactory-Documentation/CQSDIContainer/CQSDIContainer/Contributors/_CQSInterceptorContributor.cs).  A type constraint exists on `TInterceptorType`: it must be a `CQSInterceptor`.
+Castle.Windsor uses the concept of *contributors* to customize how interceptors are applied to invocations at registration-time (i.e. on application start-up).  
+Anyone wanting to do a deeper dive can consult the [Castle Windsor documentation](https://github.com/castleproject/Windsor/blob/master/docs/componentmodel-construction-contributors.md).  Again, we limit the scope of our discussion to how contributors are used in the RQ.Server.CQS framework.
+
+We have created an abstraction to make working with Castle.Windsor contributors easy: [the `CQSInterceptorContributor<TInterceptorType>` abstract class](https://github.com/RyanMarcotte/testbed/blob/CQSFactory-Documentation/CQSDIContainer/CQSDIContainer/Contributors/_CQSInterceptorContributor.cs).  A type constraint exists on `TInterceptorType`: it must be a `CQSInterceptor`.
 
 ### Basic Functionality
 Classes that inherit from `CQSInterceptorContributor` only need to provide the implementations for the `HandlerTypesToApplyTo` property and the `ShouldApplyInterceptor(IKernel kernel, ComponentModel model)` method.
@@ -78,5 +81,3 @@ We require special logic for *nested handlers*, which the `CQSInterceptorContrib
 For example, if a command handler `H` that updates records in the RQ database contains references to three simpler, nested command handlers: `a`, `b`, and `c`.  The three nested handlers each perform some smaller amount of work to complete the RQ database update operation.  We only really need to have a single transaction scope around `H`.  Since `a`, `b`, and `c` are inside `H`, they will also be executed within the one transaction scope.  If any of `a`, `b`, or `c` fail, then the entire operation performed by `H` up to that point is rolled back.
 
 By default, interceptors only apply to the outermost handler.  If an interceptor should be also be used for any nested handlers, tag the interceptor class with [`ApplyToNestedHandlersAttribute`](https://github.com/RyanMarcotte/testbed/blob/CQSFactory-Documentation/CQSDIContainer/CQSDIContainer/Interceptors/Attributes/ApplyToNestedHandlersAttribute.cs).  See [the query-result caching interceptor](https://github.com/RyanMarcotte/testbed/blob/CQSFactory-Documentation/CQSDIContainer/CQSDIContainer/Interceptors/CacheQueryResultInterceptor.cs) for an example.
-
-For anyone looking for a deeper dive, you can consult the [Castle Windsor documentation](https://github.com/castleproject/Windsor/blob/master/docs/componentmodel-construction-contributors.md).
