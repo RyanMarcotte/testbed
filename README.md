@@ -1,2 +1,1 @@
-# testbed
-Just a place to try things out
+testbed for trying things out
