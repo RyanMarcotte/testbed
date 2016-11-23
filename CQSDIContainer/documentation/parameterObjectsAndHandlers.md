@@ -26,7 +26,11 @@ The `DatabaseInsertionError<TErrorCode>` class wraps a `TErrorCode` enum value (
 
 ### FAQ
 #### The command handler interfaces return very specific things...  Why can't commands return anything I want?
-Recall that, by convention, commands "change the state of a system but do not return a value".  This is why the `IResultCommandHandler<,>` and `IAsyncResultCommandHandler<,>` interfaces return `Unit.Value` on success.  `Unit.Value` is essentially the void return type.  We have made a slight exception to this rule for `IDatabaseInsertionCommandHandler<,>` as explained above.  These restrictions are in place to prevent pattern abuse.  A command that returns a value is a query with a side-effect, which is violates the principles of CQS.  That is something we are trying to avoid.  If what you are trying to accomplish with your handler is not supported by any of the above interfaces, pull a senior developer aside and talk through your design.
+Recall that, by convention, commands "change the state of a system but do not return a value".  This is why the `IResultCommandHandler<,>` and `IAsyncResultCommandHandler<,>` interfaces return `Unit.Value` on success.  `Unit.Value` is essentially the void return type.
+
+We have made a slight exception to this rule for `IDatabaseInsertionCommandHandler<,>` as explained above.  These restrictions are in place to prevent pattern abuse.  A command that returns a value is a query with a side-effect, which is violates the principles of CQS.  That is something we are trying to avoid, but we needed to make an exception for database insert operations since we expect the database to return IDs that subsequent operations can use.
+
+If what you are trying to accomplish with your handler is not supported by any of the above interfaces, pull a senior developer aside and talk through your design.
 
 #### Should I be throwing exceptions within my handlers?
 *TLDR: Definitely not, because the framework treats expected errors and exceptions differently.*
