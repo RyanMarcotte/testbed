@@ -24,6 +24,8 @@ The `DatabaseInsertionSuccess` class wraps an integer and string identifier pair
 
 The `DatabaseInsertionError<TErrorCode>` class wraps a `TErrorCode` enum value (this is a type constraint) and an error message string.  In cases where you do not require special enum values for database insertion failures, you can use the `NullDatabaseInsertionErrorCode` enum type, which only defines the `ErrorOccurred` enum value.  Convenience methods exist for generating `DatabaseInsertionError<TErrorCode>` class instances and can be found in the `DatabaseInsertionError` static class.
 
+TODO: link to RQ example
+
 ### FAQ
 #### The command handler interfaces return very specific things...  Why can't commands return anything I want?
 Recall that, by convention, commands "change the state of a system but do not return a value".  This is why the `IResultCommandHandler<,>` and `IAsyncResultCommandHandler<,>` interfaces return `Unit.Value` on success.  `Unit.Value` is essentially the void return type.
