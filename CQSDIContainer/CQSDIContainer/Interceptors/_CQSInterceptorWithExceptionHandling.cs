@@ -22,88 +22,99 @@ namespace CQSDIContainer.Interceptors
 		/// <summary>
 		/// Called just before beginning handler invocation.  Use for setup.
 		/// </summary>
+		/// <param name="invocationInstance">The instance of the intercepted invocation.</param>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
-		protected virtual void OnBeginInvocation(ComponentModel componentModel) { }
+		protected virtual void OnBeginInvocation(InvocationInstance invocationInstance, ComponentModel componentModel) { }
 
 		/// <summary>
 		/// Called immediately after successfully returning from the invocation of a synchronous query handler invocation.
 		/// </summary>
+		/// <param name="invocationInstance">The instance of the intercepted invocation.</param>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
 		/// <param name="returnValue">The value returned from the invocation.</param>
-		protected virtual void OnReceiveReturnValueFromQueryHandlerInvocation(ComponentModel componentModel, object returnValue) { }
+		protected virtual void OnReceiveReturnValueFromQueryHandlerInvocation(InvocationInstance invocationInstance, ComponentModel componentModel, object returnValue) { }
 
 		/// <summary>
 		/// Called immediately after successfully returning from the invocation of an asynchronous query handler invocation.
 		/// </summary>
+		/// <param name="invocationInstance">The instance of the intercepted invocation.</param>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
 		/// <param name="returnValue">The value returned from the invocation.</param>
-		protected virtual void OnReceiveReturnValueFromAsyncQueryHandlerInvocation(ComponentModel componentModel, object returnValue) { }
+		protected virtual void OnReceiveReturnValueFromAsyncQueryHandlerInvocation(InvocationInstance invocationInstance, ComponentModel componentModel, object returnValue) { }
 
 		/// <summary>
 		/// Called immediately after successfully returning from the invocation of a synchronous command handler invocation that does not return any value.
 		/// </summary>
+		/// <param name="invocationInstance">The instance of the intercepted invocation.</param>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
-		protected virtual void OnReceiveReturnValueFromCommandHandlerInvocation(ComponentModel componentModel) { }
+		protected virtual void OnReceiveReturnValueFromCommandHandlerInvocation(InvocationInstance invocationInstance, ComponentModel componentModel) { }
 
 		/// <summary>
 		/// Called immediately after successfully returning from the invocation of an synchronous command handler that returns a result.
 		/// </summary>
+		/// <param name="invocationInstance">The instance of the intercepted invocation.</param>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
 		/// <param name="returnValue">The value returned from the invocation.</param>
-		protected virtual void OnReceiveReturnValueFromResultCommandHandlerInvocation<TSuccess, TFailure>(ComponentModel componentModel, Result<TSuccess, TFailure> returnValue) { }
+		protected virtual void OnReceiveReturnValueFromResultCommandHandlerInvocation<TSuccess, TFailure>(InvocationInstance invocationInstance, ComponentModel componentModel, Result<TSuccess, TFailure> returnValue) { }
 
 		/// <summary>
 		/// Called immediately after successfully returning from the invocation of an asynchronous command handler.
 		/// </summary>
+		/// <param name="invocationInstance">The instance of the intercepted invocation.</param>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
-		protected virtual void OnReceiveReturnValueFromAsyncCommandHandlerInvocation(ComponentModel componentModel) { }
+		protected virtual void OnReceiveReturnValueFromAsyncCommandHandlerInvocation(InvocationInstance invocationInstance, ComponentModel componentModel) { }
 
 		/// <summary>
 		/// Called immediately after successfully returning from the invocation of an asynchronous command handler that returns a result.
 		/// </summary>
+		/// <param name="invocationInstance">The instance of the intercepted invocation.</param>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
 		/// <param name="returnValue">The value returned from the invocation.</param>
-		protected virtual void OnReceiveReturnValueFromAsyncResultCommandHandlerInvocation<TSuccess, TFailure>(ComponentModel componentModel, Result<TSuccess, TFailure> returnValue) { }
+		protected virtual void OnReceiveReturnValueFromAsyncResultCommandHandlerInvocation<TSuccess, TFailure>(InvocationInstance invocationInstance, ComponentModel componentModel, Result<TSuccess, TFailure> returnValue) { }
 
 		/// <summary>
 		/// Always called just before returning control to the caller.  Use for teardown.
 		/// </summary>
+		/// <param name="invocationInstance">The instance of the intercepted invocation.</param>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
-		protected virtual void OnEndInvocation(ComponentModel componentModel) { }
+		protected virtual void OnEndInvocation(InvocationInstance invocationInstance, ComponentModel componentModel) { }
 
 		/// <summary>
 		/// Called when an exception has been thrown during invocation.
 		/// </summary>
+		/// <param name="invocationInstance">The instance of the intercepted invocation.</param>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
 		/// <param name="ex">The exception.</param>
-		protected virtual void OnException(ComponentModel componentModel, Exception ex) { }
+		protected virtual void OnException(InvocationInstance invocationInstance, ComponentModel componentModel, Exception ex) { }
 
 		#region Sealed Implementations
 
 		protected sealed override void InterceptSync(IInvocation invocation, ComponentModel componentModel)
 		{
+			var invocationInstance = new InvocationInstance(invocation, componentModel);
 			try
 			{
-				OnBeginInvocation(componentModel);
+				OnBeginInvocation(invocationInstance, componentModel);
 				invocation.Proceed();
-				OnReceiveReturnValueFromSynchronousMethodInvocation(invocation, componentModel);
+				OnReceiveReturnValueFromSynchronousMethodInvocation(invocation, componentModel, invocationInstance);
 			}
 			catch (Exception ex)
 			{
-				OnException(componentModel, ex);
+				OnException(invocationInstance, componentModel, ex);
 				throw;
 			}
 			finally
 			{
-				OnEndInvocation(componentModel);
+				OnEndInvocation(invocationInstance, componentModel);
 			}
 		}
 
 		protected sealed override void InterceptAsync(IInvocation invocation, ComponentModel componentModel, AsynchronousMethodType methodType)
 		{
+			var invocationInstance = new InvocationInstance(invocation, componentModel);
 			try
 			{
-				OnBeginInvocation(componentModel);
+				OnBeginInvocation(invocationInstance, componentModel);
 				invocation.Proceed();
 				switch (methodType)
 				{
@@ -118,16 +129,16 @@ namespace CQSDIContainer.Interceptors
 					default:
 						throw new ArgumentOutOfRangeException(nameof(methodType), methodType, "Invalid value!!");
 				}
-				OnReceiveReturnValueFromAsynchronousMethodInvocation(invocation, componentModel);
+				OnReceiveReturnValueFromAsynchronousMethodInvocation(invocation, componentModel, invocationInstance);
 			}
 			catch (Exception ex)
 			{
-				OnException(componentModel, ex);
+				OnException(invocationInstance, componentModel, ex);
 				throw;
 			}
 			finally
 			{
-				OnEndInvocation(componentModel);
+				OnEndInvocation(invocationInstance, componentModel);
 			}
 		}
 
@@ -136,7 +147,8 @@ namespace CQSDIContainer.Interceptors
 		/// </summary>
 		/// <param name="invocation">The intercepted invocation.</param>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
-		private void OnReceiveReturnValueFromSynchronousMethodInvocation(IInvocation invocation, ComponentModel componentModel)
+		/// <param name="invocationInstance">The instance of the intercepted invocation.</param>
+		private void OnReceiveReturnValueFromSynchronousMethodInvocation(IInvocation invocation, ComponentModel componentModel, InvocationInstance invocationInstance)
 		{
 			var invocationTypes = GetComponentModelInvocationTypes(componentModel);
 			if (invocationTypes == InvocationTypes.None)
@@ -145,11 +157,11 @@ namespace CQSDIContainer.Interceptors
 				throw new CQSHandlerClassImplementsMultipleCQSHandlerInterfacesException(componentModel.Implementation, invocationTypes);
 
 			if (invocationTypes.HasFlag(InvocationTypes.Query))
-				OnReceiveReturnValueFromQueryHandlerInvocation(componentModel, invocation.ReturnValue);
+				OnReceiveReturnValueFromQueryHandlerInvocation(invocationInstance, componentModel, invocation.ReturnValue);
 			else if (invocationTypes.HasFlag(InvocationTypes.Command))
-				OnReceiveReturnValueFromCommandHandlerInvocation(componentModel);
+				OnReceiveReturnValueFromCommandHandlerInvocation(invocationInstance, componentModel);
 			else if (invocationTypes.HasFlag(InvocationTypes.ResultCommand))
-				ExecuteOnReceiveReturnValueFromResultCommandHandlerInvocationUsingReflection(invocation, componentModel);
+				ExecuteOnReceiveReturnValueFromResultCommandHandlerInvocationUsingReflection(invocation, componentModel, invocationInstance);
 			else
 				throw new UnexpectedCQSHandlerTypeException(invocationTypes, InvocationTypes.Query | InvocationTypes.Command | InvocationTypes.ResultCommand);
 		}
@@ -159,12 +171,12 @@ namespace CQSDIContainer.Interceptors
 		private static readonly ConcurrentDictionary<Tuple<Type, Type>, MethodInfo> _onReceiveReturnValueFromSynchronousFunctionInvocationMethodLookup = new ConcurrentDictionary<Tuple<Type, Type>, MethodInfo>();
 		private static readonly MethodInfo _onReceiveReturnValueFromSynchronousFunctionInvocationMethodInfo = typeof(CQSInterceptorWithExceptionHandling).GetMethod(nameof(OnReceiveReturnValueFromResultCommandHandlerInvocation), BindingFlags.Instance | BindingFlags.NonPublic);
 
-		private void ExecuteOnReceiveReturnValueFromResultCommandHandlerInvocationUsingReflection(IInvocation invocation, ComponentModel componentModel)
+		private void ExecuteOnReceiveReturnValueFromResultCommandHandlerInvocationUsingReflection(IInvocation invocation, ComponentModel componentModel, InvocationInstance invocationInstance)
 		{
 			var successResultType = invocation.Method.ReturnType.GetGenericArguments()[0];
 			var failureResultType = invocation.Method.ReturnType.GetGenericArguments()[1];
 			var methodInfo = _onReceiveReturnValueFromSynchronousFunctionInvocationMethodLookup.GetOrAdd(Tuple.Create(successResultType, failureResultType), t => _onReceiveReturnValueFromSynchronousFunctionInvocationMethodInfo.MakeGenericMethod(t.Item1, t.Item2));
-			invocation.ReturnValue = methodInfo.Invoke(this, new[] { componentModel, invocation.ReturnValue });
+			invocation.ReturnValue = methodInfo.Invoke(this, new[] { invocationInstance, componentModel, invocation.ReturnValue });
 		}
 
 		#endregion
@@ -174,7 +186,8 @@ namespace CQSDIContainer.Interceptors
 		/// </summary>
 		/// <param name="invocation">The intercepted invocation.</param>
 		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
-		private void OnReceiveReturnValueFromAsynchronousMethodInvocation(IInvocation invocation, ComponentModel componentModel)
+		/// <param name="invocationInstance">The instance of the intercepted invocation.</param>
+		private void OnReceiveReturnValueFromAsynchronousMethodInvocation(IInvocation invocation, ComponentModel componentModel, InvocationInstance invocationInstance)
 		{
 			var invocationTypes = GetComponentModelInvocationTypes(componentModel);
 			if (invocationTypes == InvocationTypes.None)
@@ -183,11 +196,11 @@ namespace CQSDIContainer.Interceptors
 				throw new CQSHandlerClassImplementsMultipleCQSHandlerInterfacesException(componentModel.Implementation, invocationTypes);
 
 			if (invocationTypes.HasFlag(InvocationTypes.AsyncQuery))
-				OnReceiveReturnValueFromAsyncQueryHandlerInvocation(componentModel, ((dynamic)invocation.ReturnValue).Result);
+				OnReceiveReturnValueFromAsyncQueryHandlerInvocation(invocationInstance, componentModel, ((dynamic)invocation.ReturnValue).Result);
 			else if (invocationTypes.HasFlag(InvocationTypes.AsyncCommand))
-				OnReceiveReturnValueFromAsyncCommandHandlerInvocation(componentModel);
+				OnReceiveReturnValueFromAsyncCommandHandlerInvocation(invocationInstance, componentModel);
 			else if (invocationTypes.HasFlag(InvocationTypes.AsyncResultCommand))
-				ExecuteOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationUsingReflection(invocation, componentModel);
+				ExecuteOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationUsingReflection(invocation, componentModel, invocationInstance);
 			else
 				throw new UnexpectedCQSHandlerTypeException(invocationTypes, InvocationTypes.AsyncQuery | InvocationTypes.AsyncCommand | InvocationTypes.AsyncResultCommand);
 		}
@@ -197,13 +210,13 @@ namespace CQSDIContainer.Interceptors
 		private static readonly ConcurrentDictionary<Tuple<Type, Type>, MethodInfo> _onReceiveReturnValueFromAsynchronousFunctionInvocationMethodLookup = new ConcurrentDictionary<Tuple<Type, Type>, MethodInfo>();
 		private static readonly MethodInfo _onReceiveReturnValueFromAsynchronousFunctionInvocationMethodInfo = typeof(CQSInterceptorWithExceptionHandling).GetMethod(nameof(OnReceiveReturnValueFromAsyncResultCommandHandlerInvocation), BindingFlags.Instance | BindingFlags.NonPublic);
 		
-		private void ExecuteOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationUsingReflection(IInvocation invocation, ComponentModel componentModel)
+		private void ExecuteOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationUsingReflection(IInvocation invocation, ComponentModel componentModel, InvocationInstance invocationInstance)
 		{
 			var taskType = invocation.Method.ReturnType.GetGenericArguments()[0];
 			var successResultType = taskType.GetGenericArguments()[0];
 			var failureResultType = taskType.GetGenericArguments()[1];
 			var methodInfo = _onReceiveReturnValueFromAsynchronousFunctionInvocationMethodLookup.GetOrAdd(Tuple.Create(successResultType, failureResultType), t => _onReceiveReturnValueFromAsynchronousFunctionInvocationMethodInfo.MakeGenericMethod(t.Item1, t.Item2));
-			invocation.ReturnValue = methodInfo.Invoke(this, new object[] { componentModel, ((dynamic)invocation.ReturnValue).Result });
+			invocation.ReturnValue = methodInfo.Invoke(this, new object[] { invocationInstance, componentModel, ((dynamic)invocation.ReturnValue).Result });
 		}
 
 		#endregion

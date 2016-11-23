@@ -104,6 +104,7 @@
     <Compile Include="Interceptors\Caching\CacheItemFactoryInstanceRepository.cs" />
     <Compile Include="Interceptors\Caching\Interfaces\ICacheItemFactoryInstanceRepository.cs" />
     <Compile Include="Interceptors\Caching\Interfaces\ILogCacheHitsAndMissesForQueryHandlers.cs" />
+    <Compile Include="Interceptors\_InvocationInfo.cs" />
     <Compile Include="SubResolvers\NestedCQSHandlerResolver.cs" />
     <Compile Include="Interceptors\Attributes\ApplyToNestedHandlersAttribute.cs" />
     <Compile Include="Interceptors\CacheQueryResultInterceptor.cs" />

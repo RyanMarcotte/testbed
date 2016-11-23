@@ -25,12 +25,12 @@ namespace CQSDIContainer.Interceptors
 			_executionTimeLogger = executionTimeLogger;
 		}
 
-		protected override void OnBeginInvocation(ComponentModel componentModel)
+		protected override void OnBeginInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)
 		{
 			_begin = DateTime.UtcNow;
 		}
 		
-		protected override void OnEndInvocation(ComponentModel componentModel)
+		protected override void OnEndInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)
 		{
 			var end = DateTime.UtcNow;
 			var threshold = TimeSpan.FromMilliseconds(componentModel.Implementation.GetCustomAttribute<LogExecutionTimeAttribute>()?.ThresholdInMilliseconds ?? LogExecutionTimeAttribute.MaximumThreshold);

@@ -22,7 +22,7 @@ namespace CQSDIContainer.Interceptors
 			_exceptionLogger = exceptionLogger;
 		}
 
-		protected override void OnException(ComponentModel componentModel, Exception ex)
+		protected override void OnException(InvocationInstance invocationInstance, ComponentModel componentModel, Exception ex)
 		{
 			_exceptionLogger.LogException(ex);
 		}

@@ -362,47 +362,47 @@ namespace CQSDIContainer.UnitTests.Interceptors
 			public int NumberOfTimesOnEndInvocationCalled => _numberOfTimesOnEndInvocationCalled;
 			public int NumberOfTimesOnExceptionCalled => _numberOfTimesOnExceptionCalled;
 
-			protected override void OnBeginInvocation(ComponentModel componentModel)
+			protected override void OnBeginInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)
 			{
 				Interlocked.Increment(ref _numberOfTimesOnBeginInvocationCalled);
 			}
 
-			protected override void OnReceiveReturnValueFromQueryHandlerInvocation(ComponentModel componentModel, object returnValue)
+			protected override void OnReceiveReturnValueFromQueryHandlerInvocation(InvocationInstance invocationInstance, ComponentModel componentModel, object returnValue)
 			{
 				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled);
 			}
 
-			protected override void OnReceiveReturnValueFromAsyncQueryHandlerInvocation(ComponentModel componentModel, object returnValue)
+			protected override void OnReceiveReturnValueFromAsyncQueryHandlerInvocation(InvocationInstance invocationInstance, ComponentModel componentModel, object returnValue)
 			{
 				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled);
 			}
 
-			protected override void OnReceiveReturnValueFromCommandHandlerInvocation(ComponentModel componentModel)
+			protected override void OnReceiveReturnValueFromCommandHandlerInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)
 			{
 				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromCommandHandlerInvocationCalled);
 			}
 
-			protected override void OnReceiveReturnValueFromResultCommandHandlerInvocation<TSuccess, TFailure>(ComponentModel componentModel, Result<TSuccess, TFailure> returnValue)
+			protected override void OnReceiveReturnValueFromResultCommandHandlerInvocation<TSuccess, TFailure>(InvocationInstance invocationInstance, ComponentModel componentModel, Result<TSuccess, TFailure> returnValue)
 			{
 				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromResultCommandHandlerInvocationCalled);
 			}
 
-			protected override void OnReceiveReturnValueFromAsyncCommandHandlerInvocation(ComponentModel componentModel)
+			protected override void OnReceiveReturnValueFromAsyncCommandHandlerInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)
 			{
 				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromAsyncCommandHandlerInvocationCalled);
 			}
 
-			protected override void OnReceiveReturnValueFromAsyncResultCommandHandlerInvocation<TSuccess, TFailure>(ComponentModel componentModel, Result<TSuccess, TFailure> returnValue)
+			protected override void OnReceiveReturnValueFromAsyncResultCommandHandlerInvocation<TSuccess, TFailure>(InvocationInstance invocationInstance, ComponentModel componentModel, Result<TSuccess, TFailure> returnValue)
 			{
 				Interlocked.Increment(ref _numberOfTimesOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationCalled);
 			}
 
-			protected override void OnEndInvocation(ComponentModel componentModel)
+			protected override void OnEndInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)
 			{
 				Interlocked.Increment(ref _numberOfTimesOnEndInvocationCalled);
 			}
 
-			protected override void OnException(ComponentModel componentModel, Exception ex)
+			protected override void OnException(InvocationInstance invocationInstance, ComponentModel componentModel, Exception ex)
 			{
 				Interlocked.Increment(ref _numberOfTimesOnExceptionCalled);
 			}

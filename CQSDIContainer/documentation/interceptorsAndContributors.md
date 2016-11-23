@@ -31,29 +31,31 @@ We use a couple interfaces and classes from Castle.Windsor in order to provide e
 - [`IInvocation`](https://github.com/castleproject/Core/blob/master/src/Castle.Core/DynamicProxy/IInvocation.cs) is an abstraction of our function call
 - [`ComponentModel`](https://github.com/castleproject/Windsor/blob/master/src/Castle.Windsor/Core/ComponentModel.cs) is an abstraction of the object making the function call (i.e. the class type)
 
+We also introduce an [`InvocationInstance`](../CQSDIContainer/Interceptors/_InvocationInfo.cs) class for encapsulating a unique invocation.  That is, each call to `Handle` / `HandleAsync` for a given CQS handler class will generate a different `InvocationInstance` object.
+
 All of the following methods are declared `virtual`, so they can be overwritten.  The methods do nothing unless a developer specifically overrides them in their derived class.
 
-#### `OnBeginInvocation(ComponentModel componentModel)`
+#### `OnBeginInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)`
 Called just before beginning handler invocation.  Use for setup.
 #### `OnReceiveReturnValueFromInvocation`
 Why are there no parameter arguments listed here?  This method name actually doesn't exist.  However, there are several variants of this method concept, one for each type of handler.  The `CQSInterceptorWithExceptionHandling` base class chooses the appropriate method to call based on the invoked handler's type.
-##### `OnReceiveReturnValueFromQueryHandlerInvocation(ComponentModel componentModel, object returnValue)`
+##### `OnReceiveReturnValueFromQueryHandlerInvocation(InvocationInstance invocationInstance, ComponentModel componentModel, object returnValue)`
 Called immediately after successfully returning from the invocation of a synchronous query handler invocation.  You have access to the return value if required, though it is not strongly typed.
-##### `OnReceiveReturnValueFromAsyncQueryHandlerInvocation(ComponentModel componentModel, object returnValue)`
+##### `OnReceiveReturnValueFromAsyncQueryHandlerInvocation(InvocationInstance invocationInstance, ComponentModel componentModel, object returnValue)`
 Called immediately after successfully returning from the invocation of an asynchronous query handler invocation.  Similar to the synchronous variant, you have access to the underlying `Task`'s return value (not the `Task` object itself).
-##### `OnReceiveReturnValueFromCommandHandlerInvocation(ComponentModel componentModel)`
+##### `OnReceiveReturnValueFromCommandHandlerInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)`
 Called immediately after successfully returning from the invocation of a synchronous command handler invocation that does not return any value.
-##### `OnReceiveReturnValueFromResultCommandHandlerInvocation<TSuccess, TFailure>(ComponentModel componentModel, Result<TSuccess, TFailure> returnValue)`
+##### `OnReceiveReturnValueFromResultCommandHandlerInvocation<TSuccess, TFailure>(InvocationInstance invocationInstance, ComponentModel componentModel, Result<TSuccess, TFailure> returnValue)`
 Called immediately after successfully returning from the invocation of an synchronous command handler that returns a result.  The method is generic, but the class is not, so you will not be able to access properties on your success / failure objects without some serious type-checking hackery.  Basically, you're only really interested in checking the `IsSuccessfull` flag on the return value.
-##### `OnReceiveReturnValueFromAsyncCommandHandlerInvocation(ComponentModel componentModel)`
+##### `OnReceiveReturnValueFromAsyncCommandHandlerInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)`
 Called immediately after successfully returning from the invocation of an asynchronous command handler.
-##### `OnReceiveReturnValueFromAsyncResultCommandHandlerInvocation<TSuccess, TFailure>(ComponentModel componentModel, Result<TSuccess, TFailure> returnValue)`
+##### `OnReceiveReturnValueFromAsyncResultCommandHandlerInvocation<TSuccess, TFailure>(InvocationInstance invocationInstance, ComponentModel componentModel, Result<TSuccess, TFailure> returnValue)`
 Called immediately after successfully returning from the invocation of an asynchronous command handler that returns a result.  All the extra considerations given above for `OnReceiveReturnValueFromResultCommandHandlerInvocation` apply here: just check the `IsSuccessfull` flag on the return value.
-##### `OnReceiveReturnValueFromDatabaseInsertionCommandHandlerInvocation<TErrorCode>(ComponentModel componentModel, Result<DatabaseInsertionSuccess, DatabaseInsertionError<TErrorCode>> returnValue)`
+##### `OnReceiveReturnValueFromDatabaseInsertionCommandHandlerInvocation<TErrorCode>(InvocationInstance invocationInstance, ComponentModel componentModel, Result<DatabaseInsertionSuccess, DatabaseInsertionError<TErrorCode>> returnValue)`
 Called immediately after successfully returning from the invocation of a database insertion command handler.  Again, because this is a generic method within a non-generic class, you just want to check the `IsSuccessfull` flag on the return value.
-#### `OnEndInvocation(ComponentModel componentModel)`
+#### `OnEndInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)`
 Always called just before returning control to the caller (including when exceptions are thrown - this method is called as part of a `finally` block).  Use for teardown.
-#### `OnException(ComponentModel componentModel, Exception ex)`
+#### `OnException(InvocationInstance invocationInstance, ComponentModel componentModel, Exception ex)`
 Called when an exception has been thrown by the interceptor or during invocation.
 
 You can find the collection of interceptors in RQ.Server.CQS [here](../CQSDIContainer/Interceptors).  Note that aside from [the query-result caching interceptor](../CQSDIContainer/Interceptors/CacheQueryResultInterceptor.cs) (which requires special interception logic), the implementations of an interceptor are incredibly straight-forward.
