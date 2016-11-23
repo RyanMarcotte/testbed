@@ -81,7 +81,7 @@ namespace CQSDIContainer
 					Console.WriteLine();
 				}
 
-				Console.WriteLine("--[[ async command handler test ]]--");
+				/*Console.WriteLine("--[[ async command handler test ]]--");
 				await _asyncCommandHandler.HandleAsync(new DoSomethingAsyncCommand());
 				Console.WriteLine();
 
@@ -91,11 +91,11 @@ namespace CQSDIContainer
 
 				Console.WriteLine("--[[ async command (with result) handler test ]]--");
 				Console.WriteLine($"Result of {_asyncCommandHandlerWithResult.GetType().FullName} = {await _asyncCommandHandlerWithResult.HandleAsync(new DoSomethingAsyncWithResultCommand(), new CancellationToken())}");
-				Console.WriteLine();
+				Console.WriteLine();*/
 			}
-			catch
+			catch (Exception ex)
 			{
-				// eat all exceptions
+				Console.WriteLine(ex);
 			}
 
 			Console.WriteLine("Press any key to exit");

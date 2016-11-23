@@ -12,6 +12,7 @@ using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using CQSDIContainer.Contributors;
 using CQSDIContainer.Contributors.Interfaces;
+using CQSDIContainer.Infrastructure;
 using CQSDIContainer.Interceptors;
 using CQSDIContainer.Interceptors.Caching;
 using CQSDIContainer.Interceptors.Caching.Interfaces;
@@ -21,6 +22,7 @@ using CQSDIContainer.Interceptors.MetricsLogging;
 using CQSDIContainer.Interceptors.MetricsLogging.Interfaces;
 using CQSDIContainer.Queries.Caching;
 using CQSDIContainer.SubResolvers;
+using CQSDIContainer.Utilities;
 using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.Installers
@@ -65,12 +67,7 @@ namespace CQSDIContainer.Installers
 
 		private static IEnumerable<IRegistration> GetAllCQSHandlerRegistrations(Action<ComponentRegistration> componentRegistrationAction)
 		{
-			yield return Classes.FromThisAssembly().BasedOn(typeof(ICommandHandler<>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction);
-			yield return Classes.FromThisAssembly().BasedOn(typeof(IAsyncCommandHandler<>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction);
-			yield return Classes.FromThisAssembly().BasedOn(typeof(IResultCommandHandler<,>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction);
-			yield return Classes.FromThisAssembly().BasedOn(typeof(IAsyncResultCommandHandler<,>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction);
-			yield return Classes.FromThisAssembly().BasedOn(typeof(IQueryHandler<,>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction);
-			yield return Classes.FromThisAssembly().BasedOn(typeof(IAsyncQueryHandler<,>)).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction);
+			return CQSHandlerTypeCheckingUtility.SupportedHandlerTypes.Select(supportedHandlerType => Classes.FromThisAssembly().BasedOn(supportedHandlerType).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction));
 		}
 
 		/// <summary>

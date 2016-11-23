@@ -47,17 +47,17 @@ namespace CQSDIContainer.UnitTests.TestUtilities
 			switch (handlerType)
 			{
 				case CQSHandlerType.Query:
-					return typeof(SampleQueryHandler).GetInterfaces().FirstOrDefault();
+					return typeof(SampleQueryHandler);
 				case CQSHandlerType.AsyncQuery:
-					return typeof(SampleAsyncQueryHandler).GetInterfaces().FirstOrDefault();
+					return typeof(SampleAsyncQueryHandler);
 				case CQSHandlerType.Command:
-					return typeof(SampleCommandHandler).GetInterfaces().FirstOrDefault();
+					return typeof(SampleCommandHandler);
 				case CQSHandlerType.ResultCommand:
-					return typeof(SampleResultCommandHandler).GetInterfaces().FirstOrDefault();
+					return typeof(SampleResultCommandHandler);
 				case CQSHandlerType.AsyncCommand:
-					return typeof(SampleAsyncCommandHandler).GetInterfaces().FirstOrDefault();
+					return typeof(SampleAsyncCommandHandler);
 				case CQSHandlerType.AsyncResultCommand:
-					return typeof(SampleAsyncResultCommandHandler).GetInterfaces().FirstOrDefault();
+					return typeof(SampleAsyncResultCommandHandler);
 				default:
 					throw new ArgumentOutOfRangeException(nameof(handlerType), handlerType, null);
 			}

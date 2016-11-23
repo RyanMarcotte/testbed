@@ -13,6 +13,25 @@ namespace CQSDIContainer.Utilities
 	/// </summary>
 	public static class CQSHandlerTypeCheckingUtility
 	{
+		private static readonly IEnumerable<Type> _queryHandlerTypes = new HashSet<Type>
+			{
+				typeof(IQueryHandler<,>),
+				typeof(IAsyncQueryHandler<,>)
+			};
+
+		private static readonly IEnumerable<Type> _commandHandlerTypes = new HashSet<Type>
+			{
+				typeof(ICommandHandler<>),
+				typeof(IAsyncCommandHandler<>),
+				typeof(IResultCommandHandler<,>),
+				typeof(IAsyncResultCommandHandler<,>)
+			};
+
+		/// <summary>
+		/// Gets the collection of supported CQS handler types.
+		/// </summary>
+		public static IEnumerable<Type> SupportedHandlerTypes { get; } = new HashSet<Type>(_queryHandlerTypes.Union(_commandHandlerTypes));
+
 		/// <summary>
 		/// Indicates if the specified type corresponds to a query handler.
 		/// </summary>
@@ -50,20 +69,6 @@ namespace CQSDIContainer.Utilities
 		}
 
 		#region Internals
-
-		private static readonly IEnumerable<Type> _queryHandlerTypes = new HashSet<Type>
-			{
-				typeof(IQueryHandler<,>),
-				typeof(IAsyncQueryHandler<,>)
-			};
-
-		private static readonly IEnumerable<Type> _commandHandlerTypes = new HashSet<Type>
-			{
-				typeof(ICommandHandler<>),
-				typeof(IAsyncCommandHandler<>),
-				typeof(IResultCommandHandler<,>),
-				typeof(IAsyncResultCommandHandler<,>)
-			};
 
 		private static bool IsQueryHandlerInterface(Type type)
 		{

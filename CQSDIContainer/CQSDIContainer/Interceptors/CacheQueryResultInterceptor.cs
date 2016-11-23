@@ -133,7 +133,7 @@ namespace CQSDIContainer.Interceptors
 		private static void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var methodInfo = _handleAsyncMethodLookup.GetOrAdd(resultType, _handleAsyncMethodInfo.MakeGenericMethod(resultType));
+			var methodInfo = _handleAsyncMethodLookup.GetOrAdd(resultType, t => _handleAsyncMethodInfo.MakeGenericMethod(t));
 			invocation.ReturnValue = methodInfo.Invoke(null, new[] { invocation.ReturnValue });
 		}
 
@@ -164,7 +164,7 @@ namespace CQSDIContainer.Interceptors
 		private static void ExecuteGetReferenceTypeFromCacheUsingReflection(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory, ILogCacheHitsAndMissesForQueryHandlers cacheLogger)
 		{
 			var resultType = invocation.Method.ReturnType;
-			var methodInfo = _referenceTypeSyncFetcherMethodLookup.GetOrAdd(resultType, _getReferenceTypeFromCacheMethodInfo.MakeGenericMethod(resultType));
+			var methodInfo = _referenceTypeSyncFetcherMethodLookup.GetOrAdd(resultType, t => _getReferenceTypeFromCacheMethodInfo.MakeGenericMethod(t));
 			invocation.ReturnValue = methodInfo.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory, cacheLogger });
 		}
 
@@ -196,7 +196,7 @@ namespace CQSDIContainer.Interceptors
 		private static void ExecuteGetReferenceTypeAsyncFromCacheUsingReflection(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory, ILogCacheHitsAndMissesForQueryHandlers cacheLogger)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var methodInfo = _referenceTypeAsyncFetcherMethodLookup.GetOrAdd(resultType, _getReferenceTypeAsyncFromCacheMethodInfo.MakeGenericMethod(resultType));
+			var methodInfo = _referenceTypeAsyncFetcherMethodLookup.GetOrAdd(resultType, t => _getReferenceTypeAsyncFromCacheMethodInfo.MakeGenericMethod(t));
 			invocation.ReturnValue = methodInfo.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory, cacheLogger });
 		}
 
@@ -234,7 +234,7 @@ namespace CQSDIContainer.Interceptors
 		private static void ExecuteGetValueTypeAsyncFromCacheUsingReflection(IInvocation invocation, ICacheAside cache, string cacheKey, CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory, ILogCacheHitsAndMissesForQueryHandlers cacheLogger)
 		{
 			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var methodInfo = _valueTypeAsyncFetcherMethodLookup.GetOrAdd(resultType, _getValueTypeAsyncFromCacheMethodInfo.MakeGenericMethod(resultType));
+			var methodInfo = _valueTypeAsyncFetcherMethodLookup.GetOrAdd(resultType, t => _getValueTypeAsyncFromCacheMethodInfo.MakeGenericMethod(t));
 			invocation.ReturnValue = methodInfo.Invoke(null, new object[] { invocation, cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory, cacheLogger });
 		}
 
