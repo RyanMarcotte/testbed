@@ -6,5 +6,12 @@ Interceptors are by far the most difficult to unit test.  They must be able to h
 
 To help ease the development of unit tests for interceptors, a framework has been built around it to handle a lot of the boilerplate required for creating common arrangements and customizations.
 
+### Arrangements
+[`CQSInterceptorWithExceptionHandlingArrangementBase`](../CQSDIContainer.UnitTests/_Arrangements/CQSInterceptorWithExceptionHandlingArrangementBase.cs)
+[`CQSInterceptorWithExceptionHandlingAllConfigurationsArrangementBase`](../CQSDIContainer.UnitTests/_Arrangements/CQSInterceptorWithExceptionHandlingAllConfigurationsArrangementBase.cs)
+
+### Customizations
+[`CQSInterceptorWithExceptionHandlingCustomizationBase<TransactionScopeInterceptor>`](../CQSDIContainer.UnitTests/_Customizations/Utilities/CQSInterceptorWithExceptionHandlingCustomizationBase.cs)
+
 ## Writing Unit Tests for Contributors
 Why?  The base class handles all the logic for you!  Derived classes should just be specifying parameters for the base class to act on, so you shouldn't have to write any additional tests *unless you're doing something complex / outside the prescribed pattern*.  Lucky you!
