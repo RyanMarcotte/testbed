@@ -21,6 +21,7 @@ We leverage CQS interfaces defined within the `IQ.Platform.Framework.Common NuGe
 
 ## System Information
 You can find information about individual framework components in the documents linked below:
+- [Getting Started](documentation/gettingStarted.md)
 - [Parameter Objects and Handlers (How do I write code using CQS?)](documentation/parameterObjectsAndHandlers.md)
 - [Interceptors and Contributors (How do I apply cross-cutting concerns to my queries and commands?)](documentation/interceptorsAndContributors.md)
 - [RQ.Server.CQS.UnitTests (Anything I should be aware of when writing unit tests for the system?](documentation/testing.md)
