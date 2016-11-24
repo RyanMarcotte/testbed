@@ -41,5 +41,14 @@ namespace CQSDIContainer.Interceptors.TransactionScopes
 			else
 				throw new TransactionScopeNotFoundForInvocationException(invocationInstance);
 		}
+
+		// this method exists purely for test purposes
+		public void DisposeAll()
+		{
+			foreach (var entry in _transactionScopeForInvocationLookup)
+				entry.Value.Dispose();
+
+			_transactionScopeForInvocationLookup.Clear();
+		}
 	}
 }

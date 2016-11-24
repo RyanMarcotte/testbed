@@ -4,18 +4,16 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Castle.Core;
 using Castle.DynamicProxy;
 using CQSDIContainer.Interceptors;
+using CQSDIContainer.UnitTests.Arrangements;
 using CQSDIContainer.UnitTests.Customizations;
+using CQSDIContainer.UnitTests.Customizations.Utilities;
 using CQSDIContainer.UnitTests.TestUtilities;
-using FakeItEasy;
 using FluentAssertions;
 using IQ.Platform.Framework.Common;
 using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.AutoFakeItEasy;
-using Ploeh.AutoFixture.Xunit2;
 using Xunit;
 
 namespace CQSDIContainer.UnitTests.Interceptors
@@ -253,74 +251,28 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		#region Arrangements
 
 		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-		private class CQSInterceptorWithExceptionHandlingArrangement : AutoDataAttribute
+		private class CQSInterceptorWithExceptionHandlingArrangement : CQSInterceptorWithExceptionHandlingArrangementBase
 		{
 			public CQSInterceptorWithExceptionHandlingArrangement(bool invocationCompletesSuccessfully, CQSHandlerType methodType)
-				: base(new Fixture()
-					.Customize(new AutoFakeItEasyCustomization())
-					.Customize(new CQSInvocationCustomization(invocationCompletesSuccessfully, methodType))
-					.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(methodType)))
-					.Customize(new CQSInterceptorWithExceptionHandlingCustomization()))
+				: base(typeof(CQSInterceptorWithExceptionHandlingCustomization), invocationCompletesSuccessfully, methodType)
 			{
-				
+
 			}
 		}
 
 		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-		private class CQSInterceptorWithExceptionHandlingAllConfigurationsArrangement : AutoDataAttribute
+		private class CQSInterceptorWithExceptionHandlingAllConfigurationsArrangement : CQSInterceptorWithExceptionHandlingAllConfigurationsArrangementBase
 		{
-			private readonly bool? _invocationCompletesSuccessfully;
-
 			public CQSInterceptorWithExceptionHandlingAllConfigurationsArrangement()
-				: base(new Fixture()
-					.Customize(new AutoFakeItEasyCustomization())
-					.Customize(new CQSInvocationCustomization())
-					.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query)))
-					.Customize(new CQSInterceptorWithExceptionHandlingCustomization()))
+				: base(typeof(CQSInterceptorWithExceptionHandlingCustomization))
 			{
-				// we will test both successful and unsuccessful invocations
-				_invocationCompletesSuccessfully = null;
+				
 			}
 
 			public CQSInterceptorWithExceptionHandlingAllConfigurationsArrangement(bool invocationCompletesSuccessfully)
-				: base(new Fixture()
-					.Customize(new AutoFakeItEasyCustomization())
-					.Customize(new CQSInvocationCustomization())
-					.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query)))
-					.Customize(new CQSInterceptorWithExceptionHandlingCustomization()))
+				: base(typeof(CQSInterceptorWithExceptionHandlingCustomization), invocationCompletesSuccessfully)
 			{
-				// we will test either successful or unsuccessful invocations (not both)
-				_invocationCompletesSuccessfully = invocationCompletesSuccessfully;
-			}
-
-			public override IEnumerable<object[]> GetData(MethodInfo testMethod)
-			{
-				var data = base.GetData(testMethod).FirstOrDefault();
-				if (data == null)
-					throw new InvalidOperationException("Expected at least one item in the data!!");
-
-				foreach (var handlerType in Enum.GetValues(typeof(CQSHandlerType)).Cast<CQSHandlerType>())
-				{
-					if (_invocationCompletesSuccessfully == null || !_invocationCompletesSuccessfully.Value)
-					{
-						yield return new object[]
-						{
-							new CQSInterceptorWithExceptionHandlingImpl(),
-							CQSInvocationCustomization.BuildInvocation(false, handlerType),
-							ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))
-						};
-					}
-
-					if (_invocationCompletesSuccessfully == null || _invocationCompletesSuccessfully.Value)
-					{
-						yield return new object[]
-						{
-							new CQSInterceptorWithExceptionHandlingImpl(),
-							CQSInvocationCustomization.BuildInvocation(true, handlerType),
-							ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))
-						};
-					}
-				}
+				
 			}
 		}
 
@@ -328,11 +280,11 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 		#region Customizations
 
-		private class CQSInterceptorWithExceptionHandlingCustomization : ICustomization
+		private class CQSInterceptorWithExceptionHandlingCustomization : CQSInterceptorWithExceptionHandlingCustomizationBase<CQSInterceptorWithExceptionHandlingImpl>
 		{
-			public void Customize(IFixture fixture)
+			public override CQSInterceptorWithExceptionHandlingImpl CreateInterceptor(IFixture fixture)
 			{
-				fixture.Register(() => new CQSInterceptorWithExceptionHandlingImpl());
+				return new CQSInterceptorWithExceptionHandlingImpl();
 			}
 		}
 

@@ -32,6 +32,9 @@ namespace CQSDIContainer.UnitTests.Interceptors.TransactionScopes
 			int originalCount = sut.NumberOfOpenTransactionScopes;
 			sut.OpenTransactionScopeForInvocationInstance(invocationInstance);
 			sut.NumberOfOpenTransactionScopes.Should().Be(originalCount + 1);
+
+			// need this teardown step due to static backing store
+			sut.DisposeAll();
 		}
 
 		[Theory]
@@ -46,6 +49,9 @@ namespace CQSDIContainer.UnitTests.Interceptors.TransactionScopes
 			Action act = () => sut.CompleteTransactionScopeForInvocationInstance(invocationInstance);
 			act.ShouldNotThrow<Exception>();
 			sut.NumberOfOpenTransactionScopes.Should().Be(originalCount);
+
+			// need this teardown step due to static backing store
+			sut.DisposeAll();
 		}
 
 		[Theory]
@@ -57,6 +63,9 @@ namespace CQSDIContainer.UnitTests.Interceptors.TransactionScopes
 			Action act = () => sut.CompleteTransactionScopeForInvocationInstance(invocationInstance);
 			act.ShouldThrow<TransactionScopeNotFoundForInvocationException>();
 			sut.NumberOfOpenTransactionScopes.Should().Be(originalCount);
+
+			// need this teardown step due to static backing store
+			sut.DisposeAll();
 		}
 
 		[Theory]
@@ -70,6 +79,9 @@ namespace CQSDIContainer.UnitTests.Interceptors.TransactionScopes
 			int originalCount = sut.NumberOfOpenTransactionScopes;
 			sut.DisposeTransactionScopeForInvocationInstance(invocationInstance);
 			sut.NumberOfOpenTransactionScopes.Should().Be(originalCount - 1);
+
+			// need this teardown step due to static backing store
+			sut.DisposeAll();
 		}
 
 		[Theory]
@@ -81,6 +93,9 @@ namespace CQSDIContainer.UnitTests.Interceptors.TransactionScopes
 			Action act = () => sut.DisposeTransactionScopeForInvocationInstance(invocationInstance);
 			act.ShouldThrow<TransactionScopeNotFoundForInvocationException>();
 			sut.NumberOfOpenTransactionScopes.Should().Be(originalCount);
+
+			// need this teardown step due to static backing store
+			sut.DisposeAll();
 		}
 
 		#region Arrangements
@@ -125,28 +140,14 @@ namespace CQSDIContainer.UnitTests.Interceptors.TransactionScopes
 			public void Customize(IFixture fixture)
 			{
 				var sut = new TransactionScopeManagerForCQSHandlers();
+
 				for (int n = 0; n < _numberOfExistingTransactionScopes; ++n)
 					InvocationInstanceCustomization.BuildInvocationInstance(CQSInvocationCustomization.BuildInvocation(true, CQSHandlerType.Query), ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query)));
 
 				fixture.Register(() => sut);
 			}
 		}
-
-		private class InvocationInstanceCustomization : ICustomization
-		{
-			public void Customize(IFixture fixture)
-			{
-				var invocation = CQSInvocationCustomization.BuildInvocation(true, CQSHandlerType.Query);
-				var componentModel = ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query));
-				
-				fixture.Register(() => BuildInvocationInstance(invocation, componentModel));
-			}
-
-			public static InvocationInstance BuildInvocationInstance(IInvocation invocation, ComponentModel componentModel)
-			{
-				return new InvocationInstance(invocation, componentModel);
-			}
-		}
+		
 		#endregion
 	}
 }
