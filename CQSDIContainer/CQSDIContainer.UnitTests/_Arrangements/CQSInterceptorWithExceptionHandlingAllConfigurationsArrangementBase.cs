@@ -59,7 +59,7 @@ namespace CQSDIContainer.UnitTests.Arrangements
 				{
 					yield return new object[]
 					{
-						((dynamic)interceptorFactoryInstance).CreateInterceptor(null),
+						((dynamic)interceptorFactoryInstance).CreateInterceptor(this.Fixture, true),
 						CQSInvocationCustomization.BuildInvocation(false, handlerType),
 						ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))
 					}.Concat(AppendExistingParameters(data)).ToArray();
@@ -69,7 +69,7 @@ namespace CQSDIContainer.UnitTests.Arrangements
 				{
 					yield return new object[]
 					{
-						((dynamic)interceptorFactoryInstance).CreateInterceptor(null),
+						((dynamic)interceptorFactoryInstance).CreateInterceptor(this.Fixture, true),
 						CQSInvocationCustomization.BuildInvocation(true, handlerType),
 						ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))
 					}.Concat(AppendExistingParameters(data)).ToArray();
@@ -77,7 +77,7 @@ namespace CQSDIContainer.UnitTests.Arrangements
 			}
 		}
 
-		private static IEnumerable<object> AppendExistingParameters(object[] existingParameters)
+		private static IEnumerable<object> AppendExistingParameters(IEnumerable<object> existingParameters)
 		{
 			return existingParameters.Skip(3);
 		}

@@ -282,7 +282,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 		private class CQSInterceptorWithExceptionHandlingCustomization : CQSInterceptorWithExceptionHandlingCustomizationBase<CQSInterceptorWithExceptionHandlingImpl>
 		{
-			public override CQSInterceptorWithExceptionHandlingImpl CreateInterceptor(IFixture fixture)
+			public override CQSInterceptorWithExceptionHandlingImpl CreateInterceptor(IFixture fixture, bool isInitialized)
 			{
 				return new CQSInterceptorWithExceptionHandlingImpl();
 			}

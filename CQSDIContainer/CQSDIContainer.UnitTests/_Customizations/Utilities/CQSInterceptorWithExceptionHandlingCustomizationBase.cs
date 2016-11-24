@@ -12,7 +12,7 @@ namespace CQSDIContainer.UnitTests.Customizations.Utilities
 	public interface ICQSInterceptorWithExceptionHandlingCustomization<out TInterceptorType> : ICustomization
 		where TInterceptorType : CQSInterceptor
 	{
-		TInterceptorType CreateInterceptor(IFixture fixture);
+		TInterceptorType CreateInterceptor(IFixture fixture, bool isInitialized);
 	}
 
 	public abstract class CQSInterceptorWithExceptionHandlingCustomizationBase<TInterceptorType> : ICQSInterceptorWithExceptionHandlingCustomization<TInterceptorType>
@@ -21,13 +21,14 @@ namespace CQSDIContainer.UnitTests.Customizations.Utilities
 		/// <summary>
 		/// Create an instance of the interceptor you are testing.
 		/// </summary>
-		/// <param name="fixture">The fixture.  If non-null, you are in the customization stage and can register any additional dependencies required for your tests.</param>
+		/// <param name="fixture">The fixture.</param>
+		/// <param name="isInitialized">Indicates if you are currently initializing a customization.  If not, you should perform any registrations required for your tests.</param>
 		/// <returns></returns>
-		public abstract TInterceptorType CreateInterceptor(IFixture fixture);
+		public abstract TInterceptorType CreateInterceptor(IFixture fixture, bool isInitialized);
 
 		public void Customize(IFixture fixture)
 		{
-			fixture.Register(() => CreateInterceptor(fixture));
+			fixture.Register(() => CreateInterceptor(fixture, false));
 		}
 	}
 }
