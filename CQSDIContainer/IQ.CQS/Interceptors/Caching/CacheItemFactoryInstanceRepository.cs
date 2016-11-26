@@ -8,7 +8,7 @@ using IQ.Platform.Framework.Common.CQS;
 
 namespace IQ.CQS.Interceptors.Caching
 {
-	public class CacheItemFactoryInstanceRepository : ICacheItemFactoryInstanceRepository
+	internal class CacheItemFactoryInstanceRepository : ICacheItemFactoryInstanceRepository
 	{
 		private static readonly ConcurrentDictionary<Type, CacheItemFactoryInfo> _cacheItemFactoryInfoLookup = new ConcurrentDictionary<Type, CacheItemFactoryInfo>();
 

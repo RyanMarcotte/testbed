@@ -7,7 +7,7 @@ using IQ.CQS.Interceptors.TransactionScopes.Interfaces;
 
 namespace IQ.CQS.Interceptors.TransactionScopes
 {
-	public class TransactionScopeManagerForCQSHandlers : IManageTransactionScopesForCQSHandlers
+	internal class TransactionScopeManagerForCQSHandlers : IManageTransactionScopesForCQSHandlers
 	{
 		private static readonly ConcurrentDictionary<InvocationInstance, TransactionScope> _transactionScopeForInvocationLookup = new ConcurrentDictionary<InvocationInstance, TransactionScope>();
 

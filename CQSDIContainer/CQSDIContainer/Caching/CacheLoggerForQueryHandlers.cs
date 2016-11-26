@@ -1,9 +1,9 @@
 ﻿using System;
 using IQ.CQS.Interceptors.Caching.Interfaces;
 
-namespace IQ.CQS.Interceptors.Caching
+namespace IQ.CQS.Lab.Caching
 {
-	public class CacheHitLoggerForQueryHandlers : ILogCacheHitsAndMissesForQueryHandlers
+	public class CacheLoggerForQueryHandlers : ILogCacheHitsAndMissesForQueryHandlers
 	{
 		public void LogCacheHit(Type queryType, Type resultType, string cacheKey)
 		{

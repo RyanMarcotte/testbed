@@ -3,7 +3,7 @@ using IQ.CQS.Interceptors.ExceptionLogging.Interfaces;
 
 namespace IQ.CQS.Interceptors.ExceptionLogging
 {
-	public class ExceptionLoggerForCQSHandlers : ILogExceptionsFromCQSHandlers
+	internal class NullExceptionLoggerForCQSHandlers : ILogExceptionsFromCQSHandlers
 	{
 		public void LogException(Exception ex)
 		{

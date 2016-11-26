@@ -3,7 +3,7 @@ using IQ.CQS.Interceptors.MetricsLogging.Interfaces;
 
 namespace IQ.CQS.Interceptors.MetricsLogging
 {
-	public class ExecutionTimeLoggerForCQSHandlers : ILogExecutionTimeOfCQSHandlers
+	internal class NullExecutionTimeLoggerForCQSHandlers : ILogExecutionTimeOfCQSHandlers
 	{
 		public void LogExecutionTime(Type handlerType, TimeSpan executionTime, TimeSpan threshold)
 		{

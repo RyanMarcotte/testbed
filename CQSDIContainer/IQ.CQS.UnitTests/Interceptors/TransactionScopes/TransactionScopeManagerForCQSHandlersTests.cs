@@ -22,7 +22,7 @@ namespace IQ.CQS.UnitTests.Interceptors.TransactionScopes
 		[Theory]
 		[EmptyTransactionScopeManagerForCQSHandlersArrangement]
 		[NonEmptyTransactionScopeManagerForCQSHandlersArrangement]
-		public void ShouldOpenNewTransactionScopeForDifferentInvocationInstances(TransactionScopeManagerForCQSHandlers sut, InvocationInstance invocationInstance)
+		internal void ShouldOpenNewTransactionScopeForDifferentInvocationInstances(TransactionScopeManagerForCQSHandlers sut, InvocationInstance invocationInstance)
 		{
 			int originalCount = sut.NumberOfOpenTransactionScopes;
 			sut.OpenTransactionScopeForInvocationInstance(invocationInstance);
@@ -35,7 +35,7 @@ namespace IQ.CQS.UnitTests.Interceptors.TransactionScopes
 		[Theory]
 		[EmptyTransactionScopeManagerForCQSHandlersArrangement]
 		[NonEmptyTransactionScopeManagerForCQSHandlersArrangement]
-		public void ShouldCompleteTransactionScopeIfInvocationInstanceExists(TransactionScopeManagerForCQSHandlers sut, InvocationInstance invocationInstance)
+		internal void ShouldCompleteTransactionScopeIfInvocationInstanceExists(TransactionScopeManagerForCQSHandlers sut, InvocationInstance invocationInstance)
 		{
 			// need to perform this setup step first
 			sut.OpenTransactionScopeForInvocationInstance(invocationInstance);
@@ -52,7 +52,7 @@ namespace IQ.CQS.UnitTests.Interceptors.TransactionScopes
 		[Theory]
 		[EmptyTransactionScopeManagerForCQSHandlersArrangement]
 		[NonEmptyTransactionScopeManagerForCQSHandlersArrangement]
-		public void ShouldThrowExceptionOnCompleteTransactionScopeIfNoTransactionScopeFoundForInvocationInstance(TransactionScopeManagerForCQSHandlers sut, InvocationInstance invocationInstance)
+		internal void ShouldThrowExceptionOnCompleteTransactionScopeIfNoTransactionScopeFoundForInvocationInstance(TransactionScopeManagerForCQSHandlers sut, InvocationInstance invocationInstance)
 		{
 			int originalCount = sut.NumberOfOpenTransactionScopes;
 			Action act = () => sut.CompleteTransactionScopeForInvocationInstance(invocationInstance);
@@ -66,7 +66,7 @@ namespace IQ.CQS.UnitTests.Interceptors.TransactionScopes
 		[Theory]
 		[EmptyTransactionScopeManagerForCQSHandlersArrangement]
 		[NonEmptyTransactionScopeManagerForCQSHandlersArrangement]
-		public void ShouldDisposeAndRemoveTransactionScopeIfInvocationInstanceExists(TransactionScopeManagerForCQSHandlers sut, InvocationInstance invocationInstance)
+		internal void ShouldDisposeAndRemoveTransactionScopeIfInvocationInstanceExists(TransactionScopeManagerForCQSHandlers sut, InvocationInstance invocationInstance)
 		{
 			// need to perform this setup step first
 			sut.OpenTransactionScopeForInvocationInstance(invocationInstance);
@@ -82,7 +82,7 @@ namespace IQ.CQS.UnitTests.Interceptors.TransactionScopes
 		[Theory]
 		[EmptyTransactionScopeManagerForCQSHandlersArrangement]
 		[NonEmptyTransactionScopeManagerForCQSHandlersArrangement]
-		public void ShouldThrowExceptionOnDisposeTransactionScopeIfNoTransactionScopeFoundForInvocationInstance(TransactionScopeManagerForCQSHandlers sut, InvocationInstance invocationInstance)
+		internal void ShouldThrowExceptionOnDisposeTransactionScopeIfNoTransactionScopeFoundForInvocationInstance(TransactionScopeManagerForCQSHandlers sut, InvocationInstance invocationInstance)
 		{
 			int originalCount = sut.NumberOfOpenTransactionScopes;
 			Action act = () => sut.DisposeTransactionScopeForInvocationInstance(invocationInstance);
