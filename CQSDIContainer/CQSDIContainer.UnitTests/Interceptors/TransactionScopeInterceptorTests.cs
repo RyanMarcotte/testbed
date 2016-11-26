@@ -23,8 +23,8 @@ namespace CQSDIContainer.UnitTests.Interceptors
 	public class TransactionScopeInterceptorTests
 	{
 		[Theory]
-		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.Query)]
-		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncQuery)]
+		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.Query_ReturnsValueType)]
+		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncQuery_ReturnsValueType)]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.Command)]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncCommand)]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.ResultCommand_Succeeds)]

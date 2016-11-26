@@ -19,6 +19,7 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 	internal abstract class CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations : AutoDataAttribute
 	{
 		private readonly Type _cqsInterceptorCustomizationType;
+		private readonly CQSHandlerTypeSelector _handlerTypesToTest;
 		private readonly bool? _invocationCompletesSuccessfully;
 
 		/// <summary>
@@ -30,13 +31,14 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 			: base(new Fixture()
 				.Customize(new AutoFakeItEasyCustomization())
 				.Customize(new CQSInvocationCustomization())
-				.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query)))
+				.Customize(new ComponentModelCustomization(SampleCQSHandlerImplementationFactory.GetSampleImplementationClassTypeForHandlerType(CQSHandlerType.Query_ReturnsValueType)))
 				.Customize(CQSInterceptorArrangementUtility.CreateCQSInterceptorCustomizationInstance(cqsInterceptorCustomizationType))
 				.CustomizeWithMany(customizations))
 		{
 			_cqsInterceptorCustomizationType = cqsInterceptorCustomizationType;
 
 			// we will test both successful and unsuccessful invocations
+			_handlerTypesToTest = CQSHandlerTypeSelector.AllHandlers;
 			_invocationCompletesSuccessfully = null;
 		}
 
@@ -50,13 +52,36 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 			: base(new Fixture()
 				.Customize(new AutoFakeItEasyCustomization())
 				.Customize(new CQSInvocationCustomization())
-				.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query)))
+				.Customize(new ComponentModelCustomization(SampleCQSHandlerImplementationFactory.GetSampleImplementationClassTypeForHandlerType(CQSHandlerType.Query_ReturnsValueType)))
 				.Customize(CQSInterceptorArrangementUtility.CreateCQSInterceptorCustomizationInstance(cqsInterceptorCustomizationType))
 				.CustomizeWithMany(customizations))
 		{
 			_cqsInterceptorCustomizationType = cqsInterceptorCustomizationType;
 
 			// we will test either successful or unsuccessful invocations (not both)
+			_handlerTypesToTest = CQSHandlerTypeSelector.AllHandlers;
+			_invocationCompletesSuccessfully = invocationCompletesSuccessfully;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations"/> class.  Configures the invocation behavior.
+		/// </summary>
+		/// <param name="cqsInterceptorCustomizationType">The customization for the type of interceptor being tested.</param>
+		/// <param name="handlerTypeSelector"></param>
+		/// <param name="invocationCompletesSuccessfully">Indicates if an invocation completes successfully.  If not, an <see cref="InvocationFailedException"/> is thrown.</param>
+		/// <param name="customizations">A set of additional customizations to apply.</param>
+		protected CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations(Type cqsInterceptorCustomizationType, CQSHandlerTypeSelector handlerTypeSelector, bool invocationCompletesSuccessfully, params ICustomization[] customizations)
+			: base(new Fixture()
+				.Customize(new AutoFakeItEasyCustomization())
+				.Customize(new CQSInvocationCustomization())
+				.Customize(new ComponentModelCustomization(SampleCQSHandlerImplementationFactory.GetSampleImplementationClassTypeForHandlerType(CQSHandlerType.Query_ReturnsValueType)))
+				.Customize(CQSInterceptorArrangementUtility.CreateCQSInterceptorCustomizationInstance(cqsInterceptorCustomizationType))
+				.CustomizeWithMany(customizations))
+		{
+			_cqsInterceptorCustomizationType = cqsInterceptorCustomizationType;
+
+			// we will test either successful or unsuccessful invocations (not both)
+			_handlerTypesToTest = handlerTypeSelector;
 			_invocationCompletesSuccessfully = invocationCompletesSuccessfully;
 		}
 
@@ -72,24 +97,24 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 				throw new InvalidOperationException("Expected at least one item in the data!!");
 
 			var interceptorFactoryInstance = CQSInterceptorArrangementUtility.CreateCQSInterceptorCustomizationInstance(_cqsInterceptorCustomizationType);
-			foreach (var handlerType in Enum.GetValues(typeof(CQSHandlerType)).Cast<CQSHandlerType>())
+			foreach (var handlerType in CQSHandlerTypeRepository.GetHandlerTypes(_handlerTypesToTest))
 			{
 				if (_invocationCompletesSuccessfully == null || !_invocationCompletesSuccessfully.Value)
 				{
 					yield return new object[]
 					{
-						((dynamic)interceptorFactoryInstance).CreateInterceptorWithComponentModelSet(this.Fixture, ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))),
+						((dynamic)interceptorFactoryInstance).CreateInterceptorWithComponentModelSet(this.Fixture, ComponentModelCustomization.BuildComponentModel(SampleCQSHandlerImplementationFactory.GetSampleImplementationClassTypeForHandlerType(handlerType))),
 						CQSInvocationCustomization.BuildInvocation(false, handlerType),
-					}.Concat(AddAdditionalParametersBasedOnCQSHandlerType(data.Skip(2), handlerType)).ToArray();
+					}.Concat(AddAdditionalUnitTestMethodParametersBasedOnCQSHandlerType(data.Skip(2), handlerType)).ToArray();
 				}
 
 				if (_invocationCompletesSuccessfully == null || _invocationCompletesSuccessfully.Value)
 				{
 					yield return new object[]
 					{
-						((dynamic)interceptorFactoryInstance).CreateInterceptorWithComponentModelSet(this.Fixture, ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))),
+						((dynamic)interceptorFactoryInstance).CreateInterceptorWithComponentModelSet(this.Fixture, ComponentModelCustomization.BuildComponentModel(SampleCQSHandlerImplementationFactory.GetSampleImplementationClassTypeForHandlerType(handlerType))),
 						CQSInvocationCustomization.BuildInvocation(true, handlerType)
-					}.Concat(AddAdditionalParametersBasedOnCQSHandlerType(data.Skip(2), handlerType)).ToArray();
+					}.Concat(AddAdditionalUnitTestMethodParametersBasedOnCQSHandlerType(data.Skip(2), handlerType)).ToArray();
 				}
 			}
 		}
@@ -100,7 +125,7 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 		/// <param name="additionalParameters">The original collection of additional parameters.</param>
 		/// <param name="handlerType">The CQS handler type.</param>
 		/// <returns></returns>
-		protected virtual IEnumerable<object> AddAdditionalParametersBasedOnCQSHandlerType(IEnumerable<object> additionalParameters, CQSHandlerType handlerType)
+		protected virtual IEnumerable<object> AddAdditionalUnitTestMethodParametersBasedOnCQSHandlerType(IEnumerable<object> additionalParameters, CQSHandlerType handlerType)
 		{
 			return additionalParameters;
 		}

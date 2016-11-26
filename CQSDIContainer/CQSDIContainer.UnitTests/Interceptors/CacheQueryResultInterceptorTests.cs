@@ -30,8 +30,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 	public class CacheQueryResultInterceptorTests
 	{
 		[Theory]
-		[SpecificExecutionResultForSpecificHandlerArrangement(true, CQSHandlerType.Query)]
-		[SpecificExecutionResultForSpecificHandlerArrangement(true, CQSHandlerType.AsyncQuery)]
+		[QueryHandlerInvocationDoesNotThrowAnExceptionArrangement]
 		public void CachesQueryResultIfNotInCacheAndDoesNotRunInterceptedMethodIfQueryResultAlreadyInCache(CacheQueryResultInterceptor sut, IInvocation invocation, Type queryType, Type resultType)
 		{
 			// the result of the query should not be in the cache, so proceed with the invocation
@@ -48,64 +47,99 @@ namespace CQSDIContainer.UnitTests.Interceptors
 			A.CallTo(() => sut.CacheLogger.LogCacheHit(queryType, resultType, A<string>._)).MustHaveHappened(Repeated.Exactly.Once);
 		}
 
+		[Theory]
+		[InvocationOfQueryHandlerThatReturnsValueTypeThrowsAnExceptionArrangement]
+		public void DoesNotCacheResultIfInvocationOfQueryHandlerThatReturnsValueTypeThrowsAnException(CacheQueryResultInterceptor sut, IInvocation invocation, Type queryType, Type resultType)
+		{
+			Assert.Throws<InvocationFailedException>(() => sut.Intercept(invocation));
+			A.CallTo(() => sut.CacheLogger.LogCacheMiss(queryType, resultType, A<string>._)).MustNotHaveHappened();
+			A.CallTo(() => sut.CacheLogger.LogCacheHit(queryType, resultType, A<string>._)).MustNotHaveHappened();
+		}
+
+		[Theory]
+		[InvocationOfQueryHandlerThatReturnsReferenceTypeThrowsAnExceptionArrangement]
+		public void DoesNotCacheResultIfInvocationOfQueryHandlerThatReturnsReferenceTypeThrowsAnException(CacheQueryResultInterceptor sut, IInvocation invocation, Type queryType, Type resultType)
+		{
+			try
+			{
+				sut.Intercept(invocation);
+			}
+			catch (TargetInvocationException ex)
+			{
+				// we check to ensure that the inner exception is what we expect
+				Assert.True(ex.InnerException != null && ex.InnerException.GetType() == typeof(InvocationFailedException));
+			}
+			
+			A.CallTo(() => sut.CacheLogger.LogCacheMiss(queryType, resultType, A<string>._)).MustNotHaveHappened();
+			A.CallTo(() => sut.CacheLogger.LogCacheHit(queryType, resultType, A<string>._)).MustNotHaveHappened();
+		}
+
+		[Theory]
+		[AsyncQueryHandlerInvocationThrowsAnExceptionArrangement]
+		public void DoesNotCacheResultIfInvocationOfAsyncQueryHandlerThrowsAnException(CacheQueryResultInterceptor sut, IInvocation invocation, Type queryType, Type resultType)
+		{
+			sut.Intercept(invocation);
+
+			var task = invocation.ReturnValue as Task;
+			Assert.True(task != null && task.Status == TaskStatus.Faulted && task.Exception != null);
+			A.CallTo(() => sut.CacheLogger.LogCacheMiss(queryType, resultType, A<string>._)).MustNotHaveHappened();
+			A.CallTo(() => sut.CacheLogger.LogCacheHit(queryType, resultType, A<string>._)).MustNotHaveHappened();
+		}
+
 		#region Arrangements
 
-		private class SpecificExecutionResultForSpecificHandlerArrangement : CQSInterceptorArrangementBase_SpecificExecutionResultForSpecificHandler
+		private abstract class SpecificExecutionResultForQueryHandlerArrangement : CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations
 		{
-			public SpecificExecutionResultForSpecificHandlerArrangement(bool invocationCompletesSuccessfully, CQSHandlerType handlerType)
-				: base(typeof(LogAnyExceptionsInterceptorCustomization), invocationCompletesSuccessfully, handlerType, new CacheAsideCustomization(), new NullKernelCustomization(), new CacheItemFactoryInstanceRepositoryCustomization())
+			protected SpecificExecutionResultForQueryHandlerArrangement(CQSHandlerTypeSelector handlerTypeSelector, bool invocationCompletesSuccessfully)
+				: base(typeof(CacheQueryResultInterceptorCustomization), handlerTypeSelector, invocationCompletesSuccessfully, new CacheAsideCustomization(), new NullKernelCustomization(), new CacheItemFactoryInstanceRepositoryCustomization())
 			{
 			}
 
-			protected override IEnumerable<object> AddAdditionalParametersBasedOnCQSHandlerType(IEnumerable<object> additionalParameters, CQSHandlerType handlerType)
+			protected override IEnumerable<object> AddAdditionalUnitTestMethodParametersBasedOnCQSHandlerType(IEnumerable<object> additionalParameters, CQSHandlerType handlerType)
 			{
-				var queryType = GetQueryType(handlerType);
-				var resultType = typeof(int);
+				var queryType = SampleCQSHandlerImplementationFactory.GetArgumentsUsedForHandleAndHandleAsyncMethodsForHandlerType(handlerType)[0].GetType();
+				var resultType = SampleCQSHandlerImplementationFactory.GetUnderlyingReturnValueTypeForHandlerType(handlerType);
 
 				// add queryType and resultType
 				return new[] { queryType, resultType };
 			}
+		}
 
-			private static Type GetQueryType(CQSHandlerType handlerType)
+		private class QueryHandlerInvocationDoesNotThrowAnExceptionArrangement : SpecificExecutionResultForQueryHandlerArrangement
+		{
+			public QueryHandlerInvocationDoesNotThrowAnExceptionArrangement()
+				: base(CQSHandlerTypeSelector.AllQueryHandlers, true)
 			{
-				// ReSharper disable once SwitchStatementMissingSomeCases
-				switch (handlerType)
-				{
-					case CQSHandlerType.Query:
-						return typeof(SampleQuery);
+			}
+		}
 
-					case CQSHandlerType.AsyncQuery:
-						return typeof(SampleAsyncQuery);
+		private class InvocationOfQueryHandlerThatReturnsValueTypeThrowsAnExceptionArrangement : SpecificExecutionResultForQueryHandlerArrangement
+		{
+			public InvocationOfQueryHandlerThatReturnsValueTypeThrowsAnExceptionArrangement()
+				: base(CQSHandlerTypeSelector.Query_ReturnsValueType, false)
+			{
+			}
+		}
 
-					default:
-						throw new ArgumentOutOfRangeException(nameof(handlerType), handlerType, null);
-				}
+		private class InvocationOfQueryHandlerThatReturnsReferenceTypeThrowsAnExceptionArrangement : SpecificExecutionResultForQueryHandlerArrangement
+		{
+			public InvocationOfQueryHandlerThatReturnsReferenceTypeThrowsAnExceptionArrangement()
+				: base(CQSHandlerTypeSelector.Query_ReturnsReferenceType, false)
+			{
+			}
+		}
+
+		private class AsyncQueryHandlerInvocationThrowsAnExceptionArrangement : SpecificExecutionResultForQueryHandlerArrangement
+		{
+			public AsyncQueryHandlerInvocationThrowsAnExceptionArrangement()
+				: base(CQSHandlerTypeSelector.AsyncQueryHandlersOnly, false)
+			{
 			}
 		}
 
 		#endregion
 
 		#region Customizations
-
-		private class LogAnyExceptionsInterceptorCustomization : CQSInterceptorWithExceptionHandlingCustomizationBase<CacheQueryResultInterceptor>
-		{
-			protected override void RegisterDependencies(IFixture fixture)
-			{
-				fixture.Register(() =>
-				{
-					var cacheLogger = A.Fake<ILogCacheHitsAndMissesForQueryHandlers>();
-					A.CallTo(() => cacheLogger.LogCacheHit(A<Type>._, A<Type>._, A<string>._)).DoesNothing();
-					A.CallTo(() => cacheLogger.LogCacheMiss(A<Type>._, A<Type>._, A<string>._)).DoesNothing();
-
-					return cacheLogger;
-				});
-			}
-
-			protected override CacheQueryResultInterceptor CreateInterceptor(IFixture fixture)
-			{
-				return new CacheQueryResultInterceptor(fixture.Create<ICacheAside>(), fixture.Create<IKernel>(), fixture.Create<ICacheItemFactoryInstanceRepository>(), fixture.Create<ILogCacheHitsAndMissesForQueryHandlers>());
-			}
-		}
 
 		private class CacheAsideCustomization : ICustomization
 		{
@@ -124,11 +158,13 @@ namespace CQSDIContainer.UnitTests.Interceptors
 					var cacheItemFactoryInstanceRepository = A.Fake<ICacheItemFactoryInstanceRepository>();
 					A.CallTo(() => cacheItemFactoryInstanceRepository.GetCacheItemFactoryInformationForType(A<Type>._, A<IKernel>._)).ReturnsLazily(c =>
 					{
+						// verify that the handler instance type implements either IQueryHandler<,> or IAsyncQueryHandler<,>
 						var handlerInstanceType = c.GetArgument<Type>(0);
-						var handlerInterface = handlerInstanceType.GetInterfaces().FirstOrDefault(x => x.IsGenericType);
+						var handlerInterface = handlerInstanceType.GetInterfaces().FirstOrDefault(x => x.IsGenericType && (x.GetGenericTypeDefinition() == typeof(IQueryHandler<,>) || x.GetGenericTypeDefinition() == typeof(IAsyncQueryHandler<,>)));
 						if (handlerInterface == null)
 							throw new InvalidOperationException();
 
+						// use reflection to create a new cache item factory instance using the specified types
 						var queryType = handlerInterface.GenericTypeArguments[0];
 						var resultType = handlerInterface.GenericTypeArguments[1];
 						var factoryCreator = _createFactoryInstanceMethodInfo.MakeGenericMethod(queryType, resultType);
@@ -147,6 +183,26 @@ namespace CQSDIContainer.UnitTests.Interceptors
 				A.CallTo(() => queryCacheItemFactoryInstance.BuildKeyForQuery(A<TQuery>._)).ReturnsLazily(c => c.GetArgument<TQuery>(0).ToString());
 				A.CallTo(() => queryCacheItemFactoryInstance.TimeToLive).Returns(TimeSpan.FromMinutes(5));
 				return queryCacheItemFactoryInstance;
+			}
+		}
+
+		private class CacheQueryResultInterceptorCustomization : CQSInterceptorWithExceptionHandlingCustomizationBase<CacheQueryResultInterceptor>
+		{
+			protected override void RegisterDependencies(IFixture fixture)
+			{
+				fixture.Register(() =>
+				{
+					var cacheLogger = A.Fake<ILogCacheHitsAndMissesForQueryHandlers>();
+					A.CallTo(() => cacheLogger.LogCacheHit(A<Type>._, A<Type>._, A<string>._)).DoesNothing();
+					A.CallTo(() => cacheLogger.LogCacheMiss(A<Type>._, A<Type>._, A<string>._)).DoesNothing();
+
+					return cacheLogger;
+				});
+			}
+
+			protected override CacheQueryResultInterceptor CreateInterceptor(IFixture fixture)
+			{
+				return new CacheQueryResultInterceptor(fixture.Create<ICacheAside>(), fixture.Create<IKernel>(), fixture.Create<ICacheItemFactoryInstanceRepository>(), fixture.Create<ILogCacheHitsAndMissesForQueryHandlers>());
 			}
 		}
 

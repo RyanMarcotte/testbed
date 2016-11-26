@@ -143,7 +143,7 @@ namespace CQSDIContainer.UnitTests.Interceptors.TransactionScopes
 				{
 					var sut = new TransactionScopeManagerForCQSHandlers();
 					for (int n = 0; n < _numberOfExistingTransactionScopes; ++n)
-						InvocationInstanceCustomization.BuildInvocationInstance(CQSInvocationCustomization.BuildInvocation(true, CQSHandlerType.Command), ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Command)));
+						InvocationInstanceCustomization.BuildInvocationInstance(CQSInvocationCustomization.BuildInvocation(true, CQSHandlerType.Command), ComponentModelCustomization.BuildComponentModel(SampleCQSHandlerImplementationFactory.GetSampleImplementationClassTypeForHandlerType(CQSHandlerType.Command)));
 					
 					return sut;
 				});

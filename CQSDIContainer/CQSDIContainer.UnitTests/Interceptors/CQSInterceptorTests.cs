@@ -40,7 +40,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.Query)]
+		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.Query_ReturnsValueType)]
 		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.Command)]
 		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.ResultCommand_Succeeds)]
 		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.ResultCommand_Fails)]
@@ -53,7 +53,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.AsyncQuery)]
+		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.AsyncQuery_ReturnsValueType)]
 		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.AsyncCommand)]
 		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.AsyncResultCommand_Succeeds)]
 		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.AsyncResultCommand_Fails)]
@@ -73,7 +73,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 			public CQSInterceptorIsInterceptingAMethodThatDoesNotBelongToCQSHandlerArrangement()
 				: base(new Fixture()
 					.Customize(new AutoFakeItEasyCustomization())
-					.Customize(new CQSInvocationCustomization(false, CQSHandlerType.Query)) // doesn't matter since we're overwriting the data below
+					.Customize(new CQSInvocationCustomization(false, CQSHandlerType.Query_ReturnsValueType)) // doesn't matter since we're overwriting the data below
 					.Customize(new ComponentModelCustomization(typeof(IEnumerable<int>)))
 					.Customize(new CQSInterceptorCustomization(false))) // doesn't matter since we're overwriting the data below
 			{
@@ -105,7 +105,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 				: base(new Fixture()
 					.Customize(new AutoFakeItEasyCustomization())
 					.Customize(new CQSInvocationCustomization(false, handlerType)) // doesn't matter since we're overwriting the data below
-					.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType)))
+					.Customize(new ComponentModelCustomization(SampleCQSHandlerImplementationFactory.GetSampleImplementationClassTypeForHandlerType(handlerType)))
 					.Customize(new CQSInterceptorCustomization(true))) // interceptor applies to all handlers (nested or not)
 			{
 				_handlerType = handlerType;

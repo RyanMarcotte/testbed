@@ -7,7 +7,9 @@ using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.UnitTests._SampleHandlers.Parameters
 {
-	public class SampleAsyncQuery : IQuery<int>
+	// ReSharper disable once ClassNeverInstantiated.Local
+	// ReSharper disable once InconsistentNaming
+	public class SampleQuery_ReturnsReferenceType : IQuery<string>
 	{
 	}
 }

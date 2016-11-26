@@ -3,7 +3,8 @@
 namespace CQSDIContainer.UnitTests._SampleHandlers.Parameters
 {
 	// ReSharper disable once ClassNeverInstantiated.Local
-	public class SampleQuery : IQuery<int>
+	// ReSharper disable once InconsistentNaming
+	public class SampleQuery_ReturnsValueType : IQuery<int>
 	{
 	}
 }

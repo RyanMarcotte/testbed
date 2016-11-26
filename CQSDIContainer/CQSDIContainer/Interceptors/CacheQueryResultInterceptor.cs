@@ -201,7 +201,9 @@ namespace CQSDIContainer.Interceptors
 					return (dynamic)invocation.ReturnValue;
 				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
 
-			DoCacheLogging(cacheLogger, cacheHit, cacheItemFactoryInfo, cacheKey);
+			if (result.Exception == null)
+				DoCacheLogging(cacheLogger, cacheHit, cacheItemFactoryInfo, cacheKey);
+
 			return result;
 		}
 
@@ -239,7 +241,9 @@ namespace CQSDIContainer.Interceptors
 					return await (dynamic)invocation.ReturnValue;
 				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null)));
 
-			DoCacheLogging(cacheLogger, cacheHit, cacheItemFactoryInfo, cacheKey);
+			if (result.Exception == null)
+				DoCacheLogging(cacheLogger, cacheHit, cacheItemFactoryInfo, cacheKey);
+
 			return result;
 		}
 		

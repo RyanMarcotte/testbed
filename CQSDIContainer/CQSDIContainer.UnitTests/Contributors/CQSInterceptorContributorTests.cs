@@ -118,7 +118,7 @@ namespace CQSDIContainer.UnitTests.Contributors
 				// we overwrite the ComponentModel parameter that will be passed to the unit test method
 				var cqsContributor = (ICQSInterceptorContributor)data[0];
 				foreach (var type in HandlerTypeLookup[cqsContributor.HandlerTypesToApplyTo])
-					yield return new[] { data[0], data[1], ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(type)) };
+					yield return new[] { data[0], data[1], ComponentModelCustomization.BuildComponentModel(SampleCQSHandlerImplementationFactory.GetSampleImplementationClassTypeForHandlerType(type)) };
 			}
 
 			protected abstract IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup { get; }
@@ -136,9 +136,9 @@ namespace CQSDIContainer.UnitTests.Contributors
 			// match a usage option against all invalid handler types
 			protected override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>>
 				{
-					{ InterceptorUsageOptions.None, CQSHandlerTypeRepository.AllTypes() },
-					{ InterceptorUsageOptions.QueryHandlersOnly, CQSHandlerTypeRepository.AllCommandTypes() },
-					{ InterceptorUsageOptions.CommandHandlersOnly, CQSHandlerTypeRepository.AllQueryTypes() },
+					{ InterceptorUsageOptions.None, CQSHandlerTypeRepository.GetHandlerTypes(CQSHandlerTypeSelector.AllHandlers) },
+					{ InterceptorUsageOptions.QueryHandlersOnly, CQSHandlerTypeRepository.GetHandlerTypes(CQSHandlerTypeSelector.AllCommandHandlers) },
+					{ InterceptorUsageOptions.CommandHandlersOnly, CQSHandlerTypeRepository.GetHandlerTypes(CQSHandlerTypeSelector.AllQueryHandlers) },
 					{ InterceptorUsageOptions.AllHandlers, Enumerable.Empty<CQSHandlerType>() }
 				};
 		}
@@ -157,9 +157,9 @@ namespace CQSDIContainer.UnitTests.Contributors
 			protected override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>>
 				{
 					{ InterceptorUsageOptions.None, Enumerable.Empty<CQSHandlerType>() },
-					{ InterceptorUsageOptions.QueryHandlersOnly, CQSHandlerTypeRepository.AllCommandTypes() },
-					{ InterceptorUsageOptions.CommandHandlersOnly, CQSHandlerTypeRepository.AllQueryTypes() },
-					{ InterceptorUsageOptions.AllHandlers, CQSHandlerTypeRepository.AllTypes() }
+					{ InterceptorUsageOptions.QueryHandlersOnly, CQSHandlerTypeRepository.GetHandlerTypes(CQSHandlerTypeSelector.AllCommandHandlers) },
+					{ InterceptorUsageOptions.CommandHandlersOnly, CQSHandlerTypeRepository.GetHandlerTypes(CQSHandlerTypeSelector.AllQueryHandlers) },
+					{ InterceptorUsageOptions.AllHandlers, CQSHandlerTypeRepository.GetHandlerTypes(CQSHandlerTypeSelector.AllHandlers) }
 				};
 		}
 
@@ -174,9 +174,9 @@ namespace CQSDIContainer.UnitTests.Contributors
 			protected sealed override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>>
 				{
 					{ InterceptorUsageOptions.None, Enumerable.Empty<CQSHandlerType>() },
-					{ InterceptorUsageOptions.QueryHandlersOnly, CQSHandlerTypeRepository.AllQueryTypes() },
-					{ InterceptorUsageOptions.CommandHandlersOnly, CQSHandlerTypeRepository.AllCommandTypes() },
-					{ InterceptorUsageOptions.AllHandlers, CQSHandlerTypeRepository.AllTypes() }
+					{ InterceptorUsageOptions.QueryHandlersOnly, CQSHandlerTypeRepository.GetHandlerTypes(CQSHandlerTypeSelector.AllQueryHandlers) },
+					{ InterceptorUsageOptions.CommandHandlersOnly, CQSHandlerTypeRepository.GetHandlerTypes(CQSHandlerTypeSelector.AllCommandHandlers) },
+					{ InterceptorUsageOptions.AllHandlers, CQSHandlerTypeRepository.GetHandlerTypes(CQSHandlerTypeSelector.AllHandlers) }
 				};
 		}
 

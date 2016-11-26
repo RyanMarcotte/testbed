@@ -31,7 +31,7 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 			: base(new Fixture()
 				.Customize(new AutoFakeItEasyCustomization())
 				.Customize(new CQSInvocationCustomization(invocationCompletesSuccessfully, handlerType))
-				.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType)))
+				.Customize(new ComponentModelCustomization(SampleCQSHandlerImplementationFactory.GetSampleImplementationClassTypeForHandlerType(handlerType)))
 				.Customize(CQSInterceptorArrangementUtility.CreateCQSInterceptorCustomizationInstance(cqsInterceptorCustomizationType))
 				.CustomizeWithMany(customizations))
 		{
@@ -49,16 +49,16 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 			if (data == null)
 				throw new InvalidOperationException("Expected at least one item in the data!!");
 
-			yield return data.Take(2).Concat(AddAdditionalParametersBasedOnCQSHandlerType(data.Skip(2), _handlerType)).ToArray();
+			yield return data.Take(2).Concat(AddAdditionalUnitTestMethodParametersBasedOnCQSHandlerType(data.Skip(2), _handlerType)).ToArray();
 		}
 
 		/// <summary>
-		/// Generate a collection of additional parameters for unit tests (does not include the interceptor instance under test or the fake invocation instance).
+		/// Generate a collection of additional parameters for unit test methods.  The interceptor instance under test and the fake invocation instance are not included in 'additionalParameters'.
 		/// </summary>
-		/// <param name="additionalParameters">The original collection of additional parameters.</param>
+		/// <param name="additionalParameters">The original collection of additional unit test method parameters.</param>
 		/// <param name="handlerType">The CQS handler type.</param>
 		/// <returns></returns>
-		protected virtual IEnumerable<object> AddAdditionalParametersBasedOnCQSHandlerType(IEnumerable<object> additionalParameters, CQSHandlerType handlerType)
+		protected virtual IEnumerable<object> AddAdditionalUnitTestMethodParametersBasedOnCQSHandlerType(IEnumerable<object> additionalParameters, CQSHandlerType handlerType)
 		{
 			return additionalParameters;
 		}

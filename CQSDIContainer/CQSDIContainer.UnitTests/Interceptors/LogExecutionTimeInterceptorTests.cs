@@ -48,12 +48,9 @@ namespace CQSDIContainer.UnitTests.Interceptors
 			{
 			}
 
-			protected override IEnumerable<object> AddAdditionalParametersBasedOnCQSHandlerType(IEnumerable<object> additionalParameters, CQSHandlerType handlerType)
+			protected override IEnumerable<object> AddAdditionalUnitTestMethodParametersBasedOnCQSHandlerType(IEnumerable<object> additionalParameters, CQSHandlerType handlerType)
 			{
-				return new object[]
-				{
-					SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType)
-				};
+				return new object[] { SampleCQSHandlerImplementationFactory.GetSampleImplementationClassTypeForHandlerType(handlerType) };
 			}
 		}
 
@@ -64,11 +61,11 @@ namespace CQSDIContainer.UnitTests.Interceptors
 			{
 			}
 
-			protected override IEnumerable<object> AddAdditionalParametersBasedOnCQSHandlerType(IEnumerable<object> additionalParameters, CQSHandlerType handlerType)
+			protected override IEnumerable<object> AddAdditionalUnitTestMethodParametersBasedOnCQSHandlerType(IEnumerable<object> additionalParameters, CQSHandlerType handlerType)
 			{
 				return new object[]
 				{
-					SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType)
+					SampleCQSHandlerImplementationFactory.GetSampleImplementationClassTypeForHandlerType(handlerType)
 				};
 			}
 		}

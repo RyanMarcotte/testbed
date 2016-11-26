@@ -1,12 +1,18 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using CQSDIContainer.UnitTests._SampleHandlers;
 using CQSDIContainer.UnitTests._SampleHandlers.Parameters;
+using IQ.Platform.Framework.Common;
 
 namespace CQSDIContainer.UnitTests._TestUtilities
 {
-	public static class SampleHandlerFactory
+	/// <summary>
+	/// Utility class for generating data related to sample CQS handler implementations provided by the unit test suite (see '_SampleHandlers' folder).
+	/// </summary>
+	public static class SampleCQSHandlerImplementationFactory
 	{
 		/// <summary>
 		/// Retrieves method metadata for a specific CQS handler type's Handle / HandleAsync method.
@@ -17,11 +23,17 @@ namespace CQSDIContainer.UnitTests._TestUtilities
 		{
 			switch (handlerType)
 			{
-				case CQSHandlerType.Query:
-					return typeof(SampleQueryHandler).GetMethod(nameof(SampleQueryHandler.Handle));
+				case CQSHandlerType.Query_ReturnsValueType:
+					return typeof(SampleQueryHandler_ReturnsValueType).GetMethod(nameof(SampleQueryHandler_ReturnsValueType.Handle));
 
-				case CQSHandlerType.AsyncQuery:
-					return typeof(SampleAsyncQueryHandler).GetMethod(nameof(SampleAsyncQueryHandler.HandleAsync));
+				case CQSHandlerType.Query_ReturnsReferenceType:
+					return typeof(SampleQueryHandler_ReturnsReferenceType).GetMethod(nameof(SampleQueryHandler_ReturnsReferenceType.Handle));
+
+				case CQSHandlerType.AsyncQuery_ReturnsValueType:
+					return typeof(SampleAsyncQueryHandler_ReturnsValueType).GetMethod(nameof(SampleAsyncQueryHandler_ReturnsValueType.HandleAsync));
+
+				case CQSHandlerType.AsyncQuery_ReturnsReferenceType:
+					return typeof(SampleAsyncQueryHandler_ReturnsReferenceType).GetMethod(nameof(SampleAsyncQueryHandler_ReturnsReferenceType.HandleAsync));
 
 				case CQSHandlerType.Command:
 					return typeof(SampleCommandHandler).GetMethod(nameof(SampleCommandHandler.Handle));
@@ -51,54 +63,31 @@ namespace CQSDIContainer.UnitTests._TestUtilities
 		/// </summary>
 		/// <param name="handlerType">The handler type.</param>
 		/// <returns></returns>
-		public static Type GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType handlerType)
+		public static Type GetSampleImplementationClassTypeForHandlerType(CQSHandlerType handlerType)
 		{
-			return GetHandlerInstanceForHandlerType(handlerType).GetType();
-			/*switch (handlerType)
-			{
-				case CQSHandlerType.Query:
-					return typeof(SampleQueryHandler);
-
-				case CQSHandlerType.AsyncQuery:
-					return typeof(SampleAsyncQueryHandler);
-
-				case CQSHandlerType.Command:
-					return typeof(SampleCommandHandler);
-
-				case CQSHandlerType.ResultCommand_Succeeds:
-					return typeof(SampleResultCommandHandlerThatSucceeds);
-
-				case CQSHandlerType.ResultCommand_Fails:
-					return typeof(SampleResultCommandHandlerThatFails);
-
-				case CQSHandlerType.AsyncCommand:
-					return typeof(SampleAsyncCommandHandler);
-
-				case CQSHandlerType.AsyncResultCommand_Succeeds:
-					return typeof(SampleAsyncResultCommandHandlerThatSucceeds);
-
-				case CQSHandlerType.AsyncResultCommand_Fails:
-					return typeof(SampleAsyncResultCommandHandlerThatFails);
-
-				default:
-					throw new ArgumentOutOfRangeException(nameof(handlerType), handlerType, null);
-			}*/
+			return GetNewHandlerInstanceForHandlerType(handlerType).GetType();
 		}
 
 		/// <summary>
-		/// 
+		/// Retrieves an instance of a CQS handler type's sample implementation.
 		/// </summary>
-		/// <param name="handlerType"></param>
+		/// <param name="handlerType">The handler type.</param>
 		/// <returns></returns>
-		public static object GetHandlerInstanceForHandlerType(CQSHandlerType handlerType)
+		public static object GetNewHandlerInstanceForHandlerType(CQSHandlerType handlerType)
 		{
 			switch (handlerType)
 			{
-				case CQSHandlerType.Query:
-					return new SampleQueryHandler();
+				case CQSHandlerType.Query_ReturnsValueType:
+					return new SampleQueryHandler_ReturnsValueType();
 
-				case CQSHandlerType.AsyncQuery:
-					return new SampleAsyncQueryHandler();
+				case CQSHandlerType.Query_ReturnsReferenceType:
+					return new SampleQueryHandler_ReturnsReferenceType();
+
+				case CQSHandlerType.AsyncQuery_ReturnsValueType:
+					return new SampleAsyncQueryHandler_ReturnsValueType();
+
+				case CQSHandlerType.AsyncQuery_ReturnsReferenceType:
+					return new SampleAsyncQueryHandler_ReturnsReferenceType();
 
 				case CQSHandlerType.Command:
 					return new SampleCommandHandler();
@@ -123,15 +112,26 @@ namespace CQSDIContainer.UnitTests._TestUtilities
 			}
 		}
 
-		public static object[] GetArgumentsForHandlerType(CQSHandlerType handlerType)
+		/// <summary>
+		/// Retrieves the argument list used when calling Handle / HandleAsync for a CQS handler type's sample implementation.
+		/// </summary>
+		/// <param name="handlerType">The handler type.</param>
+		/// <returns></returns>
+		public static object[] GetArgumentsUsedForHandleAndHandleAsyncMethodsForHandlerType(CQSHandlerType handlerType)
 		{
 			switch (handlerType)
 			{
-				case CQSHandlerType.Query:
-					return new object[] { new SampleQuery() };
+				case CQSHandlerType.Query_ReturnsValueType:
+					return new object[] { new SampleQuery_ReturnsValueType() };
 
-				case CQSHandlerType.AsyncQuery:
-					return new object[] { new SampleAsyncQuery(), new CancellationToken() };
+				case CQSHandlerType.Query_ReturnsReferenceType:
+					return new object[] { new SampleQuery_ReturnsReferenceType() };
+
+				case CQSHandlerType.AsyncQuery_ReturnsValueType:
+					return new object[] { new SampleAsyncQuery_ReturnsValueType(), new CancellationToken() };
+
+				case CQSHandlerType.AsyncQuery_ReturnsReferenceType:
+					return new object[] { new SampleAsyncQuery_ReturnsReferenceType(), new CancellationToken() };
 
 				case CQSHandlerType.Command:
 				case CQSHandlerType.ResultCommand_Succeeds:
@@ -149,7 +149,7 @@ namespace CQSDIContainer.UnitTests._TestUtilities
 		}
 
 		/// <summary>
-		/// Retrieves the sample return value of a CQS handler type.
+		/// Retrieves the return value of a CQS handler type's sample implementation.
 		/// </summary>
 		/// <param name="handlerType">The handler type.</param>
 		/// <returns></returns>
@@ -157,13 +157,21 @@ namespace CQSDIContainer.UnitTests._TestUtilities
 		{
 			switch (handlerType)
 			{
-				case CQSHandlerType.Query:
-					return SampleQueryHandler.ReturnValue;
+				case CQSHandlerType.Query_ReturnsValueType:
+					return SampleQueryHandler_ReturnsValueType.ReturnValue;
 
-				case CQSHandlerType.AsyncQuery:
-					var asyncQueryReturnValue = SampleAsyncQueryHandler.ReturnValue;
-					asyncQueryReturnValue.RunSynchronously();
-					return asyncQueryReturnValue;
+				case CQSHandlerType.Query_ReturnsReferenceType:
+					return SampleQueryHandler_ReturnsReferenceType.ReturnValue;
+
+				case CQSHandlerType.AsyncQuery_ReturnsValueType:
+					var asyncQueryWithValueTypeResultReturnValue = SampleAsyncQueryHandler_ReturnsValueType.ReturnValue;
+					asyncQueryWithValueTypeResultReturnValue.RunSynchronously();
+					return asyncQueryWithValueTypeResultReturnValue;
+
+				case CQSHandlerType.AsyncQuery_ReturnsReferenceType:
+					var asyncQueryWithReferenceTypeResultReturnValue = SampleAsyncQueryHandler_ReturnsReferenceType.ReturnValue;
+					asyncQueryWithReferenceTypeResultReturnValue.RunSynchronously();
+					return asyncQueryWithReferenceTypeResultReturnValue;
 
 				case CQSHandlerType.Command:
 					return SampleCommandHandler.ReturnValue;
@@ -192,6 +200,21 @@ namespace CQSDIContainer.UnitTests._TestUtilities
 				default:
 					throw new ArgumentOutOfRangeException(nameof(handlerType), handlerType, null);
 			}
+		}
+
+		/// <summary>
+		/// Returns the underlying return value type of a CQS handler type's sample implementation.  If the handler returns Task&lt;T>, this method returns T."/>
+		/// </summary>
+		/// <param name="handlerType">The handler type.</param>
+		/// <returns></returns>
+		public static Type GetUnderlyingReturnValueTypeForHandlerType(CQSHandlerType handlerType)
+		{
+			var methodInfo = GetMethodInfoFromHandlerType(handlerType);
+			var returnValueType = methodInfo.ReturnType;
+			if (!returnValueType.IsGenericType || returnValueType.GetGenericTypeDefinition() != typeof(Task<>))
+				return returnValueType == typeof(Task) ? typeof(void) : returnValueType;
+
+			return returnValueType.GetGenericArguments()[0];
 		}
 	}
 }

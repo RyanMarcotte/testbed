@@ -8,8 +8,10 @@ namespace CQSDIContainer.UnitTests._TestUtilities
 	/// </summary>
 	public enum CQSHandlerType
 	{
-		Query,
-		AsyncQuery,
+		Query_ReturnsValueType,
+		Query_ReturnsReferenceType,
+		AsyncQuery_ReturnsValueType,
+		AsyncQuery_ReturnsReferenceType,
 		Command,
 		ResultCommand_Succeeds,
 		ResultCommand_Fails,

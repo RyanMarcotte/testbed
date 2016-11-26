@@ -10,8 +10,8 @@ namespace CQSDIContainer.UnitTests._Customizations
 	{
 		public void Customize(IFixture fixture)
 		{
-			var invocation = CQSInvocationCustomization.BuildInvocation(true, CQSHandlerType.Query);
-			var componentModel = ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query));
+			var invocation = CQSInvocationCustomization.BuildInvocation(true, CQSHandlerType.Query_ReturnsValueType);
+			var componentModel = ComponentModelCustomization.BuildComponentModel(SampleCQSHandlerImplementationFactory.GetSampleImplementationClassTypeForHandlerType(CQSHandlerType.Query_ReturnsValueType));
 
 			fixture.Register(() => BuildInvocationInstance(invocation, componentModel));
 		}

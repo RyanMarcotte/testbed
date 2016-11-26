@@ -5,12 +5,13 @@ using IQ.Platform.Framework.Common.CQS;
 
 namespace CQSDIContainer.UnitTests._SampleHandlers
 {
-	public class SampleAsyncQueryHandler : IAsyncQueryHandler<SampleAsyncQuery, int>
+	// ReSharper disable once InconsistentNaming
+	public class SampleAsyncQueryHandler_ReturnsValueType : IAsyncQueryHandler<SampleAsyncQuery_ReturnsValueType, int>
 	{
 		private static readonly int _result = 156;
 		public static Task<int> ReturnValue => new Task<int>(() => _result);
 
-		public async Task<int> HandleAsync(SampleAsyncQuery query, CancellationToken cancellationToken = new CancellationToken())
+		public async Task<int> HandleAsync(SampleAsyncQuery_ReturnsValueType query, CancellationToken cancellationToken = new CancellationToken())
 		{
 			return await Task.Run(() => _result, cancellationToken);
 		}

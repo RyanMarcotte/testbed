@@ -44,10 +44,10 @@ namespace CQSDIContainer.UnitTests._Customizations
 			var invocation = A.Fake<IInvocation>();
 
 			A.CallTo(() => invocation.ToString()).Returns(handlerType.ToString());
-			A.CallTo(() => invocation.InvocationTarget).Returns(SampleHandlerFactory.GetHandlerInstanceForHandlerType(handlerType));
-			A.CallTo(() => invocation.Method).Returns(SampleHandlerFactory.GetMethodInfoFromHandlerType(handlerType));
-			A.CallTo(() => invocation.Arguments).Returns(SampleHandlerFactory.GetArgumentsForHandlerType(handlerType));
-			A.CallTo(() => invocation.ReturnValue).Returns(SampleHandlerFactory.GetReturnValueForHandlerType(handlerType));
+			A.CallTo(() => invocation.InvocationTarget).Returns(SampleCQSHandlerImplementationFactory.GetNewHandlerInstanceForHandlerType(handlerType));
+			A.CallTo(() => invocation.Method).Returns(SampleCQSHandlerImplementationFactory.GetMethodInfoFromHandlerType(handlerType));
+			A.CallTo(() => invocation.Arguments).Returns(SampleCQSHandlerImplementationFactory.GetArgumentsUsedForHandleAndHandleAsyncMethodsForHandlerType(handlerType));
+			A.CallTo(() => invocation.ReturnValue).Returns(SampleCQSHandlerImplementationFactory.GetReturnValueForHandlerType(handlerType));
 			
 			if (completesSuccessfully)
 				A.CallTo(() => invocation.Proceed()).DoesNothing();
