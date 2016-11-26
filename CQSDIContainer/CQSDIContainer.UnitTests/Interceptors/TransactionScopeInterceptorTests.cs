@@ -67,8 +67,8 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 		private class InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement : CQSInterceptorArrangementBase_InterceptedHandlerMethodDoesNotThrowAnException
 		{
-			public InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType methodType)
-				: base(typeof(CQSInterceptorWithExceptionHandlingCustomization), methodType)
+			public InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType handlerType)
+				: base(typeof(CQSInterceptorWithExceptionHandlingCustomization), handlerType)
 			{
 			}
 		}

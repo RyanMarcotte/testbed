@@ -13,7 +13,7 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 {
 	// ReSharper disable once InconsistentNaming
 	/// <summary>
-	/// 
+	/// Base class for unit test arrangements that produce test data covering all CQS handler types.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 	internal abstract class CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations : AutoDataAttribute
@@ -21,6 +21,10 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 		private readonly Type _cqsInterceptorCustomizationType;
 		private readonly bool? _invocationCompletesSuccessfully;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations"/> class.  Use for tests agnostic to the invocation behavior.
+		/// </summary>
+		/// <param name="cqsInterceptorCustomizationType">The customization for the type of interceptor being tested.</param>
 		protected CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations(Type cqsInterceptorCustomizationType)
 			: base(new Fixture()
 				.Customize(new AutoFakeItEasyCustomization())
@@ -34,6 +38,11 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 			_invocationCompletesSuccessfully = null;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations"/> class.  Configures the invocation behavior.
+		/// </summary>
+		/// <param name="cqsInterceptorCustomizationType">The customization for the type of interceptor being tested.</param>
+		/// <param name="invocationCompletesSuccessfully">Indicates if an invocation completes successfully.  If not, an <see cref="InvocationFailedException"/> is thrown.</param>
 		protected CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations(Type cqsInterceptorCustomizationType, bool invocationCompletesSuccessfully)
 			: base(new Fixture()
 				.Customize(new AutoFakeItEasyCustomization())
@@ -47,7 +56,12 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 			_invocationCompletesSuccessfully = invocationCompletesSuccessfully;
 		}
 
-		public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+		/// <summary>
+		/// Using the original test data, generate a collection of test data corresponding to all CQS handler types and the configured invocation behavior (run successfully, throw an exception, or either).
+		/// </summary>
+		/// <param name="testMethod">The method to generate test data for.</param>
+		/// <returns></returns>
+		public sealed override IEnumerable<object[]> GetData(MethodInfo testMethod)
 		{
 			var data = base.GetData(testMethod).FirstOrDefault();
 			if (data == null)
@@ -62,7 +76,7 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 					{
 						((dynamic)interceptorFactoryInstance).CreateInterceptorWithComponentModelSet(this.Fixture, ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))),
 						CQSInvocationCustomization.BuildInvocation(false, handlerType),
-					}.Concat(data.Skip(3)).ToArray();
+					}.Concat(AddAdditionalParametersBasedOnCQSHandlerType(data.Skip(2), handlerType)).ToArray();
 				}
 
 				if (_invocationCompletesSuccessfully == null || _invocationCompletesSuccessfully.Value)
@@ -71,9 +85,20 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 					{
 						((dynamic)interceptorFactoryInstance).CreateInterceptorWithComponentModelSet(this.Fixture, ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))),
 						CQSInvocationCustomization.BuildInvocation(true, handlerType)
-					}.Concat(data.Skip(3)).ToArray();
+					}.Concat(AddAdditionalParametersBasedOnCQSHandlerType(data.Skip(2), handlerType)).ToArray();
 				}
 			}
+		}
+
+		/// <summary>
+		/// Generate a collection of additional parameters for unit tests (does not include the interceptor instance under test or the fake invocation instance).
+		/// </summary>
+		/// <param name="additionalParameters">The original collection of additional parameters.</param>
+		/// <param name="handlerType">The CQS handler type.</param>
+		/// <returns></returns>
+		protected virtual IEnumerable<object> AddAdditionalParametersBasedOnCQSHandlerType(IEnumerable<object> additionalParameters, CQSHandlerType handlerType)
+		{
+			return additionalParameters;
 		}
 	}
 }

@@ -4,7 +4,7 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 {
 	// ReSharper disable once InconsistentNaming
 	/// <summary>
-	/// Auto-creates data for interceptor unit tests that is configured to 
+	/// Base class for unit test arrangements that produce test data covering all CQS handler types with invocations that do not throw an exception.
 	/// </summary>
 	internal abstract class CQSInterceptorArrangementBase_AllInterceptedHandlerMethodsDoNotThrowAnException : CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations
 	{

@@ -15,6 +15,11 @@ namespace CQSDIContainer.UnitTests.TestUtilities
 {
 	public static class SampleHandlerFactory
 	{
+		/// <summary>
+		/// Retrieves method metadata for a specific CQS handler type's Handle / HandleAsync method.
+		/// </summary>
+		/// <param name="handlerType">The handler type.</param>
+		/// <returns></returns>
 		public static MethodInfo GetMethodInfoFromHandlerType(CQSHandlerType handlerType)
 		{
 			switch (handlerType)
@@ -48,6 +53,11 @@ namespace CQSDIContainer.UnitTests.TestUtilities
 			}
 		}
 
+		/// <summary>
+		/// Retrieves the type of a CQS handler type's sample implementation.
+		/// </summary>
+		/// <param name="handlerType">The handler type.</param>
+		/// <returns></returns>
 		public static Type GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType handlerType)
 		{
 			switch (handlerType)
@@ -81,6 +91,11 @@ namespace CQSDIContainer.UnitTests.TestUtilities
 			}
 		}
 
+		/// <summary>
+		/// Retrieves the sample return value of a CQS handler type.
+		/// </summary>
+		/// <param name="handlerType">The handler type.</param>
+		/// <returns></returns>
 		public static object GetReturnValueForHandlerType(CQSHandlerType handlerType)
 		{
 			switch (handlerType)
@@ -122,11 +137,7 @@ namespace CQSDIContainer.UnitTests.TestUtilities
 			}
 		}
 
-		private static Task RunAsyncTask(Task task)
-		{
-			task.RunSynchronously();
-			return task;
-		}
+		#region Sample Implementations
 
 		// ReSharper disable once ClassNeverInstantiated.Local
 		private class SampleQuery : IQuery<int>
@@ -215,5 +226,7 @@ namespace CQSDIContainer.UnitTests.TestUtilities
 				return await Task.Run(() => _result, cancellationToken);
 			}
 		}
+
+		#endregion
 	}
 }
