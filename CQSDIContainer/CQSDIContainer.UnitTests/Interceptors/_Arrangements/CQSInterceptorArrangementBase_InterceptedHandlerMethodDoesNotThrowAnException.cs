@@ -1,5 +1,5 @@
 ﻿using System;
-using CQSDIContainer.UnitTests.TestUtilities;
+using CQSDIContainer.UnitTests._TestUtilities;
 
 namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 {

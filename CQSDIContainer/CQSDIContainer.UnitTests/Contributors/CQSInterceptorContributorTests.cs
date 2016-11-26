@@ -12,7 +12,7 @@ using CQSDIContainer.Contributors.Interfaces;
 using CQSDIContainer.Interceptors;
 using CQSDIContainer.Interceptors.Attributes;
 using CQSDIContainer.UnitTests.Customizations;
-using CQSDIContainer.UnitTests.TestUtilities;
+using CQSDIContainer.UnitTests._TestUtilities;
 using FluentAssertions;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoFakeItEasy;

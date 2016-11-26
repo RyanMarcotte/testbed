@@ -1,8 +1,7 @@
 ﻿using Castle.DynamicProxy;
 // ReSharper disable InconsistentNaming
 
-// ReSharper disable once CheckNamespace
-namespace CQSDIContainer.UnitTests.TestUtilities
+namespace CQSDIContainer.UnitTests._TestUtilities
 {
 	/// <summary>
 	/// Indicates the type of CQS handler method call represented by a fake <see cref="IInvocation"/> object.

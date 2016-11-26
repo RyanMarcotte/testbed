@@ -10,7 +10,7 @@ using CQSDIContainer.Interceptors;
 using CQSDIContainer.UnitTests.Customizations;
 using CQSDIContainer.UnitTests.Interceptors._Arrangements;
 using CQSDIContainer.UnitTests.Interceptors._Customizations;
-using CQSDIContainer.UnitTests.TestUtilities;
+using CQSDIContainer.UnitTests._TestUtilities;
 using FluentAssertions;
 using IQ.Platform.Framework.Common;
 using Ploeh.AutoFixture;

@@ -10,7 +10,7 @@ using CQSDIContainer.Interceptors.TransactionScopes.Interfaces;
 using CQSDIContainer.UnitTests.Customizations;
 using CQSDIContainer.UnitTests.Interceptors._Arrangements;
 using CQSDIContainer.UnitTests.Interceptors._Customizations;
-using CQSDIContainer.UnitTests.TestUtilities;
+using CQSDIContainer.UnitTests._TestUtilities;
 using FakeItEasy;
 using Ploeh.AutoFixture;
 using Xunit;

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Castle.DynamicProxy;
 using CQSDIContainer.UnitTests.Interceptors;
-using CQSDIContainer.UnitTests.TestUtilities;
+using CQSDIContainer.UnitTests._TestUtilities;
 using FakeItEasy;
 using Ploeh.AutoFixture;
 

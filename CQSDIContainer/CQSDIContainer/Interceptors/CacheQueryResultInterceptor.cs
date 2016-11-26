@@ -27,7 +27,6 @@ namespace CQSDIContainer.Interceptors
 		private readonly ICacheAside _cache;
 		private readonly IKernel _kernel;
 		private readonly ICacheItemFactoryInstanceRepository _cacheItemFactoryInstanceRepository;
-		private readonly ILogCacheHitsAndMissesForQueryHandlers _cacheLogger;
 
 		public CacheQueryResultInterceptor(ICacheAside cache, IKernel kernel, ICacheItemFactoryInstanceRepository cacheItemFactoryInstanceRepository, ILogCacheHitsAndMissesForQueryHandlers cacheLogger)
 		{
@@ -43,8 +42,11 @@ namespace CQSDIContainer.Interceptors
 			_cache = cache;
 			_kernel = kernel;
 			_cacheItemFactoryInstanceRepository = cacheItemFactoryInstanceRepository;
-			_cacheLogger = cacheLogger;
+			
+			CacheLogger = cacheLogger;
 		}
+
+		public ILogCacheHitsAndMissesForQueryHandlers CacheLogger { get; }
 
 		protected override void InterceptSync(IInvocation invocation, ComponentModel componentModel)
 		{
@@ -59,7 +61,7 @@ namespace CQSDIContainer.Interceptors
 			// retrieve the item from the cache
 			if (cacheItemFactoryInfo.ResultType.IsClass)
 			{
-				ExecuteGetReferenceTypeFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory, _cacheLogger);
+				ExecuteGetReferenceTypeFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory, CacheLogger);
 			}
 			else
 			{
@@ -71,7 +73,7 @@ namespace CQSDIContainer.Interceptors
 						return invocation.ReturnValue;
 					}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
 
-				DoCacheLogging(_cacheLogger, cacheHit, cacheItemFactoryInfo, cacheKey);
+				DoCacheLogging(CacheLogger, cacheHit, cacheItemFactoryInfo, cacheKey);
 			}
 		}
 
@@ -90,9 +92,9 @@ namespace CQSDIContainer.Interceptors
 
 			// retrieve the item from the cache
 			if (cacheItemFactoryInfo.ResultType.IsClass)
-				ExecuteGetReferenceTypeAsyncFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory, _cacheLogger);
+				ExecuteGetReferenceTypeAsyncFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory, CacheLogger);
 			else
-				ExecuteGetValueTypeAsyncFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory, _cacheLogger);
+				ExecuteGetValueTypeAsyncFromCacheUsingReflection(invocation, _cache, cacheKey, cacheItemFactoryInfo, cacheItemFactory, CacheLogger);
 		}
 		
 		#region Common Helpers

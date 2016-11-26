@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CQSDIContainer.UnitTests.Customizations;
-using CQSDIContainer.UnitTests.TestUtilities;
 using IQ.Platform.Framework.Common;
 using IQ.Platform.Framework.Common.CQS;
 
-// ReSharper disable once CheckNamespace
-namespace CQSDIContainer.UnitTests.TestUtilities
+namespace CQSDIContainer.UnitTests._TestUtilities
 {
 	public static class SampleHandlerFactory
 	{

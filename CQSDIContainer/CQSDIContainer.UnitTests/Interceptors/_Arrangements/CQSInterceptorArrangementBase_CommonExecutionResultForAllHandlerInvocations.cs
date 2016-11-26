@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using CQSDIContainer.UnitTests.Customizations;
 using CQSDIContainer.UnitTests.Interceptors._Arrangements.Utilities;
-using CQSDIContainer.UnitTests.TestUtilities;
+using CQSDIContainer.UnitTests._TestUtilities;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoFakeItEasy;
 using Ploeh.AutoFixture.Xunit2;
@@ -25,12 +25,14 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 		/// Initializes a new instance of the <see cref="CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations"/> class.  Use for tests agnostic to the invocation behavior.
 		/// </summary>
 		/// <param name="cqsInterceptorCustomizationType">The customization for the type of interceptor being tested.</param>
-		protected CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations(Type cqsInterceptorCustomizationType)
+		/// <param name="customizations">A set of additional customizations to apply.</param>
+		protected CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations(Type cqsInterceptorCustomizationType, params ICustomization[] customizations)
 			: base(new Fixture()
 				.Customize(new AutoFakeItEasyCustomization())
 				.Customize(new CQSInvocationCustomization())
 				.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query)))
-				.Customize(CQSInterceptorArrangementUtility.CreateCQSInterceptorCustomizationInstance(cqsInterceptorCustomizationType)))
+				.Customize(CQSInterceptorArrangementUtility.CreateCQSInterceptorCustomizationInstance(cqsInterceptorCustomizationType))
+				.CustomizeWithMany(customizations))
 		{
 			_cqsInterceptorCustomizationType = cqsInterceptorCustomizationType;
 
@@ -43,12 +45,14 @@ namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 		/// </summary>
 		/// <param name="cqsInterceptorCustomizationType">The customization for the type of interceptor being tested.</param>
 		/// <param name="invocationCompletesSuccessfully">Indicates if an invocation completes successfully.  If not, an <see cref="InvocationFailedException"/> is thrown.</param>
-		protected CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations(Type cqsInterceptorCustomizationType, bool invocationCompletesSuccessfully)
+		/// <param name="customizations">A set of additional customizations to apply.</param>
+		protected CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations(Type cqsInterceptorCustomizationType, bool invocationCompletesSuccessfully, params ICustomization[] customizations)
 			: base(new Fixture()
 				.Customize(new AutoFakeItEasyCustomization())
 				.Customize(new CQSInvocationCustomization())
 				.Customize(new ComponentModelCustomization(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query)))
-				.Customize(CQSInterceptorArrangementUtility.CreateCQSInterceptorCustomizationInstance(cqsInterceptorCustomizationType)))
+				.Customize(CQSInterceptorArrangementUtility.CreateCQSInterceptorCustomizationInstance(cqsInterceptorCustomizationType))
+				.CustomizeWithMany(customizations))
 		{
 			_cqsInterceptorCustomizationType = cqsInterceptorCustomizationType;
 

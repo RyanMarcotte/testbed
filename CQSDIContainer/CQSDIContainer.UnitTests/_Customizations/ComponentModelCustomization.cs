@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Castle.Core;
 using Castle.DynamicProxy;
-using CQSDIContainer.UnitTests.TestUtilities;
 using Ploeh.AutoFixture;
 
 // ReSharper disable once CheckNamespace
