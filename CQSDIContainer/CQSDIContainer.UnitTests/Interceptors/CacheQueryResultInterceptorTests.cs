@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 using Castle.DynamicProxy;
 using Castle.MicroKernel;
 using CQSDIContainer.Interceptors;
+using CQSDIContainer.Interceptors.Caching;
 using CQSDIContainer.Interceptors.Caching.Interfaces;
 using CQSDIContainer.Interceptors.ExceptionLogging.Interfaces;
 using CQSDIContainer.UnitTests.Customizations;
 using CQSDIContainer.UnitTests.Interceptors._Arrangements;
 using CQSDIContainer.UnitTests.Interceptors._Customizations;
 using CQSDIContainer.UnitTests._TestUtilities;
+using DoubleCache;
+using DoubleCache.LocalCache;
 using FakeItEasy;
 using Ploeh.AutoFixture;
 using Xunit;
@@ -44,7 +47,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		private class SpecificExecutionResultForSpecificHandlerArrangement : CQSInterceptorArrangementBase_SpecificExecutionResultForSpecificHandler
 		{
 			public SpecificExecutionResultForSpecificHandlerArrangement(bool invocationCompletesSuccessfully, CQSHandlerType handlerType)
-				: base(typeof(LogAnyExceptionsInterceptorCustomization), invocationCompletesSuccessfully, handlerType, new CacheAsideCustomization(), new KernelCustomization())
+				: base(typeof(LogAnyExceptionsInterceptorCustomization), invocationCompletesSuccessfully, handlerType, new CacheAsideCustomization(), new KernelCustomization(), new CacheItemFactoryInstanceRepositoryCustomization())
 			{
 			}
 
@@ -75,7 +78,7 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 			protected override CacheQueryResultInterceptor CreateInterceptor(IFixture fixture)
 			{
-				return new CacheQueryResultInterceptor(fixture.Create<ICacheAside>, fixture.Create<IKernel>, fixture.Create<ILogCacheHitsAndMissesForQueryHandlers>());
+				return new CacheQueryResultInterceptor(fixture.Create<ICacheAside>(), fixture.Create<IKernel>(), fixture.Create<ICacheItemFactoryInstanceRepository>(), fixture.Create<ILogCacheHitsAndMissesForQueryHandlers>());
 			}
 		}
 
@@ -83,7 +86,17 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		{
 			public void Customize(IFixture fixture)
 			{
-				fixture.Register<ICacheAside>(() => new LocalCache());
+				var cache = new MemCache();
+				fixture.Freeze<ICacheAside>(cache);
+			}
+		}
+
+		private class CacheItemFactoryInstanceRepositoryCustomization : ICustomization
+		{
+			public void Customize(IFixture fixture)
+			{
+				var cacheItemFactoryInstanceRepository = new CacheItemFactoryInstanceRepository();
+				fixture.Freeze(cacheItemFactoryInstanceRepository);
 			}
 		}
 
