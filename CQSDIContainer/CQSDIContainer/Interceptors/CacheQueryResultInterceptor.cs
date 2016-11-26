@@ -101,6 +101,9 @@ namespace CQSDIContainer.Interceptors
 
 		private static CacheItemFactoryMethods BuildMethodInfoForCacheItemFactoryInstance(object instance)
 		{
+			if (instance == null)
+				throw new ArgumentNullException(nameof(instance));
+
 			var instanceType = instance.GetType();
 			var buildCacheKeyForQueryMethod = instanceType.GetMethod(nameof(IQueryCacheItemFactory<IQuery<object>, object>.BuildKeyForQuery));
 			var getTimeToLiveProperty = instanceType.GetMethod($"get_{nameof(IQueryCacheItemFactory<IQuery<object>, object>.TimeToLive)}");
@@ -110,6 +113,13 @@ namespace CQSDIContainer.Interceptors
 
 		private static string GetCacheKey(CacheItemFactoryInfo cacheItemFactoryInfo, CacheItemFactoryMethods cacheItemFactory, IInvocation invocation)
 		{
+			if (cacheItemFactoryInfo == null)
+				throw new ArgumentNullException(nameof(cacheItemFactoryInfo));
+			if (cacheItemFactory == null)
+				throw new ArgumentNullException(nameof(cacheItemFactory));
+			if (invocation == null)
+				throw new ArgumentNullException(nameof(invocation));
+
 			var cacheKeyForCQSHandlerArgument = cacheItemFactory.BuildKeyForQueryMethod.Invoke(cacheItemFactoryInfo.FactoryInstance, new[] { invocation.Arguments.FirstOrDefault() });
 			return $"{cacheKeyForCQSHandlerArgument}|{cacheItemFactoryInfo.QueryType.FullName}|{cacheItemFactoryInfo.ResultType.FullName}";
 		}

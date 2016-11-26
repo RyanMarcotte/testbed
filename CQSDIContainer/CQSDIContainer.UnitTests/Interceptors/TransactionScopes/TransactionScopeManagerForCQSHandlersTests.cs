@@ -9,7 +9,7 @@ using CQSDIContainer.Interceptors;
 using CQSDIContainer.Interceptors.Exceptions;
 using CQSDIContainer.Interceptors.TransactionScopes;
 using CQSDIContainer.Interceptors.TransactionScopes.Interfaces;
-using CQSDIContainer.UnitTests.Customizations;
+using CQSDIContainer.UnitTests._Customizations;
 using CQSDIContainer.UnitTests._TestUtilities;
 using FluentAssertions;
 using Ploeh.AutoFixture;

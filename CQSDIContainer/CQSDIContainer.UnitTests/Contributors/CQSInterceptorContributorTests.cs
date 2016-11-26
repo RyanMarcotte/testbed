@@ -11,7 +11,7 @@ using CQSDIContainer.Contributors;
 using CQSDIContainer.Contributors.Interfaces;
 using CQSDIContainer.Interceptors;
 using CQSDIContainer.Interceptors.Attributes;
-using CQSDIContainer.UnitTests.Customizations;
+using CQSDIContainer.UnitTests._Customizations;
 using CQSDIContainer.UnitTests._TestUtilities;
 using FluentAssertions;
 using Ploeh.AutoFixture;
@@ -97,6 +97,7 @@ namespace CQSDIContainer.UnitTests.Contributors
 
 		#region Arrangements
 
+		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 		private abstract class CQSInterceptorContributorArrangement : AutoDataAttribute
 		{
 			protected CQSInterceptorContributorArrangement(InterceptorUsageOptions usageOptions, bool isApplyingInterceptorThatCanInterceptNestedHandlers, bool isHandlerNested, bool shouldApplyInterceptor)
@@ -104,7 +105,7 @@ namespace CQSDIContainer.UnitTests.Contributors
 					.Customize(new AutoFakeItEasyCustomization())
 					.Customize(new ComponentModelCustomization()) // we're going to overwrite that parameter, but need to generate one first
 					.Customize(new CQSInterceptorCustomization(isApplyingInterceptorThatCanInterceptNestedHandlers, isHandlerNested, usageOptions, shouldApplyInterceptor))
-					.Customize(new KernelCustomization()))
+					.Customize(new NullKernelCustomization()))
 			{
 			}
 
@@ -123,7 +124,6 @@ namespace CQSDIContainer.UnitTests.Contributors
 			protected abstract IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup { get; }
 		}
 
-		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 		private class CQSInterceptorContributorWithWrongHandlerTypeArrangement : CQSInterceptorContributorArrangement
 		{
 			private static readonly IFixture _randomizerFixture = new Fixture().Customize(new AutoFakeItEasyCustomization());
@@ -136,14 +136,13 @@ namespace CQSDIContainer.UnitTests.Contributors
 			// match a usage option against all invalid handler types
 			protected override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>>
 				{
-					{ InterceptorUsageOptions.None, Enum.GetValues(typeof(CQSHandlerType)).Cast<CQSHandlerType>() },
-					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { CQSHandlerType.Command, CQSHandlerType.AsyncCommand, CQSHandlerType.ResultCommand_Succeeds, CQSHandlerType.ResultCommand_Fails, CQSHandlerType.AsyncResultCommand_Succeeds, CQSHandlerType.AsyncResultCommand_Fails} },
-					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { CQSHandlerType.Query, CQSHandlerType.AsyncQuery } },
+					{ InterceptorUsageOptions.None, CQSHandlerTypeRepository.AllTypes() },
+					{ InterceptorUsageOptions.QueryHandlersOnly, CQSHandlerTypeRepository.AllCommandTypes() },
+					{ InterceptorUsageOptions.CommandHandlersOnly, CQSHandlerTypeRepository.AllQueryTypes() },
 					{ InterceptorUsageOptions.AllHandlers, Enumerable.Empty<CQSHandlerType>() }
 				};
 		}
 
-		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 		private class CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement : CQSInterceptorContributorArrangement
 		{
 			private static readonly IFixture _randomizerFixture = new Fixture().Customize(new AutoFakeItEasyCustomization());
@@ -158,13 +157,12 @@ namespace CQSDIContainer.UnitTests.Contributors
 			protected override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>>
 				{
 					{ InterceptorUsageOptions.None, Enumerable.Empty<CQSHandlerType>() },
-					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { CQSHandlerType.Command, CQSHandlerType.AsyncCommand, CQSHandlerType.ResultCommand_Succeeds, CQSHandlerType.ResultCommand_Fails, CQSHandlerType.AsyncResultCommand_Succeeds, CQSHandlerType.AsyncResultCommand_Fails } },
-					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { CQSHandlerType.Query, CQSHandlerType.AsyncQuery } },
-					{ InterceptorUsageOptions.AllHandlers, Enum.GetValues(typeof(CQSHandlerType)).Cast<CQSHandlerType>() }
+					{ InterceptorUsageOptions.QueryHandlersOnly, CQSHandlerTypeRepository.AllCommandTypes() },
+					{ InterceptorUsageOptions.CommandHandlersOnly, CQSHandlerTypeRepository.AllQueryTypes() },
+					{ InterceptorUsageOptions.AllHandlers, CQSHandlerTypeRepository.AllTypes() }
 				};
 		}
 
-		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 		private abstract class CQSInterceptorContributorWithCorrectHandlerTypeAndHaveApplyInterceptorMethodReturningTrueArrangement : CQSInterceptorContributorArrangement
 		{
 			protected CQSInterceptorContributorWithCorrectHandlerTypeAndHaveApplyInterceptorMethodReturningTrueArrangement(InterceptorUsageOptions usageOptions, bool isApplyingInterceptorThatCanInterceptNestedHandlers, bool isHandlerNested)
@@ -176,13 +174,12 @@ namespace CQSDIContainer.UnitTests.Contributors
 			protected sealed override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>>
 				{
 					{ InterceptorUsageOptions.None, Enumerable.Empty<CQSHandlerType>() },
-					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { CQSHandlerType.Query, CQSHandlerType.AsyncQuery } },
-					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { CQSHandlerType.Command, CQSHandlerType.AsyncCommand, CQSHandlerType.ResultCommand_Succeeds, CQSHandlerType.ResultCommand_Fails, CQSHandlerType.AsyncResultCommand_Succeeds, CQSHandlerType.AsyncResultCommand_Fails } },
-					{ InterceptorUsageOptions.AllHandlers, Enum.GetValues(typeof(CQSHandlerType)).Cast<CQSHandlerType>() }
+					{ InterceptorUsageOptions.QueryHandlersOnly, CQSHandlerTypeRepository.AllQueryTypes() },
+					{ InterceptorUsageOptions.CommandHandlersOnly, CQSHandlerTypeRepository.AllCommandTypes() },
+					{ InterceptorUsageOptions.AllHandlers, CQSHandlerTypeRepository.AllTypes() }
 				};
 		}
 
-		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 		private class ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement : CQSInterceptorContributorWithCorrectHandlerTypeAndHaveApplyInterceptorMethodReturningTrueArrangement
 		{
 			public ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions usageOptions)
@@ -191,7 +188,6 @@ namespace CQSDIContainer.UnitTests.Contributors
 			}
 		}
 
-		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 		private class ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement : CQSInterceptorContributorWithCorrectHandlerTypeAndHaveApplyInterceptorMethodReturningTrueArrangement
 		{
 			public ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesNotSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions usageOptions)
@@ -200,7 +196,6 @@ namespace CQSDIContainer.UnitTests.Contributors
 			}
 		}
 
-		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 		private class ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement : CQSInterceptorContributorWithCorrectHandlerTypeAndHaveApplyInterceptorMethodReturningTrueArrangement
 		{
 			public ApplyingAnInterceptorToNonNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions usageOptions)
@@ -209,7 +204,6 @@ namespace CQSDIContainer.UnitTests.Contributors
 			}
 		}
 
-		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 		private class ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement : CQSInterceptorContributorWithCorrectHandlerTypeAndHaveApplyInterceptorMethodReturningTrueArrangement
 		{
 			public ApplyingAnInterceptorToNestedHandlerAndInterceptorDoesSupportInterceptionOfNestedHandlersArrangement(InterceptorUsageOptions usageOptions)

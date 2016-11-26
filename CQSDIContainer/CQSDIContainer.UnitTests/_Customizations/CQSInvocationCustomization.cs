@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Castle.DynamicProxy;
-using CQSDIContainer.UnitTests.Interceptors;
 using CQSDIContainer.UnitTests._TestUtilities;
 using FakeItEasy;
 using Ploeh.AutoFixture;
 
-// ReSharper disable once CheckNamespace
-namespace CQSDIContainer.UnitTests.Customizations
+namespace CQSDIContainer.UnitTests._Customizations
 {
 	/// <summary>
 	/// Exception thrown by a fake <see cref="IInvocation"/> object.
@@ -51,7 +44,9 @@ namespace CQSDIContainer.UnitTests.Customizations
 			var invocation = A.Fake<IInvocation>();
 
 			A.CallTo(() => invocation.ToString()).Returns(handlerType.ToString());
+			A.CallTo(() => invocation.InvocationTarget).Returns(SampleHandlerFactory.GetHandlerInstanceForHandlerType(handlerType));
 			A.CallTo(() => invocation.Method).Returns(SampleHandlerFactory.GetMethodInfoFromHandlerType(handlerType));
+			A.CallTo(() => invocation.Arguments).Returns(SampleHandlerFactory.GetArgumentsForHandlerType(handlerType));
 			A.CallTo(() => invocation.ReturnValue).Returns(SampleHandlerFactory.GetReturnValueForHandlerType(handlerType));
 			
 			if (completesSuccessfully)

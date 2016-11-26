@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Castle.Core;
-using Castle.DynamicProxy;
 using Ploeh.AutoFixture;
 
-// ReSharper disable once CheckNamespace
-namespace CQSDIContainer.UnitTests.Customizations
+namespace CQSDIContainer.UnitTests._Customizations
 {
 	/// <summary>
 	/// Customization that registers a <see cref="ComponentModel"/> object.

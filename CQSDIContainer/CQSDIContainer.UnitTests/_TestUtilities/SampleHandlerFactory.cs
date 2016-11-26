@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
-using IQ.Platform.Framework.Common;
-using IQ.Platform.Framework.Common.CQS;
+using CQSDIContainer.UnitTests._SampleHandlers;
+using CQSDIContainer.UnitTests._SampleHandlers.Parameters;
 
 namespace CQSDIContainer.UnitTests._TestUtilities
 {
@@ -54,7 +53,8 @@ namespace CQSDIContainer.UnitTests._TestUtilities
 		/// <returns></returns>
 		public static Type GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType handlerType)
 		{
-			switch (handlerType)
+			return GetHandlerInstanceForHandlerType(handlerType).GetType();
+			/*switch (handlerType)
 			{
 				case CQSHandlerType.Query:
 					return typeof(SampleQueryHandler);
@@ -82,6 +82,69 @@ namespace CQSDIContainer.UnitTests._TestUtilities
 
 				default:
 					throw new ArgumentOutOfRangeException(nameof(handlerType), handlerType, null);
+			}*/
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="handlerType"></param>
+		/// <returns></returns>
+		public static object GetHandlerInstanceForHandlerType(CQSHandlerType handlerType)
+		{
+			switch (handlerType)
+			{
+				case CQSHandlerType.Query:
+					return new SampleQueryHandler();
+
+				case CQSHandlerType.AsyncQuery:
+					return new SampleAsyncQueryHandler();
+
+				case CQSHandlerType.Command:
+					return new SampleCommandHandler();
+
+				case CQSHandlerType.ResultCommand_Succeeds:
+					return new SampleResultCommandHandlerThatSucceeds();
+
+				case CQSHandlerType.ResultCommand_Fails:
+					return new SampleResultCommandHandlerThatFails();
+
+				case CQSHandlerType.AsyncCommand:
+					return new SampleAsyncCommandHandler();
+
+				case CQSHandlerType.AsyncResultCommand_Succeeds:
+					return new SampleAsyncResultCommandHandlerThatSucceeds();
+
+				case CQSHandlerType.AsyncResultCommand_Fails:
+					return new SampleAsyncResultCommandHandlerThatFails();
+
+				default:
+					throw new ArgumentOutOfRangeException(nameof(handlerType), handlerType, null);
+			}
+		}
+
+		public static object[] GetArgumentsForHandlerType(CQSHandlerType handlerType)
+		{
+			switch (handlerType)
+			{
+				case CQSHandlerType.Query:
+					return new object[] { new SampleQuery() };
+
+				case CQSHandlerType.AsyncQuery:
+					return new object[] { new SampleAsyncQuery(), new CancellationToken() };
+
+				case CQSHandlerType.Command:
+				case CQSHandlerType.ResultCommand_Succeeds:
+				case CQSHandlerType.ResultCommand_Fails:
+					return new object[] { new SampleCommand() };
+
+				case CQSHandlerType.AsyncCommand:
+				case CQSHandlerType.AsyncResultCommand_Succeeds:
+				case CQSHandlerType.AsyncResultCommand_Fails:
+					return new object[] { new SampleCommand(), new CancellationToken() };
+
+				default:
+					throw new ArgumentOutOfRangeException(nameof(handlerType), handlerType, null);
 			}
 		}
 
@@ -96,7 +159,7 @@ namespace CQSDIContainer.UnitTests._TestUtilities
 			{
 				case CQSHandlerType.Query:
 					return SampleQueryHandler.ReturnValue;
-				
+
 				case CQSHandlerType.AsyncQuery:
 					var asyncQueryReturnValue = SampleAsyncQueryHandler.ReturnValue;
 					asyncQueryReturnValue.RunSynchronously();
@@ -130,97 +193,5 @@ namespace CQSDIContainer.UnitTests._TestUtilities
 					throw new ArgumentOutOfRangeException(nameof(handlerType), handlerType, null);
 			}
 		}
-
-		#region Sample Implementations
-
-		// ReSharper disable once ClassNeverInstantiated.Local
-		private class SampleQuery : IQuery<int>
-		{
-		}
-
-		private class SampleQueryHandler : IQueryHandler<SampleQuery, int>
-		{
-			public const int ReturnValue = 15;
-
-			public int Handle(SampleQuery query)
-			{
-				return ReturnValue;
-			}
-		}
-
-		private class SampleAsyncQueryHandler : IAsyncQueryHandler<SampleQuery, int>
-		{
-			private static readonly int _result = 156;
-			public static Task<int> ReturnValue => new Task<int>(() => _result);
-
-			public async Task<int> HandleAsync(SampleQuery query, CancellationToken cancellationToken = new CancellationToken())
-			{
-				return await Task.Run(() => _result, cancellationToken);
-			}
-		}
-
-		private class SampleCommandHandler : ICommandHandler<int>
-		{
-			public static readonly object ReturnValue = typeof(void);
-			
-			public void Handle(int command)
-			{
-
-			}
-		}
-
-		private class SampleResultCommandHandlerThatSucceeds : IResultCommandHandler<int, int>
-		{
-			public static Result<Unit, int> ReturnValue => Result.Succeed<Unit, int>(Unit.Value);
-
-			public Result<Unit, int> Handle(int command)
-			{
-				return ReturnValue;
-			}
-		}
-
-		private class SampleResultCommandHandlerThatFails : IResultCommandHandler<int, int>
-		{
-			public static Result<Unit, int> ReturnValue => Result.Fail<Unit, int>(17);
-
-			public Result<Unit, int> Handle(int command)
-			{
-				return ReturnValue;
-			}
-		}
-
-		private class SampleAsyncCommandHandler : IAsyncCommandHandler<int>
-		{
-			public static Task ReturnValue => new Task(() => { });
-
-			public async Task HandleAsync(int command, CancellationToken cancellationToken = new CancellationToken())
-			{
-				await Task.Run(() => { }, cancellationToken);
-			}
-		}
-
-		private class SampleAsyncResultCommandHandlerThatSucceeds : IAsyncResultCommandHandler<int, int>
-		{
-			private static readonly Result<Unit, int> _result = Result.Succeed<Unit, int>(Unit.Value);
-			public static Task<Result<Unit, int>> ReturnValue => new Task<Result<Unit, int>>(() => _result);
-
-			public async Task<Result<Unit, int>> HandleAsync(int command, CancellationToken cancellationToken)
-			{
-				return await Task.Run(() => _result, cancellationToken);
-			}
-		}
-
-		private class SampleAsyncResultCommandHandlerThatFails : IAsyncResultCommandHandler<int, int>
-		{
-			private static readonly Result<Unit, int> _result = Result.Fail<Unit, int>(42);
-			public static Task<Result<Unit, int>> ReturnValue => new Task<Result<Unit, int>>(() => _result);
-
-			public async Task<Result<Unit, int>> HandleAsync(int command, CancellationToken cancellationToken)
-			{
-				return await Task.Run(() => _result, cancellationToken);
-			}
-		}
-
-		#endregion
 	}
 }

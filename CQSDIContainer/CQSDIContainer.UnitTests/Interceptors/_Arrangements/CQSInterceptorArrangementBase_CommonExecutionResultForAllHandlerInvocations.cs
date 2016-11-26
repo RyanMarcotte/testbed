@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CQSDIContainer.UnitTests.Customizations;
 using CQSDIContainer.UnitTests.Interceptors._Arrangements.Utilities;
+using CQSDIContainer.UnitTests._Customizations;
 using CQSDIContainer.UnitTests._TestUtilities;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoFakeItEasy;

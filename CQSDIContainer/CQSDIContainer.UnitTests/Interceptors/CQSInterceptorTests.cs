@@ -9,7 +9,7 @@ using Castle.Core;
 using Castle.DynamicProxy;
 using CQSDIContainer.Interceptors;
 using CQSDIContainer.Interceptors.Attributes;
-using CQSDIContainer.UnitTests.Customizations;
+using CQSDIContainer.UnitTests._Customizations;
 using CQSDIContainer.UnitTests._TestUtilities;
 using FluentAssertions;
 using Ploeh.AutoFixture;

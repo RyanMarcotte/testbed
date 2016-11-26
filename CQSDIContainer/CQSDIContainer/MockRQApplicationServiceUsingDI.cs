@@ -48,14 +48,14 @@ namespace CQSDIContainer
 		{
 			try
 			{
-				/*Console.WriteLine("--[[ query handler test ]]--");
+				Console.WriteLine("--[[ query handler test ]]--");
 				var nameOfSyncQueryHandlerForValueType = _syncQueryHandlerForValueType.GetType().FullName;
 				const int intSyncQueryParameter = 11;
 				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(intSyncQueryParameter))}");
 				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(intSyncQueryParameter))}");
 				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(intSyncQueryParameter))}");
 				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(intSyncQueryParameter))}");
-				Console.WriteLine();*/
+				Console.WriteLine();
 
 				/*var nameOfAsyncQueryHandlerTypeForReferenceType = _syncQueryHandlerForReferenceType.GetType().FullName;
 				const string stringQueryParameter = "this is a string";
