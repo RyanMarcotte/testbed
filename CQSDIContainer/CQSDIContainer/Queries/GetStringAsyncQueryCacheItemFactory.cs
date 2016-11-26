@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CQSDIContainer.Queries.Caching;
+using IQ.CQS.Caching;
 
-namespace CQSDIContainer.Queries
+namespace IQ.CQS.Lab.Queries
 {
 	public class GetStringAsyncQueryCacheItemFactory : IQueryCacheItemFactory<GetStringAsyncQuery, string>
 	{

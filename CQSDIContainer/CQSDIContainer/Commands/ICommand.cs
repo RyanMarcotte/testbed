@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CQSDIContainer.Commands
+﻿namespace IQ.CQS.Lab.Commands
 {
 	/// <summary>
 	/// Marker interface for command objects used by the CQS framework.

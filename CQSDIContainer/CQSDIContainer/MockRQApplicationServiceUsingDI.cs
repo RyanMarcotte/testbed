@@ -1,12 +1,10 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
-using Castle.DynamicProxy;
-using CQSDIContainer.Commands;
-using CQSDIContainer.Queries;
+using IQ.CQS.Lab.Commands;
+using IQ.CQS.Lab.Queries;
 using IQ.Platform.Framework.Common.CQS;
 
-namespace CQSDIContainer
+namespace IQ.CQS.Lab
 {
 	public interface IRQApplicationServiceMock
 	{

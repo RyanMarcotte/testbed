@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CQSDIContainer.Attributes;
-using CQSDIContainer.Queries;
+using IQ.CQS.Attributes;
+using IQ.CQS.Lab.Queries;
 using IQ.Platform.Framework.Common.CQS;
 
-namespace CQSDIContainer.Commands
+namespace IQ.CQS.Lab.Commands
 {
 	[LogExecutionTime(5)]
 	public class DoNothingAndDoSomethingCommandHandler : ICommandHandler<DoNothingAndDoSomethingCommand>

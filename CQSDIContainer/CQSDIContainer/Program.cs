@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Castle.Facilities.TypedFactory;
-using Castle.MicroKernel.Registration;
+﻿using Castle.Facilities.TypedFactory;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
-using CQSDIContainer.Commands;
-using CQSDIContainer.Installers;
-using CQSDIContainer.Queries;
-using IQ.Platform.Framework.Common.CQS;
 
-namespace CQSDIContainer
+namespace IQ.CQS.Lab
 {
 	internal class Program
 	{

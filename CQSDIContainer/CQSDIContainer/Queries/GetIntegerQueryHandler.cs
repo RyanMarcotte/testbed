@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CQSDIContainer.Attributes;
+using IQ.CQS.Attributes;
 using IQ.Platform.Framework.Common.CQS;
 
-namespace CQSDIContainer.Queries
+namespace IQ.CQS.Lab.Queries
 {
 	[LogExecutionTime]
 	public class GetIntegerQueryHandler : IQueryHandler<GetIntegerQuery, int>

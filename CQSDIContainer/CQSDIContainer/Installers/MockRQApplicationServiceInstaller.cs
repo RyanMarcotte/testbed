@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Castle.MicroKernel.Registration;
+﻿using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 
-namespace CQSDIContainer.Installers
+namespace IQ.CQS.Lab.Installers
 {
 	public class MockRQApplicationServiceInstaller : IWindsorInstaller
 	{
