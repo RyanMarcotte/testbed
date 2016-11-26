@@ -190,14 +190,15 @@ namespace IQ.CQS.Interceptors
 			where T : class
 		{
 			bool cacheHit = true;
-			var result = cache.GetAsync<T>(cacheKey, () =>
+			var result = cache.GetAsync<T>(cacheKey, async () =>
 				{
 					cacheHit = false;
 					invocation.Proceed();
 					ExecuteHandleAsyncWithResultUsingReflection(invocation);
-					return (dynamic)invocation.ReturnValue;
+					return await (dynamic)invocation.ReturnValue;
 				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null));
 
+			result.GetAwaiter().GetResult();
 			if (result.Exception == null)
 				DoCacheLogging(cacheLogger, cacheHit, cacheItemFactoryInfo, cacheKey);
 
@@ -238,6 +239,7 @@ namespace IQ.CQS.Interceptors
 					return await (dynamic)invocation.ReturnValue;
 				}, (TimeSpan?)cacheItemFactory.GetTimeToLiveProperty.Invoke(cacheItemFactoryInfo.FactoryInstance, BindingFlags.GetProperty, null, null, null)));
 
+			result.GetAwaiter().GetResult();
 			if (result.Exception == null)
 				DoCacheLogging(cacheLogger, cacheHit, cacheItemFactoryInfo, cacheKey);
 

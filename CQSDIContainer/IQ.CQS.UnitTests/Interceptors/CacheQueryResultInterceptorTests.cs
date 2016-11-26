@@ -8,6 +8,7 @@ using Castle.MicroKernel;
 using DoubleCache;
 using DoubleCache.LocalCache;
 using FakeItEasy;
+using FluentAssertions;
 using IQ.CQS.Caching;
 using IQ.CQS.Interceptors;
 using IQ.CQS.Interceptors.Caching;
@@ -58,7 +59,8 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		[Theory]
 		[InvocationOfQueryHandlerThatReturnsReferenceTypeThrowsAnExceptionArrangement]
-		public void DoesNotCacheResultIfInvocationOfQueryHandlerThatReturnsReferenceTypeThrowsAnException(CacheQueryResultInterceptor sut, IInvocation invocation, Type queryType, Type resultType)
+		[AsyncQueryHandlerInvocationThrowsAnExceptionArrangement]
+		public void DoesNotCacheResultIfInvocationOfQueryHandlerThrowsAnException(CacheQueryResultInterceptor sut, IInvocation invocation, Type queryType, Type resultType)
 		{
 			try
 			{
@@ -70,18 +72,6 @@ namespace IQ.CQS.UnitTests.Interceptors
 				Assert.True(ex.InnerException != null && ex.InnerException.GetType() == typeof(InvocationFailedException));
 			}
 			
-			A.CallTo(() => sut.CacheLogger.LogCacheMiss(queryType, resultType, A<string>._)).MustNotHaveHappened();
-			A.CallTo(() => sut.CacheLogger.LogCacheHit(queryType, resultType, A<string>._)).MustNotHaveHappened();
-		}
-
-		[Theory]
-		[AsyncQueryHandlerInvocationThrowsAnExceptionArrangement]
-		public void DoesNotCacheResultIfInvocationOfAsyncQueryHandlerThrowsAnException(CacheQueryResultInterceptor sut, IInvocation invocation, Type queryType, Type resultType)
-		{
-			sut.Intercept(invocation);
-
-			var task = invocation.ReturnValue as Task;
-			Assert.True(task != null && task.Status == TaskStatus.Faulted && task.Exception != null);
 			A.CallTo(() => sut.CacheLogger.LogCacheMiss(queryType, resultType, A<string>._)).MustNotHaveHappened();
 			A.CallTo(() => sut.CacheLogger.LogCacheHit(queryType, resultType, A<string>._)).MustNotHaveHappened();
 		}
