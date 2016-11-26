@@ -1,4 +1,5 @@
 ﻿using Castle.DynamicProxy;
+// ReSharper disable InconsistentNaming
 
 // ReSharper disable once CheckNamespace
 namespace CQSDIContainer.UnitTests.TestUtilities
@@ -11,8 +12,10 @@ namespace CQSDIContainer.UnitTests.TestUtilities
 		Query,
 		AsyncQuery,
 		Command,
-		ResultCommand,
+		ResultCommand_Succeeds,
+		ResultCommand_Fails,
 		AsyncCommand,
-		AsyncResultCommand
+		AsyncResultCommand_Succeeds,
+		AsyncResultCommand_Fails
 	}
 }

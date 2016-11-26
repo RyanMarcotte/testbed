@@ -137,7 +137,7 @@ namespace CQSDIContainer.UnitTests.Contributors
 			protected override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>>
 				{
 					{ InterceptorUsageOptions.None, Enum.GetValues(typeof(CQSHandlerType)).Cast<CQSHandlerType>() },
-					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { CQSHandlerType.Command, CQSHandlerType.AsyncCommand, CQSHandlerType.ResultCommand, CQSHandlerType.AsyncResultCommand} },
+					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { CQSHandlerType.Command, CQSHandlerType.AsyncCommand, CQSHandlerType.ResultCommand_Succeeds, CQSHandlerType.ResultCommand_Fails, CQSHandlerType.AsyncResultCommand_Succeeds, CQSHandlerType.AsyncResultCommand_Fails} },
 					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { CQSHandlerType.Query, CQSHandlerType.AsyncQuery } },
 					{ InterceptorUsageOptions.AllHandlers, Enumerable.Empty<CQSHandlerType>() }
 				};
@@ -158,7 +158,7 @@ namespace CQSDIContainer.UnitTests.Contributors
 			protected override IReadOnlyDictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>> HandlerTypeLookup => new Dictionary<InterceptorUsageOptions, IEnumerable<CQSHandlerType>>
 				{
 					{ InterceptorUsageOptions.None, Enumerable.Empty<CQSHandlerType>() },
-					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { CQSHandlerType.Command, CQSHandlerType.AsyncCommand, CQSHandlerType.ResultCommand, CQSHandlerType.AsyncResultCommand} },
+					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { CQSHandlerType.Command, CQSHandlerType.AsyncCommand, CQSHandlerType.ResultCommand_Succeeds, CQSHandlerType.ResultCommand_Fails, CQSHandlerType.AsyncResultCommand_Succeeds, CQSHandlerType.AsyncResultCommand_Fails } },
 					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { CQSHandlerType.Query, CQSHandlerType.AsyncQuery } },
 					{ InterceptorUsageOptions.AllHandlers, Enum.GetValues(typeof(CQSHandlerType)).Cast<CQSHandlerType>() }
 				};
@@ -177,7 +177,7 @@ namespace CQSDIContainer.UnitTests.Contributors
 				{
 					{ InterceptorUsageOptions.None, Enumerable.Empty<CQSHandlerType>() },
 					{ InterceptorUsageOptions.QueryHandlersOnly, new[] { CQSHandlerType.Query, CQSHandlerType.AsyncQuery } },
-					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { CQSHandlerType.Command, CQSHandlerType.AsyncCommand, CQSHandlerType.ResultCommand, CQSHandlerType.AsyncResultCommand} },
+					{ InterceptorUsageOptions.CommandHandlersOnly, new[] { CQSHandlerType.Command, CQSHandlerType.AsyncCommand, CQSHandlerType.ResultCommand_Succeeds, CQSHandlerType.ResultCommand_Fails, CQSHandlerType.AsyncResultCommand_Succeeds, CQSHandlerType.AsyncResultCommand_Fails } },
 					{ InterceptorUsageOptions.AllHandlers, Enum.GetValues(typeof(CQSHandlerType)).Cast<CQSHandlerType>() }
 				};
 		}

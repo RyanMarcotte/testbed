@@ -139,12 +139,14 @@ namespace CQSDIContainer.UnitTests.Interceptors.TransactionScopes
 
 			public void Customize(IFixture fixture)
 			{
-				var sut = new TransactionScopeManagerForCQSHandlers();
-
-				for (int n = 0; n < _numberOfExistingTransactionScopes; ++n)
-					InvocationInstanceCustomization.BuildInvocationInstance(CQSInvocationCustomization.BuildInvocation(true, CQSHandlerType.Query), ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Query)));
-
-				fixture.Register(() => sut);
+				fixture.Register(() =>
+				{
+					var sut = new TransactionScopeManagerForCQSHandlers();
+					for (int n = 0; n < _numberOfExistingTransactionScopes; ++n)
+						InvocationInstanceCustomization.BuildInvocationInstance(CQSInvocationCustomization.BuildInvocation(true, CQSHandlerType.Command), ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(CQSHandlerType.Command)));
+					
+					return sut;
+				});
 			}
 		}
 		

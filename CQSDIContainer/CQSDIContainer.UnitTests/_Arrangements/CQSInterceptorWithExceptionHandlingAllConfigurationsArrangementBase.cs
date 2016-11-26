@@ -62,7 +62,7 @@ namespace CQSDIContainer.UnitTests.Arrangements
 						((dynamic)interceptorFactoryInstance).CreateInterceptor(this.Fixture, true),
 						CQSInvocationCustomization.BuildInvocation(false, handlerType),
 						ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))
-					}.Concat(AppendExistingParameters(data)).ToArray();
+					}.Concat(data.Skip(3)).ToArray();
 				}
 
 				if (_invocationCompletesSuccessfully == null || _invocationCompletesSuccessfully.Value)
@@ -72,14 +72,9 @@ namespace CQSDIContainer.UnitTests.Arrangements
 						((dynamic)interceptorFactoryInstance).CreateInterceptor(this.Fixture, true),
 						CQSInvocationCustomization.BuildInvocation(true, handlerType),
 						ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))
-					}.Concat(AppendExistingParameters(data)).ToArray();
+					}.Concat(data.Skip(3)).ToArray();
 				}
 			}
-		}
-
-		private static IEnumerable<object> AppendExistingParameters(IEnumerable<object> existingParameters)
-		{
-			return existingParameters.Skip(3);
 		}
 	}
 }

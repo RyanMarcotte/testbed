@@ -15,19 +15,19 @@ namespace CQSDIContainer.Interceptors
 {
 	public class TransactionScopeInterceptor : CQSInterceptorWithExceptionHandling
 	{
-		private readonly IManageTransactionScopesForCQSHandlers _transactionScopeManager;
-
 		public TransactionScopeInterceptor(IManageTransactionScopesForCQSHandlers transactionScopeManager)
 		{
 			if (transactionScopeManager == null)
 				throw new ArgumentNullException(nameof(transactionScopeManager));
 
-			_transactionScopeManager = transactionScopeManager;
+			TransactionScopeManager = transactionScopeManager;
 		}
+
+		public IManageTransactionScopesForCQSHandlers TransactionScopeManager { get; }
 
 		protected override void OnBeginInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)
 		{
-			_transactionScopeManager.OpenTransactionScopeForInvocationInstance(invocationInstance);
+			TransactionScopeManager.OpenTransactionScopeForInvocationInstance(invocationInstance);
 		}
 
 		protected override void OnReceiveReturnValueFromQueryHandlerInvocation(InvocationInstance invocationInstance, ComponentModel componentModel, object returnValue)
@@ -62,7 +62,7 @@ namespace CQSDIContainer.Interceptors
 
 		protected override void OnEndInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)
 		{
-			_transactionScopeManager.DisposeTransactionScopeForInvocationInstance(invocationInstance);
+			TransactionScopeManager.DisposeTransactionScopeForInvocationInstance(invocationInstance);
 		}
 
 		#region Internals
@@ -72,7 +72,7 @@ namespace CQSDIContainer.Interceptors
 			if (!isSuccessful)
 				return;
 
-			_transactionScopeManager.CompleteTransactionScopeForInvocationInstance(invocationInstance);
+			TransactionScopeManager.CompleteTransactionScopeForInvocationInstance(invocationInstance);
 		}
 
 		#endregion

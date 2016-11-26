@@ -112,7 +112,8 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, CQSHandlerType.ResultCommand)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, CQSHandlerType.ResultCommand_Succeeds)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, CQSHandlerType.ResultCommand_Fails)]
 		public void ShouldCallOnReceiveReturnValueFromResultCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
@@ -158,7 +159,8 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[CQSInterceptorWithExceptionHandlingArrangement(true, CQSHandlerType.AsyncResultCommand)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, CQSHandlerType.AsyncResultCommand_Succeeds)]
+		[CQSInterceptorWithExceptionHandlingArrangement(true, CQSHandlerType.AsyncResultCommand_Fails)]
 		public void ShouldCallOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);

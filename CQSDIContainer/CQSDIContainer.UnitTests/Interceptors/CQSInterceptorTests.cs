@@ -42,7 +42,8 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[Theory]
 		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.Query)]
 		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.Command)]
-		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.ResultCommand)]
+		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.ResultCommand_Succeeds)]
+		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.ResultCommand_Fails)]
 		public void ShouldOnlyCallInterceptSyncMethodIfInterceptingSynchronousMethod(CQSInterceptorImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.SetInterceptedComponentModel(componentModel);
@@ -54,7 +55,8 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		[Theory]
 		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.AsyncQuery)]
 		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.AsyncCommand)]
-		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.AsyncResultCommand)]
+		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.AsyncResultCommand_Succeeds)]
+		[CQSInterceptorAlwaysAppliesAndAgnosticToInvocationSuccessArrangement(CQSHandlerType.AsyncResultCommand_Fails)]
 		public void ShouldOnlyCallInterceptAsyncMethodIfInterceptingAsynchronousMethod(CQSInterceptorImpl sut, IInvocation invocation, ComponentModel componentModel)
 		{
 			sut.SetInterceptedComponentModel(componentModel);
