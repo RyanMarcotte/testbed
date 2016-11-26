@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
-using CQSDIContainer.UnitTests.Customizations.Utilities;
+using CQSDIContainer.UnitTests.Interceptors._Customizations;
+using CQSDIContainer.UnitTests.Interceptors._Customizations.Interfaces;
 using Ploeh.AutoFixture;
 
-// ReSharper disable once CheckNamespace
-namespace CQSDIContainer.UnitTests.Arrangements.Utilities
+namespace CQSDIContainer.UnitTests.Interceptors._Arrangements.Utilities
 {
 	public class CQSInterceptorArrangementUtility
 	{
@@ -20,6 +20,7 @@ namespace CQSDIContainer.UnitTests.Arrangements.Utilities
 			if (genericInterface.FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICQSInterceptorWithExceptionHandlingCustomization<>)) == null)
 				throw new NotCQSInterceptorWithExceptionHandlingCustomizationBaseClassTypeException(type);
 
+			// we assume that each of the customizations has a parameterless constructor
 			return (ICustomization)Activator.CreateInstance(type);
 		}
 	}

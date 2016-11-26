@@ -12,19 +12,19 @@ namespace CQSDIContainer.Interceptors
 {
 	public class LogAnyExceptionsInterceptor : CQSInterceptorWithExceptionHandling
 	{
-		private readonly ILogExceptionsFromCQSHandlers _exceptionLogger;
-
 		public LogAnyExceptionsInterceptor(ILogExceptionsFromCQSHandlers exceptionLogger)
 		{
 			if (exceptionLogger == null)
 				throw new ArgumentNullException(nameof(exceptionLogger));
 
-			_exceptionLogger = exceptionLogger;
+			ExceptionLogger = exceptionLogger;
 		}
+
+		public ILogExceptionsFromCQSHandlers ExceptionLogger { get; }
 
 		protected override void OnException(InvocationInstance invocationInstance, ComponentModel componentModel, Exception ex)
 		{
-			_exceptionLogger.LogException(ex);
+			ExceptionLogger.LogException(ex);
 		}
 	}
 }

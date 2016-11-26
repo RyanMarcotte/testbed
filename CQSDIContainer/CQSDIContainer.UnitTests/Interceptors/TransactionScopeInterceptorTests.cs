@@ -7,9 +7,9 @@ using Castle.Core;
 using Castle.DynamicProxy;
 using CQSDIContainer.Interceptors;
 using CQSDIContainer.Interceptors.TransactionScopes.Interfaces;
-using CQSDIContainer.UnitTests.Arrangements;
 using CQSDIContainer.UnitTests.Customizations;
-using CQSDIContainer.UnitTests.Customizations.Utilities;
+using CQSDIContainer.UnitTests.Interceptors._Arrangements;
+using CQSDIContainer.UnitTests.Interceptors._Customizations;
 using CQSDIContainer.UnitTests.TestUtilities;
 using FakeItEasy;
 using Ploeh.AutoFixture;
@@ -23,15 +23,14 @@ namespace CQSDIContainer.UnitTests.Interceptors
 	public class TransactionScopeInterceptorTests
 	{
 		[Theory]
-		[InterceptedMethodCompletesSuccessfullyArrangement(CQSHandlerType.Query)]
-		[InterceptedMethodCompletesSuccessfullyArrangement(CQSHandlerType.AsyncQuery)]
-		[InterceptedMethodCompletesSuccessfullyArrangement(CQSHandlerType.Command)]
-		[InterceptedMethodCompletesSuccessfullyArrangement(CQSHandlerType.AsyncCommand)]
-		[InterceptedMethodCompletesSuccessfullyArrangement(CQSHandlerType.ResultCommand_Succeeds)]
-		[InterceptedMethodCompletesSuccessfullyArrangement(CQSHandlerType.AsyncResultCommand_Succeeds)]
-		public void OpensThenCompletesThenDisposesATransactionScopeForSuccessfulInvocation(TransactionScopeInterceptor sut, IInvocation invocation, ComponentModel componentModel)
+		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.Query)]
+		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncQuery)]
+		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.Command)]
+		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncCommand)]
+		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.ResultCommand_Succeeds)]
+		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncResultCommand_Succeeds)]
+		public void OpensThenCompletesThenDisposesATransactionScopeForSuccessfulInvocation(TransactionScopeInterceptor sut, IInvocation invocation)
 		{
-			sut.SetInterceptedComponentModel(componentModel);
 			sut.Intercept(invocation);
 
 			A.CallTo(() => sut.TransactionScopeManager.OpenTransactionScopeForInvocationInstance(A<InvocationInstance>._)).MustHaveHappened(Repeated.Exactly.Once)
@@ -40,21 +39,24 @@ namespace CQSDIContainer.UnitTests.Interceptors
 		}
 
 		[Theory]
-		[InterceptedMethodCompletesSuccessfullyArrangement(CQSHandlerType.ResultCommand_Fails)]
-		[InterceptedMethodCompletesSuccessfullyArrangement(CQSHandlerType.AsyncResultCommand_Fails)]
-		[InterceptedMethodThrowsAnExceptionArrangement]
-		public void OpensThenDisposesATransactionScopeForInvocationsThatThrowExceptions(TransactionScopeInterceptor sut, IInvocation invocation, ComponentModel componentModel)
+		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.ResultCommand_Fails)]
+		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncResultCommand_Fails)]
+		public void OpensThenCompletesThenDisposesATransactionScopeForSuccessfulInvocationButHasFailResult(TransactionScopeInterceptor sut, IInvocation invocation)
 		{
-			try
-			{
-				sut.SetInterceptedComponentModel(componentModel);
-				sut.Intercept(invocation);
-			}
-			catch (InvocationFailedException)
-			{
-				// eat the exception since we expect it	
-			}
+			sut.Intercept(invocation);
+			VerifyOpensThenDisposesATransactionScope(sut);
+		}
 
+		[Theory]
+		[AllInterceptedHandlerMethodsThrowAnExceptionArrangement]
+		public void OpensThenDisposesATransactionScopeForInvocationsThatThrowExceptions(TransactionScopeInterceptor sut, IInvocation invocation)
+		{
+			Assert.Throws<InvocationFailedException>(() => sut.Intercept(invocation));
+			VerifyOpensThenDisposesATransactionScope(sut);
+		}
+
+		private static void VerifyOpensThenDisposesATransactionScope(TransactionScopeInterceptor sut)
+		{
 			A.CallTo(() => sut.TransactionScopeManager.OpenTransactionScopeForInvocationInstance(A<InvocationInstance>._)).MustHaveHappened(Repeated.Exactly.Once)
 				.Then(A.CallTo(() => sut.TransactionScopeManager.DisposeTransactionScopeForInvocationInstance(A<InvocationInstance>._)).MustHaveHappened(Repeated.Exactly.Once));
 
@@ -63,21 +65,18 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 		#region Arrangements
 
-		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-		private class InterceptedMethodCompletesSuccessfullyArrangement : CQSInterceptorWithExceptionHandlingArrangementBase
+		private class InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement : CQSInterceptorArrangementBase_InterceptedHandlerMethodDoesNotThrowAnException
 		{
-			public InterceptedMethodCompletesSuccessfullyArrangement(CQSHandlerType methodType)
-				: base(typeof(CQSInterceptorWithExceptionHandlingCustomization), true, methodType)
+			public InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType methodType)
+				: base(typeof(CQSInterceptorWithExceptionHandlingCustomization), methodType)
 			{
-
 			}
 		}
 
-		[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-		private class InterceptedMethodThrowsAnExceptionArrangement : CQSInterceptorWithExceptionHandlingAllConfigurationsArrangementBase
+		private class AllInterceptedHandlerMethodsThrowAnExceptionArrangement : CQSInterceptorArrangementBase_AllInterceptedHandlerMethodsThrowAnException
 		{
-			public InterceptedMethodThrowsAnExceptionArrangement()
-				: base(typeof(CQSInterceptorWithExceptionHandlingCustomization), false)
+			public AllInterceptedHandlerMethodsThrowAnExceptionArrangement()
+				: base(typeof(CQSInterceptorWithExceptionHandlingCustomization))
 			{
 				
 			}
@@ -89,20 +88,21 @@ namespace CQSDIContainer.UnitTests.Interceptors
 
 		private class CQSInterceptorWithExceptionHandlingCustomization : CQSInterceptorWithExceptionHandlingCustomizationBase<TransactionScopeInterceptor>
 		{
-			public override TransactionScopeInterceptor CreateInterceptor(IFixture fixture, bool isAlreadyInitialized)
+			protected override void RegisterDependencies(IFixture fixture)
 			{
-				if (!isAlreadyInitialized)
+				fixture.Register(() =>
 				{
-					fixture.Register(() =>
-					{
-						var transactionScopeManager = A.Fake<IManageTransactionScopesForCQSHandlers>();
-						A.CallTo(() => transactionScopeManager.OpenTransactionScopeForInvocationInstance(A<InvocationInstance>._)).DoesNothing();
-						A.CallTo(() => transactionScopeManager.CompleteTransactionScopeForInvocationInstance(A<InvocationInstance>._)).DoesNothing();
-						A.CallTo(() => transactionScopeManager.DisposeTransactionScopeForInvocationInstance(A<InvocationInstance>._)).DoesNothing();
-						return transactionScopeManager;
-					});
-				}
+					var transactionScopeManager = A.Fake<IManageTransactionScopesForCQSHandlers>();
+					A.CallTo(() => transactionScopeManager.OpenTransactionScopeForInvocationInstance(A<InvocationInstance>._)).DoesNothing();
+					A.CallTo(() => transactionScopeManager.CompleteTransactionScopeForInvocationInstance(A<InvocationInstance>._)).DoesNothing();
+					A.CallTo(() => transactionScopeManager.DisposeTransactionScopeForInvocationInstance(A<InvocationInstance>._)).DoesNothing();
 
+					return transactionScopeManager;
+				});
+			}
+
+			protected override TransactionScopeInterceptor CreateInterceptor(IFixture fixture)
+			{
 				return new TransactionScopeInterceptor(fixture.Create<IManageTransactionScopesForCQSHandlers>());
 			}
 		}

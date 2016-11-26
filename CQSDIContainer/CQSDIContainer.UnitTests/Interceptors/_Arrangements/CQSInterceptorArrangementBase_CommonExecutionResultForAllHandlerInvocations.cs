@@ -2,25 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using CQSDIContainer.UnitTests.Arrangements.Utilities;
 using CQSDIContainer.UnitTests.Customizations;
-using CQSDIContainer.UnitTests.Interceptors;
+using CQSDIContainer.UnitTests.Interceptors._Arrangements.Utilities;
 using CQSDIContainer.UnitTests.TestUtilities;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoFakeItEasy;
 using Ploeh.AutoFixture.Xunit2;
 
-// ReSharper disable once CheckNamespace
-namespace CQSDIContainer.UnitTests.Arrangements
+namespace CQSDIContainer.UnitTests.Interceptors._Arrangements
 {
-	public abstract class CQSInterceptorWithExceptionHandlingAllConfigurationsArrangementBase : AutoDataAttribute
+	// ReSharper disable once InconsistentNaming
+	/// <summary>
+	/// 
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+	internal abstract class CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations : AutoDataAttribute
 	{
 		private readonly Type _cqsInterceptorCustomizationType;
 		private readonly bool? _invocationCompletesSuccessfully;
 
-		protected CQSInterceptorWithExceptionHandlingAllConfigurationsArrangementBase(Type cqsInterceptorCustomizationType)
+		protected CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations(Type cqsInterceptorCustomizationType)
 			: base(new Fixture()
 				.Customize(new AutoFakeItEasyCustomization())
 				.Customize(new CQSInvocationCustomization())
@@ -33,7 +34,7 @@ namespace CQSDIContainer.UnitTests.Arrangements
 			_invocationCompletesSuccessfully = null;
 		}
 
-		protected CQSInterceptorWithExceptionHandlingAllConfigurationsArrangementBase(Type cqsInterceptorCustomizationType, bool invocationCompletesSuccessfully)
+		protected CQSInterceptorArrangementBase_CommonExecutionResultForAllHandlerInvocations(Type cqsInterceptorCustomizationType, bool invocationCompletesSuccessfully)
 			: base(new Fixture()
 				.Customize(new AutoFakeItEasyCustomization())
 				.Customize(new CQSInvocationCustomization())
@@ -59,9 +60,8 @@ namespace CQSDIContainer.UnitTests.Arrangements
 				{
 					yield return new object[]
 					{
-						((dynamic)interceptorFactoryInstance).CreateInterceptor(this.Fixture, true),
+						((dynamic)interceptorFactoryInstance).CreateInterceptorWithComponentModelSet(this.Fixture, ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))),
 						CQSInvocationCustomization.BuildInvocation(false, handlerType),
-						ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))
 					}.Concat(data.Skip(3)).ToArray();
 				}
 
@@ -69,9 +69,8 @@ namespace CQSDIContainer.UnitTests.Arrangements
 				{
 					yield return new object[]
 					{
-						((dynamic)interceptorFactoryInstance).CreateInterceptor(this.Fixture, true),
-						CQSInvocationCustomization.BuildInvocation(true, handlerType),
-						ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))
+						((dynamic)interceptorFactoryInstance).CreateInterceptorWithComponentModelSet(this.Fixture, ComponentModelCustomization.BuildComponentModel(SampleHandlerFactory.GetCQSHandlerComponentModelTypeFromHandlerType(handlerType))),
+						CQSInvocationCustomization.BuildInvocation(true, handlerType)
 					}.Concat(data.Skip(3)).ToArray();
 				}
 			}

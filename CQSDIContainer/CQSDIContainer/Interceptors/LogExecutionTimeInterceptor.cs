@@ -8,33 +8,41 @@ using System.Threading.Tasks;
 using Castle.Core;
 using Castle.DynamicProxy;
 using CQSDIContainer.Attributes;
+using CQSDIContainer.Interceptors.Exceptions;
 using CQSDIContainer.Interceptors.MetricsLogging.Interfaces;
 
 namespace CQSDIContainer.Interceptors
 {
 	public class LogExecutionTimeInterceptor : CQSInterceptorWithExceptionHandling
 	{
-		private readonly ILogExecutionTimeOfCQSHandlers _executionTimeLogger;
-		private DateTime _begin;
+		private static readonly ConcurrentDictionary<InvocationInstance, DateTime> _startTimeLookup = new ConcurrentDictionary<InvocationInstance, DateTime>();
 
 		public LogExecutionTimeInterceptor(ILogExecutionTimeOfCQSHandlers executionTimeLogger)
 		{
 			if (executionTimeLogger == null)
 				throw new ArgumentNullException(nameof(executionTimeLogger));
 
-			_executionTimeLogger = executionTimeLogger;
+			ExecutionTimeLogger = executionTimeLogger;
 		}
+
+		public ILogExecutionTimeOfCQSHandlers ExecutionTimeLogger { get; }
 
 		protected override void OnBeginInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)
 		{
-			_begin = DateTime.UtcNow;
+			_startTimeLookup.TryAdd(invocationInstance, DateTime.UtcNow);
 		}
 		
 		protected override void OnEndInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)
 		{
 			var end = DateTime.UtcNow;
 			var threshold = TimeSpan.FromMilliseconds(componentModel.Implementation.GetCustomAttribute<LogExecutionTimeAttribute>()?.ThresholdInMilliseconds ?? LogExecutionTimeAttribute.MaximumThreshold);
-			_executionTimeLogger.LogExecutionTime(componentModel.Implementation, end - _begin, threshold);
+
+			DateTime begin;
+			if (!_startTimeLookup.TryGetValue(invocationInstance, out begin))
+				throw new TransactionScopeNotFoundForInvocationException(invocationInstance);
+
+			ExecutionTimeLogger.LogExecutionTime(componentModel.Implementation, end - begin, threshold);
+			_startTimeLookup.TryRemove(invocationInstance, out begin);
 		}
 	}
 }
