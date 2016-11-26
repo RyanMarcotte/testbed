@@ -23,6 +23,9 @@ using IQ.CQS.Utilities;
 
 namespace IQ.CQS.IoC.Installers
 {
+	/// <summary>
+	/// Castle.Windsor installer for IQ.CQS components.
+	/// </summary>
 	public class IQCQSInstaller : IIQCQSInstaller, IWindsorInstaller
 	{
 		private Type _cacheLoggerForQueryHandlers = typeof(NullCacheLoggerForQueryHandlers);
@@ -42,6 +45,13 @@ namespace IQ.CQS.IoC.Installers
 			return new IQCQSInstaller();
 		}
 
+		#region IIQCQSInstaller implementation
+
+		/// <summary>
+		/// Configure the IQ.CQS installation to use a custom implementation for logging exceptions.  The submitted type must implement the <see cref="ILogCacheHitsAndMissesForQueryHandlers"/> interface.
+		/// </summary>
+		/// <param name="type">The type (must implement the <see cref="ILogCacheHitsAndMissesForQueryHandlers"/> interface).</param>
+		/// <returns></returns>
 		public IIQCQSInstaller WithCustomImplementationForLoggingQueryCaching(Type type)
 		{
 			if (!typeof(ILogCacheHitsAndMissesForQueryHandlers).IsAssignableFrom(type))
@@ -51,6 +61,11 @@ namespace IQ.CQS.IoC.Installers
 			return this;
 		}
 
+		/// <summary>
+		/// Configure the IQ.CQS installation to use a custom implementation for logging exceptions.  The submitted type must implement the <see cref="ILogExceptionsFromCQSHandlers"/> interface.
+		/// </summary>
+		/// <param name="type">The type (must implement the <see cref="ILogExceptionsFromCQSHandlers"/> interface).</param>
+		/// <returns></returns>
 		public IIQCQSInstaller WithCustomImplementationForExceptionLogging(Type type)
 		{
 			if (!typeof(ILogExceptionsFromCQSHandlers).IsAssignableFrom(type))
@@ -60,6 +75,11 @@ namespace IQ.CQS.IoC.Installers
 			return this;
 		}
 
+		/// <summary>
+		/// Configure the IQ.CQS installation to use a custom implementation for logging exceptions.  The submitted type must implement the <see cref="ILogExecutionTimeOfCQSHandlers"/> interface.
+		/// </summary>
+		/// <param name="type">The type (must implement the <see cref="ILogExecutionTimeOfCQSHandlers"/> interface).</param>
+		/// <returns></returns>
 		public IIQCQSInstaller WithCustomImplementationForPerformanceMetricsLogging(Type type)
 		{
 			if (!typeof(ILogExecutionTimeOfCQSHandlers).IsAssignableFrom(type))
@@ -69,24 +89,35 @@ namespace IQ.CQS.IoC.Installers
 			return this;
 		}
 
+		/// <summary>
+		/// Add all custom interceptors from the specified assemblies.  The interceptor classes must be public.
+		/// </summary>
+		/// <param name="assemblyDescriptor">The assembly descriptor.</param>
+		/// <returns></returns>
 		public IIQCQSInstaller WithIQCQSComponentsFromTheSpecifiedAssembly(FromAssemblyDescriptor assemblyDescriptor)
 		{
 			_userAssemblyDescriptors.Add(assemblyDescriptor);
 			return this;
 		}
 
+		/// <summary>
+		/// Gets the configured installer.
+		/// </summary>
+		/// <returns></returns>
 		public IWindsorInstaller GetInstaller()
 		{
 			return this;
 		}
 
+		#endregion
+
 		#region IWindsorInstaller implementation
 
 		/// <summary>
-		/// 
+		/// Perform the installation.
 		/// </summary>
-		/// <param name="container"></param>
-		/// <param name="store"></param>
+		/// <param name="container">The container that will contain the installed components.</param>
+		/// <param name="store">The contract used by the kernel to obtain external configuration for the components and facilities.</param>
 		public void Install(IWindsorContainer container, IConfigurationStore store)
 		{
 			// register all objects required to support IQ.CQS
@@ -136,7 +167,6 @@ namespace IQ.CQS.IoC.Installers
 		{
 			var registrations = new List<IRegistration>();
 			
-			//registrations.AddRange(CQSHandlerTypeCheckingUtility.SupportedHandlerTypes.Select(supportedHandlerType => Classes.FromAssemblyContaining<InvocationInstance>.From.FromThisAssembly().BasedOn(supportedHandlerType).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction)));
 			foreach (var userAssemblyDescriptor in userAssemblyDescriptors)
 				registrations.AddRange(CQSHandlerTypeCheckingUtility.SupportedHandlerTypes.Select(supportedHandlerType => userAssemblyDescriptor.BasedOn(supportedHandlerType).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction)));
 
