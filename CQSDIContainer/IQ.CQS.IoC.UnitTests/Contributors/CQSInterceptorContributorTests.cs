@@ -29,7 +29,7 @@ namespace IQ.CQS.IoC.UnitTests.Contributors
 		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(InterceptorUsageOptions.QueryHandlersOnly)]
 		[CQSInterceptorContributorWithWrongHandlerTypeArrangement(InterceptorUsageOptions.AllHandlers)]
 		#endregion
-		#region # ... if handler type has indicated that no interceptor should be applied (ShouldApplyInterceptor returns false)
+		#region ... if handler type has indicated that no interceptor should be applied (ShouldApplyInterceptor returns false)
 		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(InterceptorUsageOptions.None)]
 		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(InterceptorUsageOptions.QueryHandlersOnly)]
 		[CQSInterceptorContributorWithShouldApplyInterceptorMethodReturningFalseArrangement(InterceptorUsageOptions.CommandHandlersOnly)]
@@ -248,7 +248,7 @@ namespace IQ.CQS.IoC.UnitTests.Contributors
 			private readonly bool _shouldApplyInterceptor;
 
 			public CQSInterceptorContributorImpl(bool isContributingToComponentModelConstructionForNestedCQSHandlers, InterceptorUsageOptions usageOptions, bool shouldApplyInterceptor)
-				: base(isContributingToComponentModelConstructionForNestedCQSHandlers)
+				: base( isContributingToComponentModelConstructionForNestedCQSHandlers)
 			{
 				HandlerTypesToApplyTo = usageOptions;
 				_shouldApplyInterceptor = shouldApplyInterceptor;

@@ -5,6 +5,7 @@ using Castle.Core;
 using Castle.MicroKernel;
 using IQ.CQS.Interceptors;
 using IQ.CQS.Interceptors.Attributes;
+using IQ.CQS.IoC.Attributes;
 using IQ.CQS.IoC.Contributors.Interfaces;
 using IQ.CQS.Utilities;
 

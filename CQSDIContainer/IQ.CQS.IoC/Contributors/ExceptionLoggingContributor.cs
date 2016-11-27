@@ -1,10 +1,13 @@
 ﻿using Castle.Core;
 using Castle.MicroKernel;
 using IQ.CQS.Interceptors;
+using IQ.CQS.IoC.Attributes;
+using IQ.CQS.IoC.Constants;
 
 namespace IQ.CQS.IoC.Contributors
 {
-	internal class ExceptionLoggingContributor : CQSInterceptorContributor<LogPerformanceMetricsInterceptor>
+	[InterceptorConfigurationSettingName(AppSettingsNames.IncludeExceptionLoggingInterceptor)]
+	internal class ExceptionLoggingContributor : CQSInterceptorContributor<LogAnyExceptionsInterceptor>
 	{
 		public ExceptionLoggingContributor(bool isContributingToComponentModelConstructionForNestedCQSHandlers)
 			: base(isContributingToComponentModelConstructionForNestedCQSHandlers)

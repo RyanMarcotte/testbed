@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,13 +17,6 @@ namespace IQ.CQS.IoC.Installers.Interfaces
 	/// </summary>
 	public interface IIQCQSInstaller
 	{
-		/// <summary>
-		/// Configure the IQ.CQS installation to use the specified caching implementation.  The submitted type must implement the <see cref="ICacheAside"/> interface.
-		/// </summary>
-		/// <typeparam name="TCache">The cache type.</typeparam>
-		/// <returns></returns>
-		IIQCQSInstaller WithCachingImplementation<TCache>() where TCache : ICacheAside;
-
 		/// <summary>
 		/// Configure the IQ.CQS installation to use a custom implementation for logging exceptions.  The submitted type must implement the <see cref="ILogCacheHitsAndMissesForQueryHandlers"/> interface.
 		/// </summary>
@@ -50,6 +44,13 @@ namespace IQ.CQS.IoC.Installers.Interfaces
 		/// <param name="assemblyDescriptor">The assembly descriptor.</param>
 		/// <returns></returns>
 		IIQCQSInstaller WithIQCQSComponentsFromTheSpecifiedAssembly(FromAssemblyDescriptor assemblyDescriptor);
+
+		/// <summary>
+		/// Configure the IQ.CQS installation to use settings from a <see cref="NameValueCollection"/> for including / excluding components during registration.
+		/// </summary>
+		/// <param name="configuration">The configuration represented as a <see cref="NameValueCollection"/>.</param>
+		/// <returns></returns>
+		IIQCQSInstaller UsingConfiguration(NameValueCollection configuration);
 
 		/// <summary>
 		/// Gets the configured installer.

@@ -3,12 +3,15 @@ using Castle.Core;
 using Castle.MicroKernel;
 using IQ.CQS.Attributes;
 using IQ.CQS.Interceptors;
+using IQ.CQS.IoC.Attributes;
+using IQ.CQS.IoC.Constants;
 
 namespace IQ.CQS.IoC.Contributors
 {
-	internal class ExecutionTimeLoggingInterceptorContributor : CQSInterceptorContributor<LogPerformanceMetricsInterceptor>
+	[InterceptorConfigurationSettingName(AppSettingsNames.IncludePerformanceMetricsLoggingInterceptor)]
+	internal class PerformanceMetricsLoggingContributor : CQSInterceptorContributor<LogPerformanceMetricsInterceptor>
 	{
-		public ExecutionTimeLoggingInterceptorContributor(bool isContributingToComponentModelConstructionForNestedCQSHandlers)
+		public PerformanceMetricsLoggingContributor(bool isContributingToComponentModelConstructionForNestedCQSHandlers)
 			: base(isContributingToComponentModelConstructionForNestedCQSHandlers)
 		{
 			

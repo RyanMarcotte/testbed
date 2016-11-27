@@ -3,9 +3,12 @@ using Castle.Core;
 using Castle.MicroKernel;
 using IQ.CQS.Interceptors;
 using IQ.CQS.Interceptors.Caching.Interfaces;
+using IQ.CQS.IoC.Attributes;
+using IQ.CQS.IoC.Constants;
 
 namespace IQ.CQS.IoC.Contributors
 {
+	[InterceptorConfigurationSettingName(AppSettingsNames.IncludeQueryResultCachingInterceptor)]
 	internal class QueryResultCachingContributor : CQSInterceptorContributor<CacheQueryResultInterceptor>
 	{
 		private readonly ICacheItemFactoryInstanceRepository _cacheItemFactoryInstanceRepository;

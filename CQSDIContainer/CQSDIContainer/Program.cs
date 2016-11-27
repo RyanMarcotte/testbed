@@ -1,4 +1,5 @@
-﻿using Castle.MicroKernel.Registration;
+﻿using System.Configuration;
+using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using IQ.CQS.Interceptors.Caching;
@@ -18,9 +19,9 @@ namespace IQ.CQS.Lab
 			container.Install(IQCQSInstaller.Build()
 				.WithCustomImplementationForExceptionLogging<ExceptionLoggerForCQSHandlers>()
 				.WithCustomImplementationForLoggingQueryCaching<CacheLoggerForQueryHandlers>()
-				.WithCachingImplementation<NullCache>()
 				.WithCustomImplementationForPerformanceMetricsLogging<PerformanceMetricsLoggerForCQSHandlers>()
 				.WithIQCQSComponentsFromTheSpecifiedAssembly(Classes.FromThisAssembly())
+				.UsingConfiguration(ConfigurationManager.AppSettings)
 				.GetInstaller());
 
 			container.Install(FromAssembly.This());

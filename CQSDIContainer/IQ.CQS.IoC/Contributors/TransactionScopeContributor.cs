@@ -3,9 +3,12 @@ using Castle.Core;
 using Castle.MicroKernel;
 using IQ.CQS.Attributes;
 using IQ.CQS.Interceptors;
+using IQ.CQS.IoC.Attributes;
+using IQ.CQS.IoC.Constants;
 
 namespace IQ.CQS.IoC.Contributors
 {
+	[InterceptorConfigurationSettingName(AppSettingsNames.IncludeTransactionScopeInterceptor)]
 	internal class TransactionScopeContributor : CQSInterceptorContributor<TransactionScopeInterceptor>
 	{
 		public TransactionScopeContributor(bool isContributingToComponentModelConstructionForNestedCQSHandlers)
