@@ -6,7 +6,7 @@ using IQ.CQS.Interceptors;
 
 namespace IQ.CQS.IoC.Contributors
 {
-	public class ExecutionTimeLoggingInterceptorContributor : CQSInterceptorContributor<LogExecutionTimeInterceptor>
+	internal class ExecutionTimeLoggingInterceptorContributor : CQSInterceptorContributor<LogPerformanceMetricsInterceptor>
 	{
 		public ExecutionTimeLoggingInterceptorContributor(bool isContributingToComponentModelConstructionForNestedCQSHandlers)
 			: base(isContributingToComponentModelConstructionForNestedCQSHandlers)

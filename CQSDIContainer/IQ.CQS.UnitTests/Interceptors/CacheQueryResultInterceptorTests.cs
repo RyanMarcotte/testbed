@@ -32,7 +32,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 	{
 		[Theory]
 		[QueryHandlerInvocationDoesNotThrowAnExceptionArrangement]
-		public void CachesQueryResultIfNotInCacheAndDoesNotRunInterceptedMethodIfQueryResultAlreadyInCache(CacheQueryResultInterceptor sut, IInvocation invocation, Type queryType, Type resultType)
+		internal void CachesQueryResultIfNotInCacheAndDoesNotRunInterceptedMethodIfQueryResultAlreadyInCache(CacheQueryResultInterceptor sut, IInvocation invocation, Type queryType, Type resultType)
 		{
 			// the result of the query should not be in the cache, so proceed with the invocation
 			A.CallTo(() => invocation.Proceed()).MustNotHaveHappened();
@@ -50,7 +50,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		[Theory]
 		[InvocationOfQueryHandlerThatReturnsValueTypeThrowsAnExceptionArrangement]
-		public void DoesNotCacheResultIfInvocationOfQueryHandlerThatReturnsValueTypeThrowsAnException(CacheQueryResultInterceptor sut, IInvocation invocation, Type queryType, Type resultType)
+		internal void DoesNotCacheResultIfInvocationOfQueryHandlerThatReturnsValueTypeThrowsAnException(CacheQueryResultInterceptor sut, IInvocation invocation, Type queryType, Type resultType)
 		{
 			Assert.Throws<InvocationFailedException>(() => sut.Intercept(invocation));
 			A.CallTo(() => sut.CacheLogger.LogCacheMiss(queryType, resultType, A<string>._)).MustNotHaveHappened();
@@ -60,7 +60,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 		[Theory]
 		[InvocationOfQueryHandlerThatReturnsReferenceTypeThrowsAnExceptionArrangement]
 		[AsyncQueryHandlerInvocationThrowsAnExceptionArrangement]
-		public void DoesNotCacheResultIfInvocationOfQueryHandlerThrowsAnException(CacheQueryResultInterceptor sut, IInvocation invocation, Type queryType, Type resultType)
+		internal void DoesNotCacheResultIfInvocationOfQueryHandlerThrowsAnException(CacheQueryResultInterceptor sut, IInvocation invocation, Type queryType, Type resultType)
 		{
 			try
 			{

@@ -25,7 +25,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 	{
 		[Theory]
 		[AllInterceptedHandlerMethodsArrangement]
-		public void ShouldAlwaysCallOnBeginInvocationMethodOnce(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		internal void ShouldAlwaysCallOnBeginInvocationMethodOnce(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
 		{
 			sut.NumberOfTimesOnBeginInvocationCalled.Should().Be(0);
 
@@ -43,7 +43,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		[Theory]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.Query_ReturnsValueType)]
-		public void ShouldCallOnReceiveReturnValueFromQueryHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		internal void ShouldCallOnReceiveReturnValueFromQueryHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
 		{
 			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
 			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
@@ -64,7 +64,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		[Theory]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncQuery_ReturnsValueType)]
-		public void ShouldCallOnReceiveReturnValueFromAsyncQueryHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		internal void ShouldCallOnReceiveReturnValueFromAsyncQueryHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
 		{
 			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
 			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
@@ -85,7 +85,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		[Theory]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.Command)]
-		public void ShouldCallOnReceiveReturnValueFromCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		internal void ShouldCallOnReceiveReturnValueFromCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
 		{
 			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
 			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
@@ -107,7 +107,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 		[Theory]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.ResultCommand_Succeeds)]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.ResultCommand_Fails)]
-		public void ShouldCallOnReceiveReturnValueFromResultCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		internal void ShouldCallOnReceiveReturnValueFromResultCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
 		{
 			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
 			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
@@ -128,7 +128,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		[Theory]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncCommand)]
-		public void ShouldCallOnReceiveReturnValueFromAsyncCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		internal void ShouldCallOnReceiveReturnValueFromAsyncCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
 		{
 			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
 			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
@@ -150,7 +150,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 		[Theory]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncResultCommand_Succeeds)]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncResultCommand_Fails)]
-		public void ShouldCallOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		internal void ShouldCallOnReceiveReturnValueFromAsyncResultCommandHandlerInvocationMethodOnceIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
 		{
 			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
 			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
@@ -171,7 +171,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		[Theory]
 		[AllInterceptedHandlerMethodsThrowAnExceptionArrangement]
-		public void ShouldNotCallOnReceiveReturnValueFromInvocationMethodIfInvocationThrowsException(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		internal void ShouldNotCallOnReceiveReturnValueFromInvocationMethodIfInvocationThrowsException(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
 		{
 			sut.NumberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled.Should().Be(0);
 			sut.NumberOfTimesOnReceiveReturnValueFromAsyncQueryHandlerInvocationCalled.Should().Be(0);
@@ -191,7 +191,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		[Theory]
 		[AllInterceptedHandlerMethodsArrangement]
-		public void ShouldAlwaysCallOnEndInvocationMethodOnce(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		internal void ShouldAlwaysCallOnEndInvocationMethodOnce(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
 		{
 			sut.NumberOfTimesOnEndInvocationCalled.Should().Be(0);
 
@@ -209,7 +209,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		[Theory]
 		[AllInterceptedHandlerMethodsDoNotThrowAnExceptionArrangement]
-		public void ShouldNotCallOnExceptionMethodIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		internal void ShouldNotCallOnExceptionMethodIfInvocationCompletesSuccessfully(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
 		{
 			sut.NumberOfTimesOnExceptionCalled.Should().Be(0);
 			sut.Intercept(invocation);
@@ -218,7 +218,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		[Theory]
 		[AllInterceptedHandlerMethodsThrowAnExceptionArrangement]
-		public void ShouldCallOnExceptionMethodOnceIfInvocationThrowsException(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		internal void ShouldCallOnExceptionMethodOnceIfInvocationThrowsException(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
 		{
 			sut.NumberOfTimesOnExceptionCalled.Should().Be(0);
 			Assert.Throws<InvocationFailedException>(() => sut.Intercept(invocation));
@@ -227,7 +227,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		[Theory]
 		[AllInterceptedHandlerMethodsDoNotThrowAnExceptionArrangement]
-		public void AnInterceptedInvocationWithMultipleInterceptorsAppliedShouldHaveTheInvocationProceedThatManyTimes(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		internal void AnInterceptedInvocationWithMultipleInterceptorsAppliedShouldHaveTheInvocationProceedThatManyTimes(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
 		{
 			const int numberOfInterceptors = 10;
 
@@ -309,7 +309,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		#region Implementation
 
-		public class CQSInterceptorWithExceptionHandlingImpl : CQSInterceptorWithExceptionHandling
+		internal class CQSInterceptorWithExceptionHandlingImpl : CQSInterceptorWithExceptionHandling
 		{
 			private int _numberOfTimesOnBeginInvocationCalled;
 			private int _numberOfTimesOnReceiveReturnValueFromQueryHandlerInvocationCalled;

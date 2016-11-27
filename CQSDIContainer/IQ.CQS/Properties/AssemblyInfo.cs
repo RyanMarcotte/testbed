@@ -37,3 +37,4 @@ using System.Runtime.InteropServices;
 
 [assembly: InternalsVisibleTo("IQ.CQS.IoC")]
 [assembly: InternalsVisibleTo("IQ.CQS.UnitTests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] // need so some classes are accessible for proxying in unit tests

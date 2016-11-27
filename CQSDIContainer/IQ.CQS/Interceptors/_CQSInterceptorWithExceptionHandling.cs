@@ -88,6 +88,11 @@ namespace IQ.CQS.Interceptors
 
 		#region Sealed Implementations
 
+		/// <summary>
+		/// Interception logic for synchronous handlers.
+		/// </summary>
+		/// <param name="invocation">The invocation.</param>
+		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
 		protected sealed override void InterceptSync(IInvocation invocation, ComponentModel componentModel)
 		{
 			var invocationInstance = new InvocationInstance(invocation, componentModel);
@@ -108,6 +113,12 @@ namespace IQ.CQS.Interceptors
 			}
 		}
 
+		/// <summary>
+		/// Interception logic for asynchronous handlers.
+		/// </summary>
+		/// <param name="invocation">The invocation.</param>
+		/// <param name="methodType">The asynchronous method type.</param>
+		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
 		protected sealed override void InterceptAsync(IInvocation invocation, ComponentModel componentModel, AsynchronousMethodType methodType)
 		{
 			var invocationInstance = new InvocationInstance(invocation, componentModel);
@@ -139,9 +150,9 @@ namespace IQ.CQS.Interceptors
 		{
 			var invocationTypes = GetComponentModelInvocationTypes(componentModel);
 			if (invocationTypes == InvocationTypes.None)
-				throw new UnrecognizedCQSHandlerTypeException(componentModel);
+				throw new ComponentDoesNotImplementAnyRecognizedCQSHandlerInterfacesException(componentModel);
 			if (invocationTypes.IsMoreThanOneInvocationType())
-				throw new CQSHandlerClassImplementsMultipleCQSHandlerInterfacesException(componentModel.Implementation, invocationTypes);
+				throw new CQSHandlerClassImplementsMultipleCQSHandlerInterfacesException(componentModel, invocationTypes);
 
 			if (invocationTypes.HasFlag(InvocationTypes.Query))
 				OnReceiveReturnValueFromQueryHandlerInvocation(invocationInstance, componentModel, invocation.ReturnValue);
@@ -178,9 +189,9 @@ namespace IQ.CQS.Interceptors
 		{
 			var invocationTypes = GetComponentModelInvocationTypes(componentModel);
 			if (invocationTypes == InvocationTypes.None)
-				throw new UnrecognizedCQSHandlerTypeException(componentModel);
+				throw new ComponentDoesNotImplementAnyRecognizedCQSHandlerInterfacesException(componentModel);
 			if (invocationTypes.IsMoreThanOneInvocationType())
-				throw new CQSHandlerClassImplementsMultipleCQSHandlerInterfacesException(componentModel.Implementation, invocationTypes);
+				throw new CQSHandlerClassImplementsMultipleCQSHandlerInterfacesException(componentModel, invocationTypes);
 
 			if (invocationTypes.HasFlag(InvocationTypes.AsyncQuery))
 				OnReceiveReturnValueFromAsyncQueryHandlerInvocation(invocationInstance, componentModel, ((dynamic)invocation.ReturnValue).Result);
@@ -230,14 +241,6 @@ namespace IQ.CQS.Interceptors
 			return invocationType;
 		}
 
-		#endregion
-
-		#region Enums
-
-		protected enum HandlerType
-		{
-			Synchronous
-		}
 		#endregion
 
 		#endregion

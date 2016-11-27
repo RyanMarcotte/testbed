@@ -4,7 +4,7 @@ using IQ.CQS.Interceptors;
 
 namespace IQ.CQS.IoC.Contributors
 {
-	public class ExceptionLoggingContributor : CQSInterceptorContributor<LogExecutionTimeInterceptor>
+	internal class ExceptionLoggingContributor : CQSInterceptorContributor<LogPerformanceMetricsInterceptor>
 	{
 		public ExceptionLoggingContributor(bool isContributingToComponentModelConstructionForNestedCQSHandlers)
 			: base(isContributingToComponentModelConstructionForNestedCQSHandlers)

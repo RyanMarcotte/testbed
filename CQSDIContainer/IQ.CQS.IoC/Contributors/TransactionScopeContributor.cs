@@ -6,7 +6,7 @@ using IQ.CQS.Interceptors;
 
 namespace IQ.CQS.IoC.Contributors
 {
-	public class TransactionScopeContributor : CQSInterceptorContributor<TransactionScopeInterceptor>
+	internal class TransactionScopeContributor : CQSInterceptorContributor<TransactionScopeInterceptor>
 	{
 		public TransactionScopeContributor(bool isContributingToComponentModelConstructionForNestedCQSHandlers)
 			: base(isContributingToComponentModelConstructionForNestedCQSHandlers)

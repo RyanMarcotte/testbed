@@ -5,7 +5,7 @@ namespace IQ.CQS.Interceptors.PerformanceMetricsLogging
 {
 	internal class NullPerformanceMetricsLoggerForCQSHandlers : ILogPerformanceMetricsForCQSHandlers
 	{
-		public void LogPerformanceMetrics(Type handlerType, TimeSpan executionTime, TimeSpan threshold)
+		public void LogPerformanceMetrics(Type handlerType, object parameters, TimeSpan executionTime, TimeSpan threshold)
 		{
 			Console.WriteLine($"[{handlerType}] measured time: {executionTime.TotalMilliseconds} ms");
 			if (executionTime >= threshold)

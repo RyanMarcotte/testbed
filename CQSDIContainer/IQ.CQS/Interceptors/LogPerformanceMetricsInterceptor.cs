@@ -8,11 +8,11 @@ using IQ.CQS.Interceptors.PerformanceMetricsLogging.Interfaces;
 
 namespace IQ.CQS.Interceptors
 {
-	public class LogExecutionTimeInterceptor : CQSInterceptorWithExceptionHandling
+	internal class LogPerformanceMetricsInterceptor : CQSInterceptorWithExceptionHandling
 	{
 		private static readonly ConcurrentDictionary<InvocationInstance, DateTime> _startTimeLookup = new ConcurrentDictionary<InvocationInstance, DateTime>();
 
-		public LogExecutionTimeInterceptor(ILogPerformanceMetricsForCQSHandlers executionTimeLogger)
+		public LogPerformanceMetricsInterceptor(ILogPerformanceMetricsForCQSHandlers executionTimeLogger)
 		{
 			if (executionTimeLogger == null)
 				throw new ArgumentNullException(nameof(executionTimeLogger));
@@ -36,7 +36,7 @@ namespace IQ.CQS.Interceptors
 			if (!_startTimeLookup.TryGetValue(invocationInstance, out begin))
 				throw new TransactionScopeNotFoundForInvocationException(invocationInstance);
 
-			ExecutionTimeLogger.LogPerformanceMetrics(componentModel.Implementation, end - begin, threshold);
+			ExecutionTimeLogger.LogPerformanceMetrics(componentModel.Implementation, invocationInstance.ParameterObject, end - begin, threshold);
 			_startTimeLookup.TryRemove(invocationInstance, out begin);
 		}
 	}

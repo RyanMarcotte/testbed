@@ -16,7 +16,7 @@ using IQ.Platform.Framework.Common.CQS;
 namespace IQ.CQS.Interceptors
 {
 	[ApplyToNestedHandlers]
-	public class CacheQueryResultInterceptor : CQSInterceptor
+	internal class CacheQueryResultInterceptor : CQSInterceptor
 	{
 		private const string NO_QUERY_CACHE_ITEM_FACTORY_INFO_FOUND = "The interceptor cannot handle query caching if no factory information for the type exists!!  (possibly an error in QueryResultCachingContributor...)";
 

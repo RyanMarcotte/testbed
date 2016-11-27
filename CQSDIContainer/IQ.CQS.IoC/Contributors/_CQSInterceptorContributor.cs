@@ -10,6 +10,9 @@ using IQ.CQS.Utilities;
 
 namespace IQ.CQS.IoC.Contributors
 {
+	/// <summary>
+	/// Defines which types of CQS handlers an interceptor can apply to.
+	/// </summary>
 	public enum InterceptorUsageOptions
 	{
 		/// <summary>

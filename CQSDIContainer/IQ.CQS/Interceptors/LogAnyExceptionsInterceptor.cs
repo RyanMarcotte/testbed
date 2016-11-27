@@ -4,7 +4,7 @@ using IQ.CQS.Interceptors.ExceptionLogging.Interfaces;
 
 namespace IQ.CQS.Interceptors
 {
-	public class LogAnyExceptionsInterceptor : CQSInterceptorWithExceptionHandling
+	internal class LogAnyExceptionsInterceptor : CQSInterceptorWithExceptionHandling
 	{
 		public LogAnyExceptionsInterceptor(ILogExceptionsFromCQSHandlers exceptionLogger)
 		{

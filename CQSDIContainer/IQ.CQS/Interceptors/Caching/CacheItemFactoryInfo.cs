@@ -2,7 +2,7 @@ using System;
 
 namespace IQ.CQS.Interceptors.Caching
 {
-	public class CacheItemFactoryInfo
+	internal class CacheItemFactoryInfo
 	{
 		public CacheItemFactoryInfo(Type queryType, Type resultType, object factoryInstance)
 		{

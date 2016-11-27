@@ -18,7 +18,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 	{
 		[Theory]
 		[AllInterceptedHandlerMethodsDoNotThrowAnExceptionArrangement]
-		public void DoesNotCallExceptionLoggerIfNoExceptionWasThrownByInterceptedMethod(LogAnyExceptionsInterceptor sut, IInvocation invocation)
+		internal void DoesNotCallExceptionLoggerIfNoExceptionWasThrownByInterceptedMethod(LogAnyExceptionsInterceptor sut, IInvocation invocation)
 		{
 			sut.Intercept(invocation);
 			A.CallTo(() => sut.ExceptionLogger.LogException(A<Exception>._)).MustNotHaveHappened();
@@ -26,7 +26,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		[Theory]
 		[AllInterceptedHandlerMethodsThrowAnExceptionArrangement]
-		public void CallsExceptionLoggerIfAnExceptionWasThrownByInterceptedMethod(LogAnyExceptionsInterceptor sut, IInvocation invocation)
+		internal void CallsExceptionLoggerIfAnExceptionWasThrownByInterceptedMethod(LogAnyExceptionsInterceptor sut, IInvocation invocation)
 		{
 			Assert.Throws<InvocationFailedException>(() => sut.Intercept(invocation));
 			A.CallTo(() => sut.ExceptionLogger.LogException(A<Exception>._)).MustHaveHappened(Repeated.Exactly.Once);

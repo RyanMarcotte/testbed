@@ -10,12 +10,39 @@ namespace IQ.CQS.Interceptors.Enums
 	[Flags]
 	public enum InvocationTypes
 	{
+		/// <summary>
+		/// Not a CQS handler invocation type.
+		/// </summary>
 		None = 0,
+		
+		/// <summary>
+		/// Is a <see cref="IQueryHandler{TQuery, TResult}"/>.
+		/// </summary>
 		Query = 1,
+
+		/// <summary>
+		/// Is a <see cref="IAsyncQueryHandler{TQuery, TResult}"/>.
+		/// </summary>
 		AsyncQuery = 2,
+
+		/// <summary>
+		/// Is a <see cref="ICommandHandler{TCommand}"/>.
+		/// </summary>
 		Command = 4,
+
+		/// <summary>
+		/// Is a <see cref="IAsyncCommandHandler{TCommand}"/>.
+		/// </summary>
 		AsyncCommand = 8,
+
+		/// <summary>
+		/// Is a <see cref="IResultCommandHandler{TCommand, TError}"/>.
+		/// </summary>
 		ResultCommand = 16,
+		
+		/// <summary>
+		/// Is a <see cref="IAsyncResultCommandHandler{TCommand, TError}"/>.
+		/// </summary>
 		AsyncResultCommand = 32
 	}
 

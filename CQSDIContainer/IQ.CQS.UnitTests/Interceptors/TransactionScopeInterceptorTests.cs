@@ -23,7 +23,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncCommand)]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.ResultCommand_Succeeds)]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncResultCommand_Succeeds)]
-		public void OpensThenCompletesThenDisposesATransactionScopeForSuccessfulInvocation(TransactionScopeInterceptor sut, IInvocation invocation)
+		internal void OpensThenCompletesThenDisposesATransactionScopeForSuccessfulInvocation(TransactionScopeInterceptor sut, IInvocation invocation)
 		{
 			sut.Intercept(invocation);
 
@@ -35,7 +35,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 		[Theory]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.ResultCommand_Fails)]
 		[InterceptedHandlerMethodDoesNotThrowAnExceptionArrangement(CQSHandlerType.AsyncResultCommand_Fails)]
-		public void OpensThenCompletesThenDisposesATransactionScopeForSuccessfulInvocationButHasFailResult(TransactionScopeInterceptor sut, IInvocation invocation)
+		internal void OpensThenCompletesThenDisposesATransactionScopeForSuccessfulInvocationButHasFailResult(TransactionScopeInterceptor sut, IInvocation invocation)
 		{
 			sut.Intercept(invocation);
 			VerifyOpensThenDisposesATransactionScope(sut);
@@ -43,7 +43,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		[Theory]
 		[AllInterceptedHandlerMethodsThrowAnExceptionArrangement]
-		public void OpensThenDisposesATransactionScopeForInvocationsThatThrowExceptions(TransactionScopeInterceptor sut, IInvocation invocation)
+		internal void OpensThenDisposesATransactionScopeForInvocationsThatThrowExceptions(TransactionScopeInterceptor sut, IInvocation invocation)
 		{
 			Assert.Throws<InvocationFailedException>(() => sut.Intercept(invocation));
 			VerifyOpensThenDisposesATransactionScope(sut);

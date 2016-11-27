@@ -6,7 +6,7 @@ using IQ.CQS.Interceptors.Caching.Interfaces;
 
 namespace IQ.CQS.IoC.Contributors
 {
-	public class QueryResultCachingContributor : CQSInterceptorContributor<CacheQueryResultInterceptor>
+	internal class QueryResultCachingContributor : CQSInterceptorContributor<CacheQueryResultInterceptor>
 	{
 		private readonly ICacheItemFactoryInstanceRepository _cacheItemFactoryInstanceRepository;
 

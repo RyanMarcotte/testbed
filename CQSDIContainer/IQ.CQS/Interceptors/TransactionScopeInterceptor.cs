@@ -5,7 +5,7 @@ using IQ.Platform.Framework.Common;
 
 namespace IQ.CQS.Interceptors
 {
-	public class TransactionScopeInterceptor : CQSInterceptorWithExceptionHandling
+	internal class TransactionScopeInterceptor : CQSInterceptorWithExceptionHandling
 	{
 		public TransactionScopeInterceptor(IManageTransactionScopesForCQSHandlers transactionScopeManager)
 		{

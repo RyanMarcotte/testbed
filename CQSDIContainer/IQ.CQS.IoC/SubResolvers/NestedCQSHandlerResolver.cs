@@ -5,7 +5,7 @@ using IQ.CQS.Utilities;
 
 namespace IQ.CQS.IoC.SubResolvers
 {
-	public class NestedCQSHandlerResolver : ISubDependencyResolver
+	internal class NestedCQSHandlerResolver : ISubDependencyResolver
 	{
 		private readonly IKernel _kernel;
 

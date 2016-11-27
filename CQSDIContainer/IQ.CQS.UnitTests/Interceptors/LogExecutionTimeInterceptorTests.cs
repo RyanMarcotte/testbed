@@ -15,24 +15,24 @@ using Xunit;
 namespace IQ.CQS.UnitTests.Interceptors
 {
 	/// <summary>
-	/// Unit tests for the <see cref="LogExecutionTimeInterceptor"/> class.
+	/// Unit tests for the <see cref="LogPerformanceMetricsInterceptor"/> class.
 	/// </summary>
 	public class LogExecutionTimeInterceptorTests
 	{
 		[Theory]
 		[AllInterceptedHandlerMethodsDoNotThrowAnExceptionArrangement]
-		public void CallsExecutionTimeLoggerIfNoExceptionWasThrownByInterceptedMethod(LogExecutionTimeInterceptor sut, IInvocation invocation, Type handlerType)
+		internal void CallsExecutionTimeLoggerIfNoExceptionWasThrownByInterceptedMethod(LogPerformanceMetricsInterceptor sut, IInvocation invocation, Type handlerType)
 		{
 			sut.Intercept(invocation);
-			A.CallTo(() => sut.ExecutionTimeLogger.LogPerformanceMetrics(handlerType, A<TimeSpan>._, A<TimeSpan>._)).MustHaveHappened(Repeated.Exactly.Once);
+			A.CallTo(() => sut.ExecutionTimeLogger.LogPerformanceMetrics(handlerType, A<object>._, A<TimeSpan>._, A<TimeSpan>._)).MustHaveHappened(Repeated.Exactly.Once);
 		}
 
 		[Theory]
 		[AllInterceptedHandlerMethodsThrowAnExceptionArrangement]
-		public void CallsExecutionTimeLoggerIfAnExceptionWasThrownByInterceptedMethod(LogExecutionTimeInterceptor sut, IInvocation invocation, Type handlerType)
+		internal void CallsExecutionTimeLoggerIfAnExceptionWasThrownByInterceptedMethod(LogPerformanceMetricsInterceptor sut, IInvocation invocation, Type handlerType)
 		{
 			Assert.Throws<InvocationFailedException>(() => sut.Intercept(invocation));
-			A.CallTo(() => sut.ExecutionTimeLogger.LogPerformanceMetrics(handlerType, A<TimeSpan>._, A<TimeSpan>._)).MustHaveHappened(Repeated.Exactly.Once);
+			A.CallTo(() => sut.ExecutionTimeLogger.LogPerformanceMetrics(handlerType, A<object>._, A<TimeSpan>._, A<TimeSpan>._)).MustHaveHappened(Repeated.Exactly.Once);
 		}
 
 		#region Arrangements
@@ -70,22 +70,22 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 		#region Customizations
 
-		private class LogExecutionTimeInterceptorCustomization : CQSInterceptorWithExceptionHandlingCustomizationBase<LogExecutionTimeInterceptor>
+		private class LogExecutionTimeInterceptorCustomization : CQSInterceptorWithExceptionHandlingCustomizationBase<LogPerformanceMetricsInterceptor>
 		{
 			protected override void RegisterDependencies(IFixture fixture)
 			{
 				fixture.Register(() =>
 				{
 					var executionTimeLogger = A.Fake<ILogPerformanceMetricsForCQSHandlers>();
-					A.CallTo(() => executionTimeLogger.LogPerformanceMetrics(A<Type>._, A<TimeSpan>._, A<TimeSpan>._)).DoesNothing();
+					A.CallTo(() => executionTimeLogger.LogPerformanceMetrics(A<Type>._, A<object>._, A<TimeSpan>._, A<TimeSpan>._)).DoesNothing();
 
 					return executionTimeLogger;
 				});
 			}
 
-			protected override LogExecutionTimeInterceptor CreateInterceptor(IFixture fixture)
+			protected override LogPerformanceMetricsInterceptor CreateInterceptor(IFixture fixture)
 			{
-				return new LogExecutionTimeInterceptor(fixture.Create<ILogPerformanceMetricsForCQSHandlers>());
+				return new LogPerformanceMetricsInterceptor(fixture.Create<ILogPerformanceMetricsForCQSHandlers>());
 			}
 		}
 

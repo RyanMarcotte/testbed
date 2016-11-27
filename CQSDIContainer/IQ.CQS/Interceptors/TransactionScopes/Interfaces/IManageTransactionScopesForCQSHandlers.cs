@@ -1,6 +1,9 @@
 ﻿namespace IQ.CQS.Interceptors.TransactionScopes.Interfaces
 {
-	public interface IManageTransactionScopesForCQSHandlers
+	/// <summary>
+	/// Interface of an object responsible for managing transaction scopes for CQS handlers.
+	/// </summary>
+	internal interface IManageTransactionScopesForCQSHandlers
 	{
 		/// <summary>
 		/// Open a new transaction scope for a invocation instance.
