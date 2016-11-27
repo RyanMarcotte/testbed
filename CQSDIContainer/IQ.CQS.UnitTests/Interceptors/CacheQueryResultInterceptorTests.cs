@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Caching;
 using System.Threading.Tasks;
 using Castle.DynamicProxy;
 using Castle.MicroKernel;
 using DoubleCache;
-using DoubleCache.LocalCache;
 using FakeItEasy;
-using FluentAssertions;
 using IQ.CQS.Caching;
 using IQ.CQS.Interceptors;
 using IQ.CQS.Interceptors.Caching;
@@ -19,6 +18,7 @@ using IQ.CQS.UnitTests.Framework.Exceptions;
 using IQ.CQS.UnitTests.Framework.Utilities;
 using IQ.CQS.UnitTests.Interceptors._Arrangements;
 using IQ.CQS.UnitTests.Interceptors._Customizations;
+using IQ.CQS.UnitTests._Customizations;
 using IQ.Platform.Framework.Common.CQS;
 using Ploeh.AutoFixture;
 using Xunit;
@@ -130,14 +130,6 @@ namespace IQ.CQS.UnitTests.Interceptors
 		#endregion
 
 		#region Customizations
-
-		private class CacheAsideCustomization : ICustomization
-		{
-			public void Customize(IFixture fixture)
-			{
-				fixture.Register<ICacheAside>(() => new MemCache());
-			}
-		}
 
 		private class CacheItemFactoryInstanceRepositoryCustomization : ICustomization
 		{
