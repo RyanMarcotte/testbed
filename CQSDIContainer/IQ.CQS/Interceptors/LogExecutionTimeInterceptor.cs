@@ -4,7 +4,7 @@ using System.Reflection;
 using Castle.Core;
 using IQ.CQS.Attributes;
 using IQ.CQS.Interceptors.Exceptions;
-using IQ.CQS.Interceptors.MetricsLogging.Interfaces;
+using IQ.CQS.Interceptors.PerformanceMetricsLogging.Interfaces;
 
 namespace IQ.CQS.Interceptors
 {
@@ -12,7 +12,7 @@ namespace IQ.CQS.Interceptors
 	{
 		private static readonly ConcurrentDictionary<InvocationInstance, DateTime> _startTimeLookup = new ConcurrentDictionary<InvocationInstance, DateTime>();
 
-		public LogExecutionTimeInterceptor(ILogExecutionTimeOfCQSHandlers executionTimeLogger)
+		public LogExecutionTimeInterceptor(ILogPerformanceMetricsForCQSHandlers executionTimeLogger)
 		{
 			if (executionTimeLogger == null)
 				throw new ArgumentNullException(nameof(executionTimeLogger));
@@ -20,7 +20,7 @@ namespace IQ.CQS.Interceptors
 			ExecutionTimeLogger = executionTimeLogger;
 		}
 
-		public ILogExecutionTimeOfCQSHandlers ExecutionTimeLogger { get; }
+		public ILogPerformanceMetricsForCQSHandlers ExecutionTimeLogger { get; }
 
 		protected override void OnBeginInvocation(InvocationInstance invocationInstance, ComponentModel componentModel)
 		{
@@ -36,7 +36,7 @@ namespace IQ.CQS.Interceptors
 			if (!_startTimeLookup.TryGetValue(invocationInstance, out begin))
 				throw new TransactionScopeNotFoundForInvocationException(invocationInstance);
 
-			ExecutionTimeLogger.LogExecutionTime(componentModel.Implementation, end - begin, threshold);
+			ExecutionTimeLogger.LogPerformanceMetrics(componentModel.Implementation, end - begin, threshold);
 			_startTimeLookup.TryRemove(invocationInstance, out begin);
 		}
 	}

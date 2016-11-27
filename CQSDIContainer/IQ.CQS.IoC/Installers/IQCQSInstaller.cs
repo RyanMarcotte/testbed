@@ -14,8 +14,8 @@ using IQ.CQS.Interceptors.Caching;
 using IQ.CQS.Interceptors.Caching.Interfaces;
 using IQ.CQS.Interceptors.ExceptionLogging;
 using IQ.CQS.Interceptors.ExceptionLogging.Interfaces;
-using IQ.CQS.Interceptors.MetricsLogging;
-using IQ.CQS.Interceptors.MetricsLogging.Interfaces;
+using IQ.CQS.Interceptors.PerformanceMetricsLogging;
+using IQ.CQS.Interceptors.PerformanceMetricsLogging.Interfaces;
 using IQ.CQS.Interceptors.TransactionScopes;
 using IQ.CQS.Interceptors.TransactionScopes.Interfaces;
 using IQ.CQS.IoC.Contributors.Interfaces;
@@ -33,7 +33,7 @@ namespace IQ.CQS.IoC.Installers
 		private Type _cacheType = typeof(MemCache);
 		private Type _cacheLoggerForQueryHandlersType = typeof(NullCacheLoggerForQueryHandlers);
 		private Type _exceptionLoggerForCQSHandlersType = typeof(NullExceptionLoggerForCQSHandlers);
-		private Type _performanceMetricsLoggerForCQSHandlersType = typeof(NullExecutionTimeLoggerForCQSHandlers);
+		private Type _performanceMetricsLoggerForCQSHandlersType = typeof(NullPerformanceMetricsLoggerForCQSHandlers);
 		private readonly List<FromAssemblyDescriptor> _userAssemblyDescriptors = new List<FromAssemblyDescriptor>();
 
 		// hide constructor because developers must use the fluent interface to configure their IQ.CQS installation
@@ -87,12 +87,12 @@ namespace IQ.CQS.IoC.Installers
 		}
 
 		/// <summary>
-		/// Configure the IQ.CQS installation to use a custom implementation for logging exceptions.  The submitted type must implement the <see cref="ILogExecutionTimeOfCQSHandlers"/> interface.
+		/// Configure the IQ.CQS installation to use a custom implementation for logging exceptions.  The submitted type must implement the <see cref="ILogPerformanceMetricsForCQSHandlers"/> interface.
 		/// </summary>
 		/// <typeparam name="TPerformanceMetricsLogger">The performance metrics logger type.</typeparam>
 		/// <returns></returns>
 		public IIQCQSInstaller WithCustomImplementationForPerformanceMetricsLogging<TPerformanceMetricsLogger>()
-			where TPerformanceMetricsLogger : ILogExecutionTimeOfCQSHandlers
+			where TPerformanceMetricsLogger : ILogPerformanceMetricsForCQSHandlers
 		{
 			_performanceMetricsLoggerForCQSHandlersType = typeof(TPerformanceMetricsLogger);
 			return this;
@@ -135,7 +135,7 @@ namespace IQ.CQS.IoC.Installers
 				.Register(Component.For<ICacheItemFactoryInstanceRepository>().ImplementedBy<CacheItemFactoryInstanceRepository>().LifestyleTransient())
 				.Register(Component.For<ILogCacheHitsAndMissesForQueryHandlers>().ImplementedBy(_cacheLoggerForQueryHandlersType).LifestyleTransient())
 				.Register(Component.For<ILogExceptionsFromCQSHandlers>().ImplementedBy(_exceptionLoggerForCQSHandlersType).LifestyleTransient())
-				.Register(Component.For<ILogExecutionTimeOfCQSHandlers>().ImplementedBy(_performanceMetricsLoggerForCQSHandlersType).LifestyleTransient())
+				.Register(Component.For<ILogPerformanceMetricsForCQSHandlers>().ImplementedBy(_performanceMetricsLoggerForCQSHandlersType).LifestyleTransient())
 				.Register(Component.For<IManageTransactionScopesForCQSHandlers>().ImplementedBy<TransactionScopeManagerForCQSHandlers>().LifestyleTransient())
 				.Register(Classes.FromAssemblyContaining<InvocationInstance>().BasedOn(typeof(IInterceptor)).WithServiceBase().LifestyleTransient())
 				.Register(Classes.FromThisAssembly().BasedOn(typeof(ICQSInterceptorContributor)).WithServiceSelf().LifestyleTransient());

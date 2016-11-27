@@ -5,7 +5,7 @@ using IQ.CQS.Interceptors.Caching;
 using IQ.CQS.IoC.Installers;
 using IQ.CQS.Lab.Caching;
 using IQ.CQS.Lab.ExceptionLogging;
-using IQ.CQS.Lab.PerformanceMetrics;
+using IQ.CQS.Lab.PerformanceMetricsLogging;
 
 namespace IQ.CQS.Lab
 {
@@ -19,7 +19,7 @@ namespace IQ.CQS.Lab
 				.WithCustomImplementationForExceptionLogging<ExceptionLoggerForCQSHandlers>()
 				.WithCustomImplementationForLoggingQueryCaching<CacheLoggerForQueryHandlers>()
 				.WithCachingImplementation<NullCache>()
-				.WithCustomImplementationForPerformanceMetricsLogging<ExecutionTimeLoggerForCQSHandlers>()
+				.WithCustomImplementationForPerformanceMetricsLogging<PerformanceMetricsLoggerForCQSHandlers>()
 				.WithIQCQSComponentsFromTheSpecifiedAssembly(Classes.FromThisAssembly())
 				.GetInstaller());
 

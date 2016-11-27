@@ -7,7 +7,7 @@ using Castle.MicroKernel.Registration;
 using DoubleCache;
 using IQ.CQS.Interceptors.Caching.Interfaces;
 using IQ.CQS.Interceptors.ExceptionLogging.Interfaces;
-using IQ.CQS.Interceptors.MetricsLogging.Interfaces;
+using IQ.CQS.Interceptors.PerformanceMetricsLogging.Interfaces;
 
 namespace IQ.CQS.IoC.Installers.Interfaces
 {
@@ -38,11 +38,11 @@ namespace IQ.CQS.IoC.Installers.Interfaces
 		IIQCQSInstaller WithCustomImplementationForExceptionLogging<TExceptionLogger>() where TExceptionLogger : ILogExceptionsFromCQSHandlers;
 
 		/// <summary>
-		/// Configure the IQ.CQS installation to use a custom implementation for logging exceptions.  The submitted type must implement the <see cref="ILogExecutionTimeOfCQSHandlers"/> interface.
+		/// Configure the IQ.CQS installation to use a custom implementation for logging exceptions.  The submitted type must implement the <see cref="ILogPerformanceMetricsForCQSHandlers"/> interface.
 		/// </summary>
 		/// <typeparam name="TPerformanceMetricsLogger">The performance metrics logger type.</typeparam>
 		/// <returns></returns>
-		IIQCQSInstaller WithCustomImplementationForPerformanceMetricsLogging<TPerformanceMetricsLogger>() where TPerformanceMetricsLogger : ILogExecutionTimeOfCQSHandlers;
+		IIQCQSInstaller WithCustomImplementationForPerformanceMetricsLogging<TPerformanceMetricsLogger>() where TPerformanceMetricsLogger : ILogPerformanceMetricsForCQSHandlers;
 		
 		/// <summary>
 		/// Add all custom interceptors from the specified assemblies.  The interceptor classes must be public.

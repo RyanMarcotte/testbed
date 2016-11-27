@@ -47,7 +47,7 @@ namespace IQ.CQS.Lab
 		{
 			try
 			{
-				/*Console.WriteLine("--[[ query handler test ]]--");
+				Console.WriteLine("--[[ query handler test ]]--");
 				var nameOfSyncQueryHandlerForValueType = _syncQueryHandlerForValueType.GetType().FullName;
 				const int intSyncQueryParameter = 11;
 				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(intSyncQueryParameter))}");
@@ -86,7 +86,7 @@ namespace IQ.CQS.Lab
 
 				Console.WriteLine("--[[ synchronous command (with result) handler test ]]--");
 				Console.WriteLine($"Result of {_syncCommandHandlerWithResult.GetType().FullName} = {_syncCommandHandlerWithResult.Handle(new DoSomethingWithResultCommand(3, 0))}");
-				Console.WriteLine();*/
+				Console.WriteLine();
 
 				Console.WriteLine("--[[ async command (with result) handler test ]]--");
 				Console.WriteLine($"Result of {_asyncCommandHandlerWithResult.GetType().FullName} = {await _asyncCommandHandlerWithResult.HandleAsync(new DoSomethingAsyncWithResultCommand(), new CancellationToken())}");

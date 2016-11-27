@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Castle.DynamicProxy;
 using FakeItEasy;
 using IQ.CQS.Interceptors;
-using IQ.CQS.Interceptors.MetricsLogging.Interfaces;
+using IQ.CQS.Interceptors.PerformanceMetricsLogging.Interfaces;
 using IQ.CQS.UnitTests.Framework.Enums;
 using IQ.CQS.UnitTests.Framework.Exceptions;
 using IQ.CQS.UnitTests.Framework.Utilities;
@@ -24,7 +24,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 		public void CallsExecutionTimeLoggerIfNoExceptionWasThrownByInterceptedMethod(LogExecutionTimeInterceptor sut, IInvocation invocation, Type handlerType)
 		{
 			sut.Intercept(invocation);
-			A.CallTo(() => sut.ExecutionTimeLogger.LogExecutionTime(handlerType, A<TimeSpan>._, A<TimeSpan>._)).MustHaveHappened(Repeated.Exactly.Once);
+			A.CallTo(() => sut.ExecutionTimeLogger.LogPerformanceMetrics(handlerType, A<TimeSpan>._, A<TimeSpan>._)).MustHaveHappened(Repeated.Exactly.Once);
 		}
 
 		[Theory]
@@ -32,7 +32,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 		public void CallsExecutionTimeLoggerIfAnExceptionWasThrownByInterceptedMethod(LogExecutionTimeInterceptor sut, IInvocation invocation, Type handlerType)
 		{
 			Assert.Throws<InvocationFailedException>(() => sut.Intercept(invocation));
-			A.CallTo(() => sut.ExecutionTimeLogger.LogExecutionTime(handlerType, A<TimeSpan>._, A<TimeSpan>._)).MustHaveHappened(Repeated.Exactly.Once);
+			A.CallTo(() => sut.ExecutionTimeLogger.LogPerformanceMetrics(handlerType, A<TimeSpan>._, A<TimeSpan>._)).MustHaveHappened(Repeated.Exactly.Once);
 		}
 
 		#region Arrangements
@@ -76,8 +76,8 @@ namespace IQ.CQS.UnitTests.Interceptors
 			{
 				fixture.Register(() =>
 				{
-					var executionTimeLogger = A.Fake<ILogExecutionTimeOfCQSHandlers>();
-					A.CallTo(() => executionTimeLogger.LogExecutionTime(A<Type>._, A<TimeSpan>._, A<TimeSpan>._)).DoesNothing();
+					var executionTimeLogger = A.Fake<ILogPerformanceMetricsForCQSHandlers>();
+					A.CallTo(() => executionTimeLogger.LogPerformanceMetrics(A<Type>._, A<TimeSpan>._, A<TimeSpan>._)).DoesNothing();
 
 					return executionTimeLogger;
 				});
@@ -85,7 +85,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 
 			protected override LogExecutionTimeInterceptor CreateInterceptor(IFixture fixture)
 			{
-				return new LogExecutionTimeInterceptor(fixture.Create<ILogExecutionTimeOfCQSHandlers>());
+				return new LogExecutionTimeInterceptor(fixture.Create<ILogPerformanceMetricsForCQSHandlers>());
 			}
 		}
 
