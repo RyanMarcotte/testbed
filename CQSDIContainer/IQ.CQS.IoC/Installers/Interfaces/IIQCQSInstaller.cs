@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Castle.MicroKernel.Registration;
+using DoubleCache;
 using IQ.CQS.Interceptors.Caching.Interfaces;
 using IQ.CQS.Interceptors.ExceptionLogging.Interfaces;
 using IQ.CQS.Interceptors.MetricsLogging.Interfaces;
@@ -16,26 +17,33 @@ namespace IQ.CQS.IoC.Installers.Interfaces
 	public interface IIQCQSInstaller
 	{
 		/// <summary>
+		/// Configure the IQ.CQS installation to use the specified caching implementation.  The submitted type must implement the <see cref="ICacheAside"/> interface.
+		/// </summary>
+		/// <typeparam name="TCache">The cache type.</typeparam>
+		/// <returns></returns>
+		IIQCQSInstaller WithCachingImplementation<TCache>() where TCache : ICacheAside;
+
+		/// <summary>
 		/// Configure the IQ.CQS installation to use a custom implementation for logging exceptions.  The submitted type must implement the <see cref="ILogCacheHitsAndMissesForQueryHandlers"/> interface.
 		/// </summary>
-		/// <param name="type"></param>
+		/// <typeparam name="TCacheLogger">The cache logger type.</typeparam>
 		/// <returns></returns>
-		IIQCQSInstaller WithCustomImplementationForLoggingQueryCaching(Type type);
+		IIQCQSInstaller WithCustomImplementationForLoggingQueryCaching<TCacheLogger>() where TCacheLogger : ILogCacheHitsAndMissesForQueryHandlers;
 
 		/// <summary>
 		/// Configure the IQ.CQS installation to use a custom implementation for logging exceptions.  The submitted type must implement the <see cref="ILogExceptionsFromCQSHandlers"/> interface.
 		/// </summary>
-		/// <param name="type"></param>
+		/// <typeparam name="TExceptionLogger">The exception logger type.</typeparam>
 		/// <returns></returns>
-		IIQCQSInstaller WithCustomImplementationForExceptionLogging(Type type);
+		IIQCQSInstaller WithCustomImplementationForExceptionLogging<TExceptionLogger>() where TExceptionLogger : ILogExceptionsFromCQSHandlers;
 
 		/// <summary>
 		/// Configure the IQ.CQS installation to use a custom implementation for logging exceptions.  The submitted type must implement the <see cref="ILogExecutionTimeOfCQSHandlers"/> interface.
 		/// </summary>
-		/// <param name="type"></param>
+		/// <typeparam name="TPerformanceMetricsLogger">The performance metrics logger type.</typeparam>
 		/// <returns></returns>
-		IIQCQSInstaller WithCustomImplementationForPerformanceMetricsLogging(Type type);
-
+		IIQCQSInstaller WithCustomImplementationForPerformanceMetricsLogging<TPerformanceMetricsLogger>() where TPerformanceMetricsLogger : ILogExecutionTimeOfCQSHandlers;
+		
 		/// <summary>
 		/// Add all custom interceptors from the specified assemblies.  The interceptor classes must be public.
 		/// </summary>

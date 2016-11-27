@@ -1,7 +1,7 @@
-﻿using Castle.Facilities.TypedFactory;
-using Castle.MicroKernel.Registration;
+﻿using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
+using IQ.CQS.Interceptors.Caching;
 using IQ.CQS.IoC.Installers;
 using IQ.CQS.Lab.Caching;
 using IQ.CQS.Lab.ExceptionLogging;
@@ -15,11 +15,11 @@ namespace IQ.CQS.Lab
 		private static void Main(string[] args)
 		{
 			var container = new WindsorContainer();
-			container.AddFacility<TypedFactoryFacility>();
 			container.Install(IQCQSInstaller.Build()
-				.WithCustomImplementationForExceptionLogging(typeof(ExceptionLoggerForCQSHandlers))
-				.WithCustomImplementationForLoggingQueryCaching(typeof(CacheLoggerForQueryHandlers))
-				.WithCustomImplementationForPerformanceMetricsLogging(typeof(ExecutionTimeLoggerForCQSHandlers))
+				.WithCustomImplementationForExceptionLogging<ExceptionLoggerForCQSHandlers>()
+				.WithCustomImplementationForLoggingQueryCaching<CacheLoggerForQueryHandlers>()
+				.WithCachingImplementation<NullCache>()
+				.WithCustomImplementationForPerformanceMetricsLogging<ExecutionTimeLoggerForCQSHandlers>()
 				.WithIQCQSComponentsFromTheSpecifiedAssembly(Classes.FromThisAssembly())
 				.GetInstaller());
 
