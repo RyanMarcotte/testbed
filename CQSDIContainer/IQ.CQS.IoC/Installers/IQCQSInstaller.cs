@@ -21,7 +21,6 @@ using IQ.CQS.Interceptors.TransactionScopes;
 using IQ.CQS.Interceptors.TransactionScopes.Interfaces;
 using IQ.CQS.IoC.Attributes;
 using IQ.CQS.IoC.Constants;
-using IQ.CQS.IoC.Contributors;
 using IQ.CQS.IoC.Contributors.Enums;
 using IQ.CQS.IoC.Contributors.Interfaces;
 using IQ.CQS.IoC.Installers.Interfaces;
