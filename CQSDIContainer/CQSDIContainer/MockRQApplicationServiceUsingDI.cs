@@ -1,7 +1,8 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
-using IQ.CQS.Lab.Commands;
-using IQ.CQS.Lab.Queries;
+using IQ.CQS.Lab.Handlers.Commands;
+using IQ.CQS.Lab.Handlers.Queries;
 using IQ.Platform.Framework.Common.CQS;
 
 namespace IQ.CQS.Lab
@@ -46,7 +47,7 @@ namespace IQ.CQS.Lab
 		{
 			try
 			{
-				Console.WriteLine("--[[ query handler test ]]--");
+				/*Console.WriteLine("--[[ query handler test ]]--");
 				var nameOfSyncQueryHandlerForValueType = _syncQueryHandlerForValueType.GetType().FullName;
 				const int intSyncQueryParameter = 11;
 				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(intSyncQueryParameter))}");
@@ -55,7 +56,7 @@ namespace IQ.CQS.Lab
 				Console.WriteLine($"Result of {nameOfSyncQueryHandlerForValueType} = {_syncQueryHandlerForValueType.Handle(new GetIntegerQuery(intSyncQueryParameter))}");
 				Console.WriteLine();
 
-				/*var nameOfAsyncQueryHandlerTypeForReferenceType = _syncQueryHandlerForReferenceType.GetType().FullName;
+				var nameOfAsyncQueryHandlerTypeForReferenceType = _syncQueryHandlerForReferenceType.GetType().FullName;
 				const string stringQueryParameter = "this is a string";
 				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerTypeForReferenceType} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery(stringQueryParameter))}");
 				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerTypeForReferenceType} = {_syncQueryHandlerForReferenceType.Handle(new GetStringQuery(stringQueryParameter))}");
@@ -71,7 +72,7 @@ namespace IQ.CQS.Lab
 				var nameOfAsyncQueryHandlerToReferenceType = _asyncQueryHandlerForReferenceType.GetType().FullName;
 				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerToReferenceType} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");
 				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerToReferenceType} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");
-				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerToReferenceType} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");*/
+				Console.WriteLine($"Result of {nameOfAsyncQueryHandlerToReferenceType} = {await _asyncQueryHandlerForReferenceType.HandleAsync(new GetStringAsyncQuery())}");
 
 				for (int n = 4; n < 8; ++n)
 				{
@@ -79,17 +80,17 @@ namespace IQ.CQS.Lab
 					Console.WriteLine();
 				}
 
-				/*Console.WriteLine("--[[ async command handler test ]]--");
+				Console.WriteLine("--[[ async command handler test ]]--");
 				await _asyncCommandHandler.HandleAsync(new DoSomethingAsyncCommand());
 				Console.WriteLine();
 
 				Console.WriteLine("--[[ synchronous command (with result) handler test ]]--");
 				Console.WriteLine($"Result of {_syncCommandHandlerWithResult.GetType().FullName} = {_syncCommandHandlerWithResult.Handle(new DoSomethingWithResultCommand(3, 0))}");
-				Console.WriteLine();
+				Console.WriteLine();*/
 
 				Console.WriteLine("--[[ async command (with result) handler test ]]--");
 				Console.WriteLine($"Result of {_asyncCommandHandlerWithResult.GetType().FullName} = {await _asyncCommandHandlerWithResult.HandleAsync(new DoSomethingAsyncWithResultCommand(), new CancellationToken())}");
-				Console.WriteLine();*/
+				Console.WriteLine();
 			}
 			catch (Exception ex)
 			{

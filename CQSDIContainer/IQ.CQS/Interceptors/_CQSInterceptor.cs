@@ -17,27 +17,30 @@ namespace IQ.CQS.Interceptors
 	/// </remarks>
 	public abstract class CQSInterceptor : IInterceptor, IOnBehalfAware
 	{
-		private ComponentModel _componentModel;
-
 		/// <summary>
 		/// Intercept a handler invocation and wrap some cross-cutting concern around it.
 		/// </summary>
 		/// <param name="invocation">The handler invocation being intercepted.</param>
 		public void Intercept(IInvocation invocation)
 		{
-			if (!CQSHandlerTypeCheckingUtility.IsCQSHandler(_componentModel.Implementation))
+			if (!CQSHandlerTypeCheckingUtility.IsCQSHandler(ComponentModel.Implementation))
 				throw new InvalidOperationException("A CQS interceptor may only intercept CQS handlers!!");
 
 			Console.WriteLine($"<< begin {GetType()} intercept >>");
 			
 			var methodType = GetMethodType(invocation.Method);
 			if (methodType == MethodType.AsynchronousAction || methodType == MethodType.AsynchronousFunction)
-				InterceptAsync(invocation, _componentModel, methodType == MethodType.AsynchronousAction ? AsynchronousMethodType.Action : AsynchronousMethodType.Function);
+				InterceptAsync(invocation, ComponentModel, methodType == MethodType.AsynchronousAction ? AsynchronousMethodType.Action : AsynchronousMethodType.Function);
 			else
-				InterceptSync(invocation, _componentModel);
+				InterceptSync(invocation, ComponentModel);
 
 			Console.WriteLine($"<< end {GetType()} intercept >>");
 		}
+
+		/// <summary>
+		/// Gets the component model.
+		/// </summary>
+		public ComponentModel ComponentModel { get; private set; }
 
 		/// <summary>
 		/// Cache the component model associated with the intercepted invocation.
@@ -45,7 +48,7 @@ namespace IQ.CQS.Interceptors
 		/// <param name="target">The component model.</param>
 		public void SetInterceptedComponentModel(ComponentModel target)
 		{
-			_componentModel = target;
+			ComponentModel = target;
 		}
 
 		/// <summary>

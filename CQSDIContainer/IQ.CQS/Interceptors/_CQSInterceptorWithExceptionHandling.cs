@@ -115,19 +115,7 @@ namespace IQ.CQS.Interceptors
 			{
 				OnBeginInvocation(invocationInstance, componentModel);
 				invocation.Proceed();
-				switch (methodType)
-				{
-					case AsynchronousMethodType.Action:
-						HandleAsync((Task)invocation.ReturnValue).GetAwaiter().GetResult();
-						break;
-
-					case AsynchronousMethodType.Function:
-						ExecuteHandleAsyncWithResultUsingReflection(invocation);
-						break;
-
-					default:
-						throw new ArgumentOutOfRangeException(nameof(methodType), methodType, "Invalid value!!");
-				}
+				((dynamic)invocation.ReturnValue).GetAwaiter().GetResult();
 				OnReceiveReturnValueFromAsynchronousMethodInvocation(invocation, componentModel, invocationInstance);
 			}
 			catch (Exception ex)
@@ -215,7 +203,7 @@ namespace IQ.CQS.Interceptors
 			var successResultType = taskType.GetGenericArguments()[0];
 			var failureResultType = taskType.GetGenericArguments()[1];
 			var methodInfo = _onReceiveReturnValueFromAsynchronousFunctionInvocationMethodLookup.GetOrAdd(Tuple.Create(successResultType, failureResultType), t => _onReceiveReturnValueFromAsynchronousFunctionInvocationMethodInfo.MakeGenericMethod(t.Item1, t.Item2));
-			invocation.ReturnValue = methodInfo.Invoke(this, new object[] { invocationInstance, componentModel, ((dynamic)invocation.ReturnValue).Result });
+			methodInfo.Invoke(this, new object[] { invocationInstance, componentModel, ((dynamic)invocation.ReturnValue).Result });
 		}
 
 		#endregion
@@ -250,30 +238,6 @@ namespace IQ.CQS.Interceptors
 		{
 			Synchronous
 		}
-		#endregion
-
-		#region Helper Methods (for async)
-
-		private static async Task HandleAsync(Task task)
-		{
-			await task;
-		}
-
-		private static async Task<T> HandleAsyncWithResult<T>(Task<T> task)
-		{
-			return await task;
-		}
-
-		private static readonly ConcurrentDictionary<Type, MethodInfo> _genericHandleAsyncWithResultMethodLookup = new ConcurrentDictionary<Type, MethodInfo>();
-		private static readonly MethodInfo _handleAsyncWithResultMethodInfo = typeof(CQSInterceptorWithExceptionHandling).GetMethod(nameof(HandleAsyncWithResult), BindingFlags.Static | BindingFlags.NonPublic);
-
-		private void ExecuteHandleAsyncWithResultUsingReflection(IInvocation invocation)
-		{
-			var resultType = invocation.Method.ReturnType.GetGenericArguments()[0];
-			var methodInfo = _genericHandleAsyncWithResultMethodLookup.GetOrAdd(resultType, t => _handleAsyncWithResultMethodInfo.MakeGenericMethod(t));
-			invocation.ReturnValue = methodInfo.Invoke(this, new[] { invocation.ReturnValue });
-		}
-
 		#endregion
 
 		#endregion

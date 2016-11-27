@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Castle.Core;
 using Castle.DynamicProxy;
+using FakeItEasy;
 using FluentAssertions;
 using IQ.CQS.Interceptors;
+using IQ.CQS.UnitTests.Framework.Customizations;
 using IQ.CQS.UnitTests.Framework.Enums;
 using IQ.CQS.UnitTests.Framework.Exceptions;
 using IQ.CQS.UnitTests.Interceptors._Arrangements;
@@ -219,6 +223,31 @@ namespace IQ.CQS.UnitTests.Interceptors
 			sut.NumberOfTimesOnExceptionCalled.Should().Be(0);
 			Assert.Throws<InvocationFailedException>(() => sut.Intercept(invocation));
 			sut.NumberOfTimesOnExceptionCalled.Should().Be(1, "Exception should have been thrown!");
+		}
+
+		[Theory]
+		[AllInterceptedHandlerMethodsDoNotThrowAnExceptionArrangement]
+		public void AnInterceptedInvocationWithMultipleInterceptorsAppliedShouldHaveTheInvocationProceedThatManyTimes(CQSInterceptorWithExceptionHandlingImpl sut, IInvocation invocation)
+		{
+			const int numberOfInterceptors = 10;
+
+			// we perform some additional setup for our invocation
+			// http://stackoverflow.com/a/19731759 (perform different actions depending on which invocation)
+			int numInvocations = 0;
+			A.CallTo(() => invocation.Proceed()).Invokes(() =>
+			{
+				if (numInvocations >= numberOfInterceptors - 1)
+					return;
+
+				++numInvocations;
+				var nextInterceptor = new CQSInterceptorWithExceptionHandlingImpl();
+				nextInterceptor.SetInterceptedComponentModel(sut.ComponentModel);
+				nextInterceptor.Intercept(invocation);
+			});
+
+			A.CallTo(() => invocation.Proceed()).MustNotHaveHappened();
+			sut.Intercept(invocation);
+			A.CallTo(() => invocation.Proceed()).MustHaveHappened(Repeated.Exactly.Times(numberOfInterceptors));
 		}
 
 		#region Arrangements
