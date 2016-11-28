@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("IQ.CQS.Lab")]
+[assembly: AssemblyTitle("IQ.CQS.IoC.UnitTests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("IQ.CQS.Lab")]
+[assembly: AssemblyProduct("IQ.CQS.IoC.UnitTests")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b0e2ac22-ae25-4888-9d42-16269396d190")]
+[assembly: Guid("8fb30ffa-9333-4314-8492-9f371c278fe4")]
 
 // Version information for an assembly consists of the following four values:
 //

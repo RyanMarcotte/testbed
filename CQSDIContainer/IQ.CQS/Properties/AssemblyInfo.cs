@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("IQ.CQS.Lab")]
+[assembly: AssemblyTitle("IQ.CQS")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("IQ.CQS.Lab")]
+[assembly: AssemblyProduct("IQ.CQS")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b0e2ac22-ae25-4888-9d42-16269396d190")]
+[assembly: Guid("789c5865-fca5-4a43-9b3b-99e26c3a01ed")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -34,3 +34,7 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+[assembly: InternalsVisibleTo("IQ.CQS.IoC")]
+[assembly: InternalsVisibleTo("IQ.CQS.UnitTests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] // need so some classes are accessible for proxying in unit tests
