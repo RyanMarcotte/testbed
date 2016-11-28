@@ -17,11 +17,11 @@ Through this design, we keep code modular and easy to understand.  We can also c
 ## What is RQ.Server.CQS?
 RQ.Server.CQS is a framework designed to facilitate the development of code adhering to the CQS architecture pattern.  The idea is that individual developers should only concern themselves with writing up handlers and the data service / REST client calls those handlers use.  The framework does all the heavy lifting required for applying cross-cutting concerns (exception logging, performance metrics logging, caching query results).  This isn't too different from what we're doing already.  We're just structuring our code differently and following a different set of conventions.
 
-We leverage CQS interfaces defined within the `IQ.Platform.Framework.Common NuGet` package.  The bulk of the magic makes use of the Castle.Windsor dependency injection framework for automagically hooking things up.
+We use interfaces defined within the `IQ.Platform.Framework.Common NuGet` package as contracts for our handlers.  The bulk of the magic makes use of the Castle.Windsor dependency injection framework for automagically hooking things up.
 
 ## System Information
 You can find information about individual framework components in the documents linked below:
 - [Getting Started](documentation/gettingStarted.md)
 - [Parameter Objects and Handlers (How do I write code using CQS?)](documentation/parameterObjectsAndHandlers.md)
 - [Interceptors and Contributors (How do I apply cross-cutting concerns to my queries and commands?)](documentation/interceptorsAndContributors.md)
-- [RQ.Server.CQS.UnitTests (Anything I should be aware of when writing unit tests for the system?](documentation/testing.md)
+- [RQ.Server.CQS.UnitTests (Anything I should be aware of when writing unit tests for the system?)](documentation/testing.md)
