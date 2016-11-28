@@ -163,9 +163,9 @@ namespace IQ.CQS.IoC.Installers
 				.Register(Component.For<ILogExceptionsFromCQSHandlers>().ImplementedBy(_exceptionLoggerForCQSHandlersType).LifestyleTransient())
 				.Register(Component.For<ILogPerformanceMetricsForCQSHandlers>().ImplementedBy(_performanceMetricsLoggerForCQSHandlersType).LifestyleTransient())
 				.Register(Component.For<IManageTransactionScopesForCQSHandlers>().ImplementedBy<TransactionScopeManagerForCQSHandlers>().LifestyleTransient())
-				.Register(Classes.FromAssemblyContaining<InvocationInstance>().IncludeNonPublicTypes().BasedOn(typeof(IInterceptor)).WithServiceBase().LifestyleTransient());
+				.Register(Classes.FromAssemblyContaining<InvocationInstance>().BasedOn(typeof(IInterceptor)).WithServiceBase().LifestyleTransient());
 
-			// register all objects specified the user to support IQ.CQS
+			// register all objects the user specified to support IQ.CQS
 			foreach (var assemblyDescriptor in _userAssemblyDescriptors)
 			{
 				container
@@ -175,7 +175,7 @@ namespace IQ.CQS.IoC.Installers
 
 			// register all contributors to a separate container
 			var contributorContainer = new WindsorContainer();
-			contributorContainer.Register(Classes.FromThisAssembly().IncludeNonPublicTypes().BasedOn(typeof(ICQSInterceptorContributor)).WithServiceSelf().LifestyleTransient());
+			contributorContainer.Register(Classes.FromThisAssembly().BasedOn(typeof(ICQSInterceptorContributor)).WithServiceSelf().LifestyleTransient());
 			foreach (var assemblyDescriptor in _userAssemblyDescriptors)
 				contributorContainer.Register(assemblyDescriptor.BasedOn(typeof(ICQSInterceptorContributor)).WithServiceSelf().LifestyleTransient());
 
