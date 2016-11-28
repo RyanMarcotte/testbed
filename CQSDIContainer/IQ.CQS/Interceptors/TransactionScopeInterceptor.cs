@@ -1,7 +1,7 @@
 ﻿using System;
 using Castle.Core;
 using IQ.CQS.Interceptors.TransactionScopes.Interfaces;
-using IQ.Platform.Framework.Common;
+using IQ.Vanilla;
 
 namespace IQ.CQS.Interceptors
 {

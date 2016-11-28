@@ -7,12 +7,11 @@ using Castle.DynamicProxy;
 using FakeItEasy;
 using FluentAssertions;
 using IQ.CQS.Interceptors;
-using IQ.CQS.UnitTests.Framework.Customizations;
 using IQ.CQS.UnitTests.Framework.Enums;
 using IQ.CQS.UnitTests.Framework.Exceptions;
 using IQ.CQS.UnitTests.Interceptors._Arrangements;
 using IQ.CQS.UnitTests.Interceptors._Customizations;
-using IQ.Platform.Framework.Common;
+using IQ.Vanilla;
 using Ploeh.AutoFixture;
 using Xunit;
 

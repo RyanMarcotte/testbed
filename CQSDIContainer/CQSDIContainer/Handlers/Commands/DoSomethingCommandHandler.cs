@@ -1,6 +1,6 @@
 ﻿using System;
 using IQ.CQS.Attributes;
-using IQ.Platform.Framework.Common.CQS;
+using IQ.Vanilla.CQS;
 
 namespace IQ.CQS.Lab.Handlers.Commands
 {

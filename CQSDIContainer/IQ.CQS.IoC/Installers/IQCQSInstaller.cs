@@ -38,6 +38,7 @@ namespace IQ.CQS.IoC.Installers
 		private Type _exceptionLoggerForCQSHandlersType = typeof(NullExceptionLoggerForCQSHandlers);
 		private Type _performanceMetricsLoggerForCQSHandlersType = typeof(NullPerformanceMetricsLoggerForCQSHandlers);
 		private readonly List<FromAssemblyDescriptor> _userAssemblyDescriptors = new List<FromAssemblyDescriptor>();
+		private readonly Dictionary<Type, UserCustomTypeInformation> _userCustomTypes = new Dictionary<Type, UserCustomTypeInformation>();
 		private NameValueCollection _configuration;
 
 		// hide constructor because developers must use the fluent interface to configure their IQ.CQS installation
@@ -87,6 +88,22 @@ namespace IQ.CQS.IoC.Installers
 			where TPerformanceMetricsLogger : ILogPerformanceMetricsForCQSHandlers
 		{
 			_performanceMetricsLoggerForCQSHandlersType = typeof(TPerformanceMetricsLogger);
+			return this;
+		}
+
+		/// <summary>
+		/// Configure the IQ.CQS installation to include a set of custom components based on the specified type.
+		/// </summary>
+		/// <param name="type">The type used as basis for registration.</param>
+		/// <param name="serviceRegistrationType"></param>
+		/// <param name="lifestyle"></param>
+		/// <returns></returns>
+		public IIQCQSInstaller WithCustomIQCQSComponentsBasedOn(Type type, ServiceRegistrationType serviceRegistrationType, LifestyleType lifestyle)
+		{
+			if (_userCustomTypes.ContainsKey(type))
+				throw new InvalidOperationException($"Type '{type}' already added for registration!!");
+
+			_userCustomTypes.Add(type, new UserCustomTypeInformation(serviceRegistrationType, lifestyle));
 			return this;
 		}
 
@@ -185,6 +202,7 @@ namespace IQ.CQS.IoC.Installers
 
 			// need to add contributors before registering all handlers (the contributors affect handler registration)
 			AddAllContributors(container, contributorContainer, false, _configuration);
+			container.Register(AllCustomComponents(_userAssemblyDescriptors, _userCustomTypes));
 			container.Register(AllCQSHandlers(ApplyCommonConfiguration, _userAssemblyDescriptors));
 
 			// create a child container for resolving nested CQS handler dependencies (a handler is 'nested' if it must be injected as a dependency into another handler)
@@ -201,24 +219,73 @@ namespace IQ.CQS.IoC.Installers
 		}
 
 		/// <summary>
+		/// Retrieve the collection of all CQS component registrations.
+		/// </summary>
+		/// <param name="userAssemblyDescriptors">The collection of user assembly descriptors.</param>
+		/// <param name="userCustomTypes">The collection of user custom types.</param>
+		/// <returns></returns>
+		private static IRegistration[] AllCustomComponents(IEnumerable<FromAssemblyDescriptor> userAssemblyDescriptors, IReadOnlyDictionary<Type, UserCustomTypeInformation> userCustomTypes)
+		{
+			var registrations = new List<IRegistration>();
+			foreach (var userAssemblyDescriptor in userAssemblyDescriptors)
+			{
+				foreach (var customType in userCustomTypes.Keys)
+				{
+					var registrationDescriptor = userAssemblyDescriptor.BasedOn(customType);
+					switch (userCustomTypes[customType].ServiceRegistrationType)
+					{
+						case ServiceRegistrationType.Base:
+							registrationDescriptor = registrationDescriptor.WithServiceBase();
+							break;
+
+						case ServiceRegistrationType.AllInterfaces:
+							registrationDescriptor = registrationDescriptor.WithServiceAllInterfaces();
+							break;
+
+						case ServiceRegistrationType.Self:
+							registrationDescriptor = registrationDescriptor.WithServiceSelf();
+							break;
+
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
+
+					// apply the lifestyle
+					switch (userCustomTypes[customType].Lifestyle)
+					{
+						case LifestyleType.Transient:
+							registrationDescriptor = registrationDescriptor.LifestyleTransient();
+							break;
+
+						case LifestyleType.Singleton:
+							registrationDescriptor = registrationDescriptor.LifestyleSingleton();
+							break;
+
+						default:
+							throw new ArgumentOutOfRangeException($"Unhandled enum value '{userCustomTypes[customType].Lifestyle}' for enum type '{typeof(LifestyleType)}'!!");
+					}
+
+					registrations.Add(registrationDescriptor);
+				}
+			}
+
+			return registrations.ToArray();
+		}
+
+		/// <summary>
 		/// Retrieve the collection of all CQS handler registrations.
 		/// </summary>
 		/// <param name="componentRegistrationAction">The component registration action.</param>
-		/// <param name="userAssemblyDescriptors"></param>
+		/// <param name="userAssemblyDescriptors">The collection of user assembly descriptors.</param>
 		/// <returns></returns>
 		private static IRegistration[] AllCQSHandlers(Action<ComponentRegistration> componentRegistrationAction, IEnumerable<FromAssemblyDescriptor> userAssemblyDescriptors)
-		{
-			return GetAllCQSHandlerRegistrations(componentRegistrationAction, userAssemblyDescriptors).ToArray();
-		}
-
-		private static IEnumerable<IRegistration> GetAllCQSHandlerRegistrations(Action<ComponentRegistration> componentRegistrationAction, IEnumerable<FromAssemblyDescriptor> userAssemblyDescriptors)
 		{
 			var registrations = new List<IRegistration>();
 
 			foreach (var userAssemblyDescriptor in userAssemblyDescriptors)
 				registrations.AddRange(CQSHandlerTypeCheckingUtility.SupportedHandlerTypes.Select(supportedHandlerType => userAssemblyDescriptor.BasedOn(supportedHandlerType).WithServiceBase().LifestyleSingleton().Configure(componentRegistrationAction)));
 
-			return registrations;
+			return registrations.ToArray();
 		}
 
 		/// <summary>
@@ -252,7 +319,6 @@ namespace IQ.CQS.IoC.Installers
 				if (isEnabled)
 					yield return (ICQSInterceptorContributor)containerToUseForResolution.Resolve(contributorType, arguments);
 			}
-				
 		}
 
 		/// <summary>
@@ -261,6 +327,7 @@ namespace IQ.CQS.IoC.Installers
 		/// <param name="componentRegistration">The component registration.</param>
 		private static void ApplyCommonConfiguration(ComponentRegistration componentRegistration)
 		{
+
 		}
 
 		/// <summary>
@@ -269,6 +336,7 @@ namespace IQ.CQS.IoC.Installers
 		/// <param name="componentRegistration">The component registration.</param>
 		private static void ApplyNestedHandlerConfiguration(ComponentRegistration componentRegistration)
 		{
+
 		}
 
 		#endregion

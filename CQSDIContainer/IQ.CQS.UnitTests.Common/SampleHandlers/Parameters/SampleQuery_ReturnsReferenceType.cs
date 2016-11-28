@@ -1,4 +1,5 @@
-﻿using IQ.Platform.Framework.Common.CQS;
+﻿using IQ.Vanilla;
+using IQ.Vanilla.CQS;
 
 namespace IQ.CQS.UnitTests.Framework.SampleHandlers.Parameters
 {

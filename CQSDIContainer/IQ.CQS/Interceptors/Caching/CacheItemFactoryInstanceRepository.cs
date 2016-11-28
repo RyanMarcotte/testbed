@@ -4,7 +4,8 @@ using System.Linq;
 using Castle.MicroKernel;
 using IQ.CQS.Caching;
 using IQ.CQS.Interceptors.Caching.Interfaces;
-using IQ.Platform.Framework.Common.CQS;
+using IQ.Vanilla;
+using IQ.Vanilla.CQS;
 
 namespace IQ.CQS.Interceptors.Caching
 {

@@ -19,7 +19,7 @@ using IQ.CQS.UnitTests.Framework.Utilities;
 using IQ.CQS.UnitTests.Interceptors._Arrangements;
 using IQ.CQS.UnitTests.Interceptors._Customizations;
 using IQ.CQS.UnitTests._Customizations;
-using IQ.Platform.Framework.Common.CQS;
+using IQ.Vanilla.CQS;
 using Ploeh.AutoFixture;
 using Xunit;
 

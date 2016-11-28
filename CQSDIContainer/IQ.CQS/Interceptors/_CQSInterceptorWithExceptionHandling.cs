@@ -8,8 +8,8 @@ using Castle.Core;
 using Castle.DynamicProxy;
 using IQ.CQS.Interceptors.Enums;
 using IQ.CQS.Interceptors.Exceptions;
-using IQ.Platform.Framework.Common;
-using IQ.Platform.Framework.Common.CQS;
+using IQ.Vanilla;
+using IQ.Vanilla.CQS;
 
 namespace IQ.CQS.Interceptors
 {

@@ -3,8 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using IQ.CQS.Utilities;
-using IQ.Platform.Framework.Common;
-using IQ.Platform.Framework.Common.CQS;
+using IQ.Vanilla;
+using IQ.Vanilla.CQS;
 using Xunit;
 
 // ReSharper disable ClassNeverInstantiated.Local

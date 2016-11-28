@@ -9,6 +9,7 @@ using DoubleCache;
 using IQ.CQS.Interceptors.Caching.Interfaces;
 using IQ.CQS.Interceptors.ExceptionLogging.Interfaces;
 using IQ.CQS.Interceptors.PerformanceMetricsLogging.Interfaces;
+using IQ.CQS.IoC.Contributors.Enums;
 
 namespace IQ.CQS.IoC.Installers.Interfaces
 {
@@ -44,6 +45,15 @@ namespace IQ.CQS.IoC.Installers.Interfaces
 		/// <param name="assemblyDescriptor">The assembly descriptor.</param>
 		/// <returns></returns>
 		IIQCQSInstaller WithIQCQSComponentsFromTheSpecifiedAssembly(FromAssemblyDescriptor assemblyDescriptor);
+
+		/// <summary>
+		/// Configure the IQ.CQS installation to include a set of custom components based on the specified type.
+		/// </summary>
+		/// <param name="type">The type used as basis for registration.</param>
+		/// <param name="serviceRegistrationType">The service registration type.</param>
+		/// <param name="lifestyleType">The lifestyle type to use for all registered components of this type.</param>
+		/// <returns></returns>
+		IIQCQSInstaller WithCustomIQCQSComponentsBasedOn(Type type, ServiceRegistrationType serviceRegistrationType, LifestyleType lifestyleType);
 
 		/// <summary>
 		/// Configure the IQ.CQS installation to use settings from a <see cref="NameValueCollection"/> for including / excluding components during registration.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using IQ.Platform.Framework.Common.CQS;
+using IQ.Vanilla;
+using IQ.Vanilla.CQS;
 
 namespace IQ.CQS.Interceptors.Enums
 {
@@ -16,7 +17,7 @@ namespace IQ.CQS.Interceptors.Enums
 		None = 0,
 		
 		/// <summary>
-		/// Is a <see cref="IQueryHandler{TQuery, TResult}"/>.
+		/// Is a <see cref="IQueryHandler{TQuery,TResult}"/>.
 		/// </summary>
 		Query = 1,
 
