@@ -15,8 +15,11 @@ using IQ.Platform.Framework.Common.CQS;
 
 namespace IQ.CQS.Interceptors
 {
+	/// <summary>
+	/// Interceptor for query handlers.  Caches the result of those queries.
+	/// </summary>
 	[ApplyToNestedHandlers]
-	internal class CacheQueryResultInterceptor : CQSInterceptor
+	public class CacheQueryResultInterceptor : CQSInterceptor
 	{
 		private const string NO_QUERY_CACHE_ITEM_FACTORY_INFO_FOUND = "The interceptor cannot handle query caching if no factory information for the type exists!!  (possibly an error in QueryResultCachingContributor...)";
 
@@ -25,6 +28,13 @@ namespace IQ.CQS.Interceptors
 		private readonly IKernel _kernel;
 		private readonly ICacheItemFactoryInstanceRepository _cacheItemFactoryInstanceRepository;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CacheQueryResultInterceptor"/> class.
+		/// </summary>
+		/// <param name="cache">The cache.</param>
+		/// <param name="kernel">The Castle.Windsor kernel used for creating instances of cache item factories.</param>
+		/// <param name="cacheItemFactoryInstanceRepository">The cache item factory instance repository.</param>
+		/// <param name="cacheLogger">The cache logger.</param>
 		public CacheQueryResultInterceptor(ICacheAside cache, IKernel kernel, ICacheItemFactoryInstanceRepository cacheItemFactoryInstanceRepository, ILogCacheHitsAndMissesForQueryHandlers cacheLogger)
 		{
 			if (cache == null)
@@ -43,8 +53,16 @@ namespace IQ.CQS.Interceptors
 			CacheLogger = cacheLogger;
 		}
 
+		/// <summary>
+		/// Get the cache logger.
+		/// </summary>
 		public ILogCacheHitsAndMissesForQueryHandlers CacheLogger { get; }
 
+		/// <summary>
+		/// Interception logic for synchronous handlers.
+		/// </summary>
+		/// <param name="invocation">The invocation.</param>
+		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
 		protected override void InterceptSync(IInvocation invocation, ComponentModel componentModel)
 		{
 			var cacheItemFactoryInfo = _cacheItemFactoryInstanceRepository.GetCacheItemFactoryInformationForType(invocation.InvocationTarget.GetType(), _kernel);
@@ -74,6 +92,12 @@ namespace IQ.CQS.Interceptors
 			}
 		}
 
+		/// <summary>
+		/// Interception logic for asynchronous handlers.
+		/// </summary>
+		/// <param name="invocation">The invocation.</param>
+		/// <param name="methodType">The asynchronous method type.</param>
+		/// <param name="componentModel">The component model associated with the intercepted invocation.</param>
 		protected override void InterceptAsync(IInvocation invocation, ComponentModel componentModel, AsynchronousMethodType methodType)
 		{
 			if (methodType == AsynchronousMethodType.Action)

@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Interface of an object responsible for managing transaction scopes for CQS handlers.
 	/// </summary>
-	internal interface IManageTransactionScopesForCQSHandlers
+	public interface IManageTransactionScopesForCQSHandlers
 	{
 		/// <summary>
 		/// Open a new transaction scope for a invocation instance.

@@ -24,7 +24,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 		internal void CallsExecutionTimeLoggerIfNoExceptionWasThrownByInterceptedMethod(LogPerformanceMetricsInterceptor sut, IInvocation invocation, Type handlerType)
 		{
 			sut.Intercept(invocation);
-			A.CallTo(() => sut.ExecutionTimeLogger.LogPerformanceMetrics(handlerType, A<object>._, A<TimeSpan>._, A<TimeSpan>._)).MustHaveHappened(Repeated.Exactly.Once);
+			A.CallTo(() => sut.PerformanceMetricsLogger.LogPerformanceMetrics(handlerType, A<object>._, A<TimeSpan>._, A<TimeSpan>._)).MustHaveHappened(Repeated.Exactly.Once);
 		}
 
 		[Theory]
@@ -32,7 +32,7 @@ namespace IQ.CQS.UnitTests.Interceptors
 		internal void CallsExecutionTimeLoggerIfAnExceptionWasThrownByInterceptedMethod(LogPerformanceMetricsInterceptor sut, IInvocation invocation, Type handlerType)
 		{
 			Assert.Throws<InvocationFailedException>(() => sut.Intercept(invocation));
-			A.CallTo(() => sut.ExecutionTimeLogger.LogPerformanceMetrics(handlerType, A<object>._, A<TimeSpan>._, A<TimeSpan>._)).MustHaveHappened(Repeated.Exactly.Once);
+			A.CallTo(() => sut.PerformanceMetricsLogger.LogPerformanceMetrics(handlerType, A<object>._, A<TimeSpan>._, A<TimeSpan>._)).MustHaveHappened(Repeated.Exactly.Once);
 		}
 
 		#region Arrangements
