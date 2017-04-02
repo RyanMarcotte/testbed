@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using TechnicalChallenge.Constants;
 using TechnicalChallenge.Mappers;
+using TechnicalChallenge.Parameters.Interfaces;
 
 namespace TechnicalChallenge.Parameters
 {
-	public class ScheduleInputParameterSet2Format
+	public class ScheduleInputParameterSet2Format : IScheduleParameters<ScheduleInputParameterSet2Format>
 	{
 		public ScheduleInputParameterSet2Format(
 			MonthSchedule monthSchedule,
@@ -32,6 +33,28 @@ namespace TechnicalChallenge.Parameters
 			StopDate = stopDate;
 		}
 
+		private ScheduleInputParameterSet2Format(ScheduleInputParameterSet2Format existingParameters, DateTime newStartDate)
+		{
+			ScheduledForJanuary = existingParameters.ScheduledForJanuary;
+			ScheduledForFebruary = existingParameters.ScheduledForFebruary;
+			ScheduledForMarch = existingParameters.ScheduledForMarch;
+			ScheduledForApril = existingParameters.ScheduledForApril;
+			ScheduledForMay = existingParameters.ScheduledForMay;
+			ScheduledForJune = existingParameters.ScheduledForJune;
+			ScheduledForJuly = existingParameters.ScheduledForJuly;
+			ScheduledForAugust = existingParameters.ScheduledForAugust;
+			ScheduledForSeptember = existingParameters.ScheduledForSeptember;
+			ScheduledForOctober = existingParameters.ScheduledForOctober;
+			ScheduledForNovember = existingParameters.ScheduledForNovember;
+			ScheduledForDecember = existingParameters.ScheduledForDecember;
+
+			DaysScheduled = existingParameters.DaysScheduled;
+
+			ExecutionStartTime = existingParameters.ExecutionStartTime;
+			StartDate = newStartDate;
+			StopDate = existingParameters.StopDate;
+		}
+
 		public bool ScheduledForJanuary { get; }
 		public bool ScheduledForFebruary { get; }
 		public bool ScheduledForMarch { get; }
@@ -50,5 +73,10 @@ namespace TechnicalChallenge.Parameters
 		public TimeSpan ExecutionStartTime { get; }
 		public DateTime StartDate { get; }
 		public DateTime? StopDate { get; }
+		
+		public ScheduleInputParameterSet2Format WithNewStartDate(DateTime newStartDate)
+		{
+			return new ScheduleInputParameterSet2Format(this, newStartDate);
+		}
 	}
 }

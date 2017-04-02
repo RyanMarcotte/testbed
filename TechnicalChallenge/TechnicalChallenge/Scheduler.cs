@@ -4,27 +4,32 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IQ.Vanilla.Mapping;
-using TechnicalChallenge.Parameters;
+using TechnicalChallenge.Parameters.Interfaces;
 
 namespace TechnicalChallenge
 {
 	public class Scheduler<TInputParameter>
+		where TInputParameter : IScheduleParameters<TInputParameter>
 	{
-		private readonly IMapper<TInputParameter, InternalSchedulerInputParameters> _mapper;
+		private readonly IMapper<TInputParameter, DateTime?> _mapper;
 
-		public Scheduler(IMapper<TInputParameter, InternalSchedulerInputParameters> mapper)
+		public Scheduler(IMapper<TInputParameter, DateTime?> mapper)
 		{
 			_mapper = mapper;
 		}
 
-		public DateTime GetNextExecuteDate(DateTime previousExecutionTimeUtc, TInputParameter parameters)
+		public DateTime? GetNextExecuteDate(DateTime previousExecutionTimeUtc, TInputParameter parameters)
 		{
-			throw new NotImplementedException();
+			DateTime? result = null;
+			do
+			{
+				result = _mapper.Map(parameters);
+				if (result != null)
+					parameters = parameters.WithNewStartDate(result.Value);
+			}
+			while (result.HasValue && (result.Value < previousExecutionTimeUtc));
+
+			return result;
 		}
-	}
-
-	public class InternalSchedulerInputParameters
-	{
-
 	}
 }

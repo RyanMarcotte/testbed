@@ -1,10 +1,11 @@
 ﻿using System;
 using TechnicalChallenge.Constants;
 using TechnicalChallenge.Mappers;
+using TechnicalChallenge.Parameters.Interfaces;
 
 namespace TechnicalChallenge.Parameters
 {
-	public class ScheduleInputParameterSet1Format
+	public class ScheduleInputParameterSet1Format : IScheduleParameters<ScheduleInputParameterSet1Format>
 	{
 		public ScheduleInputParameterSet1Format(
 			MonthSchedule monthSchedule,
@@ -64,7 +65,13 @@ namespace TechnicalChallenge.Parameters
 		public bool ScheduledForSaturday { get; }
 
 		public TimeSpan ExecutionStartTime { get; }
-		public DateTime StartDate { get; }
+		public DateTime StartDate { get; private set; }
 		public DateTime? StopDate { get; }
+
+		public ScheduleInputParameterSet1Format WithNewStartDate(DateTime newStartDate)
+		{
+			StartDate = newStartDate;
+			return this;
+		}
 	}
 }

@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using IQ.Vanilla.Mapping;
 using TechnicalChallenge.Parameters;
 
 namespace TechnicalChallenge.Mappers
 {
-	public class ScheduleInputParameterSet2FormatMapper : IMapper<ScheduleInputParameterSet2Format, InternalSchedulerInputParameters>
+	/// <summary>
+	/// Maps a schedule input set to the next execution time after the start date+time.
+	/// </summary>
+	public class ScheduleInputParameterSet2FormatMapper : IMapper<ScheduleInputParameterSet2Format, DateTime?>
 	{
-		public InternalSchedulerInputParameters Map(ScheduleInputParameterSet2Format source)
+		public DateTime? Map(ScheduleInputParameterSet2Format source)
 		{
-			throw new NotImplementedException();
+			return null;
 		}
 	}
 }
