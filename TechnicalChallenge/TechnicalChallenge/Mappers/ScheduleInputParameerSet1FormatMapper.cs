@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IQ.Vanilla.Mapping;
 using TechnicalChallenge.Constants;
+using TechnicalChallenge.Models;
 using TechnicalChallenge.Parameters;
 
 namespace TechnicalChallenge.Mappers
@@ -19,83 +20,67 @@ namespace TechnicalChallenge.Mappers
 
 		public DateTime? Map(ScheduleInputParameterSet1Format source)
 		{
+			// first search within the week that the startDate belongs to (just in case the next execution is later that week)
 			var searchStart = source.StartDate.AddMilliseconds(1);
-			var weeksInMonth = _weeksInMonthCache.GetOrAdd(new MonthAndYear(searchStart.Month, searchStart.Year), monthAndYear =>
+			var monthAndYear = searchStart.ToMonthAndYear();
+			var weeksInMonth = _weeksInMonthCache.GetOrAdd(monthAndYear, key => key.GetWeeksOfMonth());
+			var weekOfMonthThatSearchFallsIn = weeksInMonth[source.WeekOfMonth];
+			foreach (var dayAndDayOfWeek in weekOfMonthThatSearchFallsIn.Where(x => MakeDateTime(monthAndYear, x.Day, source.ExecutionStartTime) > searchStart))
 			{
-				var result = new Dictionary<WeekSchedule, IEnumerable<DayAndDayOfWeek>>();
-				var dayAndDayOfWeekCollection = new List<DayAndDayOfWeek>();
-				var currentWeek = WeekSchedule.FirstWeek;
-				var currentDay = new DateTime(monthAndYear.Year, monthAndYear.Month, 1);
+				if (MatchInSchedule(source, dayAndDayOfWeek))
+					return MakeDateTime(monthAndYear, dayAndDayOfWeek.Day, source.ExecutionStartTime);
+			}
 
-				// keep processing until we're done with all days in the month
-				// do not process WeekSchedule.LastWeek, as that is handled differently
-				while ((currentDay.Month == monthAndYear.Month) && (currentWeek != WeekSchedule.LastWeek))
-				{
-					dayAndDayOfWeekCollection.Add(currentDay.ToDayAndDayOfWeek());
-					
-					// next day is going to start a new week, so cache the dayAndDayOfWeekCollection
-					if (currentDay.DayOfWeek == DayOfWeek.Saturday)
-					{
-						result.Add(currentWeek, dayAndDayOfWeekCollection.ToArray());
-						dayAndDayOfWeekCollection.Clear();
-						currentWeek++;
-					}
-					currentDay = currentDay.AddDays(1);
-				}
-
-				dayAndDayOfWeekCollection.Clear();
-				var lastDayOfMonth = new DateTime(monthAndYear.Year, monthAndYear.Month, 1).AddMonths(1) - TimeSpan.FromDays(1);
-				currentDay = new DateTime(monthAndYear.Year, monthAndYear.Month, 1).AddMonths(1) - TimeSpan.FromDays(1);
-				while ((currentDay.DayOfWeek != DayOfWeek.Saturday) || (currentDay == lastDayOfMonth))
-				{
-					dayAndDayOfWeekCollection.Add(currentDay.ToDayAndDayOfWeek());
-					currentDay = currentDay - TimeSpan.FromDays(1);
-				}
-				
-				result.Add(WeekSchedule.LastWeek, dayAndDayOfWeekCollection.Select(x => x).Reverse().ToArray());
-				return result;
-			});
-			var weekOfMonthThatSearchFallsIn = source.WeekOfMonth;
-
+			// next execution is not later in the week, so look at next month
+			var nextScheduledMonthAndYear = GetNextScheduledMonth(source, searchStart);
+			var weeksInNextMonth = _weeksInMonthCache.GetOrAdd(nextScheduledMonthAndYear, key => key.GetWeeksOfMonth());
+			var weekOfNextMonthThatSearchFallsIn = weeksInNextMonth[source.WeekOfMonth];
+			foreach (var dayAndDayOfWeek in weekOfNextMonthThatSearchFallsIn)
+			{
+				if (MatchInSchedule(source, dayAndDayOfWeek))
+					return MakeDateTime(nextScheduledMonthAndYear, dayAndDayOfWeek.Day, source.ExecutionStartTime);
+			}
 
 			return null;
 		}
 
-		private class MonthAndYear : IEquatable<MonthAndYear>
+		private static DateTime MakeDateTime(MonthAndYear monthAndYear, int day, TimeSpan timeOfDay)
 		{
-			public MonthAndYear(int month, int year)
-			{
-				Month = month;
-				Year = year;
-			}
-
-			public int Month { get; }
-			public int Year { get; }
-
-			public bool Equals(MonthAndYear other)
-			{
-				return (other != null) && (Month == other.Month) && (Year == other.Year);
-			}
-		}
-	}
-
-	public class DayAndDayOfWeek
-	{
-		public DayAndDayOfWeek(int day, DayOfWeek dayOfWeek)
-		{
-			Day = day;
-			DayOfWeek = dayOfWeek;
+			return new DateTime(monthAndYear.Year, monthAndYear.Month, day, timeOfDay.Hours, timeOfDay.Minutes, timeOfDay.Seconds);
 		}
 
-		public int Day { get; }
-		public DayOfWeek DayOfWeek { get; }
-	}
-
-	public static class DateTimeExtensions
-	{
-		public static DayAndDayOfWeek ToDayAndDayOfWeek(this DateTime dateTime)
+		private static bool MatchInSchedule(ScheduleInputParameterSet1Format source, DayAndDayOfWeek dayAndDayOfWeek)
 		{
-			return new DayAndDayOfWeek(dateTime.Day, dateTime.DayOfWeek);
+			return (source.ScheduledForSunday && (dayAndDayOfWeek.DayOfWeek == DayOfWeek.Sunday))
+					|| (source.ScheduledForMonday && (dayAndDayOfWeek.DayOfWeek == DayOfWeek.Monday))
+					|| (source.ScheduledForTuesday && (dayAndDayOfWeek.DayOfWeek == DayOfWeek.Tuesday))
+					|| (source.ScheduledForWednesday && (dayAndDayOfWeek.DayOfWeek == DayOfWeek.Wednesday))
+					|| (source.ScheduledForThursday && (dayAndDayOfWeek.DayOfWeek == DayOfWeek.Thursday))
+					|| (source.ScheduledForFriday && (dayAndDayOfWeek.DayOfWeek == DayOfWeek.Friday))
+					|| (source.ScheduledForSaturday && (dayAndDayOfWeek.DayOfWeek == DayOfWeek.Saturday));
+		}
+
+		private static MonthAndYear GetNextScheduledMonth(ScheduleInputParameterSet1Format source, DateTime dateTime)
+		{
+			var nextMonth = dateTime.AddMonths(1);
+			while (!(source.ScheduledForJanuary && (nextMonth.Month == 1))
+					&& !(source.ScheduledForFebruary && (nextMonth.Month == 2))
+					&& !(source.ScheduledForMarch && (nextMonth.Month == 3))
+					&& !(source.ScheduledForApril && (nextMonth.Month == 4))
+					&& !(source.ScheduledForMay && (nextMonth.Month == 5))
+					&& !(source.ScheduledForJune && (nextMonth.Month == 6))
+					&& !(source.ScheduledForJuly && (nextMonth.Month == 7))
+					&& !(source.ScheduledForAugust && (nextMonth.Month == 8))
+					&& !(source.ScheduledForSeptember && (nextMonth.Month == 9))
+					&& !(source.ScheduledForOctober && (nextMonth.Month == 10))
+					&& !(source.ScheduledForNovember && (nextMonth.Month == 11))
+					&& !(source.ScheduledForDecember && (nextMonth.Month == 12)))
+			{
+				nextMonth = nextMonth.AddMonths(1);
+			}
+
+			var nextMonthAndYear = nextMonth.ToMonthAndYear();
+			return nextMonthAndYear;
 		}
 	}
 }

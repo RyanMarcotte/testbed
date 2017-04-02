@@ -15,6 +15,10 @@ namespace TechnicalChallenge.Parameters
 			DateTime startDate,
 			DateTime? stopDate)
 		{
+			if (monthSchedule == MonthSchedule.None)
+				throw new InvalidOperationException("Must schedule in at least one month!");
+			if (daySchedule == DaySchedule.None)
+				throw new InvalidOperationException("Must schedule on at least one day!");
 
 			ScheduledForJanuary = monthSchedule.HasFlag(MonthSchedule.January);
 			ScheduledForFebruary = monthSchedule.HasFlag(MonthSchedule.February);
