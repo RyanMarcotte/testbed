@@ -12,11 +12,11 @@ namespace TechnicalChallenge.Tests
     {
 		[Theory]
 		[ArrangementForSchedulerActingOnInputSet1]
-	    public void ShouldReturnTheExpectedOutputGivenInputSet1(Scheduler<ScheduleInputParameterSet1Format> sut, ScheduleInputParameterSet1Format parameters)
+	    public void ShouldReturnTheExpectedOutputGivenInputSet1(Scheduler<ScheduleInputParameterSet1Format> sut, ScheduleInputParameterSet1Format schedule)
 		{
 			var previousExecutionTimeUTC = new DateTime(2017, 1, 30, 9, 0, 0);          // 2017-01-30 09:00:00.000
 			var expectedNextExecutionTimeUTC = new DateTime(2017, 3, 27, 9, 0, 0);      // 2017-03-27 09:00:00.000
-			sut.GetNextExecuteDate(parameters, previousExecutionTimeUTC).Should().Be(expectedNextExecutionTimeUTC);
+			sut.GetNextExecuteDate(schedule, previousExecutionTimeUTC).Should().Be(expectedNextExecutionTimeUTC);
 		}
 
 		[Theory]
