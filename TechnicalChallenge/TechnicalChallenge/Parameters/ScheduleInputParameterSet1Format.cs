@@ -5,7 +5,7 @@ using TechnicalChallenge.Parameters.Interfaces;
 
 namespace TechnicalChallenge.Parameters
 {
-	public class ScheduleInputParameterSet1Format : IScheduleParameters<ScheduleInputParameterSet1Format>
+	public class ScheduleInputParameterSet1Format : IScheduleParameters<ScheduleInputParameterSet1Format>, IHoldInformationAboutWhichMonthsAreScheduled
 	{
 		public ScheduleInputParameterSet1Format(
 			MonthSchedule monthSchedule,
@@ -20,6 +20,8 @@ namespace TechnicalChallenge.Parameters
 			if (daySchedule == DaySchedule.None)
 				throw new InvalidOperationException("Must schedule on at least one day!");
 
+			PreviousExecutionTime = null;
+
 			ScheduledForJanuary = monthSchedule.HasFlag(MonthSchedule.January);
 			ScheduledForFebruary = monthSchedule.HasFlag(MonthSchedule.February);
 			ScheduledForMarch = monthSchedule.HasFlag(MonthSchedule.March);
@@ -32,7 +34,9 @@ namespace TechnicalChallenge.Parameters
 			ScheduledForOctober = monthSchedule.HasFlag(MonthSchedule.October);
 			ScheduledForNovember = monthSchedule.HasFlag(MonthSchedule.November);
 			ScheduledForDecember = monthSchedule.HasFlag(MonthSchedule.December);
+
 			WeekOfMonth = new StringToWeekScheduleMapper().Map(weekOfMonth);
+
 			ScheduledForSunday = daySchedule.HasFlag(DaySchedule.Sunday);
 			ScheduledForMonday = daySchedule.HasFlag(DaySchedule.Monday);
 			ScheduledForTuesday = daySchedule.HasFlag(DaySchedule.Tuesday);
@@ -40,10 +44,45 @@ namespace TechnicalChallenge.Parameters
 			ScheduledForThursday = daySchedule.HasFlag(DaySchedule.Thursday);
 			ScheduledForFriday = daySchedule.HasFlag(DaySchedule.Friday);
 			ScheduledForSaturday = daySchedule.HasFlag(DaySchedule.Saturday);
+
 			ExecutionStartTime = executionStartTime;
 			StartDate = startDate;
 			StopDate = stopDate;
 		}
+
+		private ScheduleInputParameterSet1Format(ScheduleInputParameterSet1Format existingParameters, DateTime newPreviousExecutionTime)
+		{
+			PreviousExecutionTime = newPreviousExecutionTime;
+
+			ScheduledForJanuary = existingParameters.ScheduledForJanuary;
+			ScheduledForFebruary = existingParameters.ScheduledForFebruary;
+			ScheduledForMarch = existingParameters.ScheduledForMarch;
+			ScheduledForApril = existingParameters.ScheduledForApril;
+			ScheduledForMay = existingParameters.ScheduledForMay;
+			ScheduledForJune = existingParameters.ScheduledForJune;
+			ScheduledForJuly = existingParameters.ScheduledForJuly;
+			ScheduledForAugust = existingParameters.ScheduledForAugust;
+			ScheduledForSeptember = existingParameters.ScheduledForSeptember;
+			ScheduledForOctober = existingParameters.ScheduledForOctober;
+			ScheduledForNovember = existingParameters.ScheduledForNovember;
+			ScheduledForDecember = existingParameters.ScheduledForDecember;
+
+			WeekOfMonth = existingParameters.WeekOfMonth;
+
+			ScheduledForSunday = existingParameters.ScheduledForSunday;
+			ScheduledForMonday = existingParameters.ScheduledForMonday;
+			ScheduledForTuesday = existingParameters.ScheduledForTuesday;
+			ScheduledForWednesday = existingParameters.ScheduledForWednesday;
+			ScheduledForThursday = existingParameters.ScheduledForThursday;
+			ScheduledForFriday = existingParameters.ScheduledForFriday;
+			ScheduledForSaturday = existingParameters.ScheduledForSaturday;
+
+			ExecutionStartTime = existingParameters.ExecutionStartTime;
+			StartDate = existingParameters.StartDate;
+			StopDate = existingParameters.StopDate;
+		}
+
+		public DateTime? PreviousExecutionTime { get; }
 
 		public bool ScheduledForJanuary { get; }
 		public bool ScheduledForFebruary { get; }
@@ -69,13 +108,12 @@ namespace TechnicalChallenge.Parameters
 		public bool ScheduledForSaturday { get; }
 
 		public TimeSpan ExecutionStartTime { get; }
-		public DateTime StartDate { get; private set; }
+		public DateTime StartDate { get; }
 		public DateTime? StopDate { get; }
 
-		public ScheduleInputParameterSet1Format WithNewStartDate(DateTime newStartDate)
+		public ScheduleInputParameterSet1Format WithNewPreviousExecutionTime(DateTime executionTime)
 		{
-			StartDate = newStartDate;
-			return this;
+			return new ScheduleInputParameterSet1Format(this, executionTime);
 		}
 	}
 }

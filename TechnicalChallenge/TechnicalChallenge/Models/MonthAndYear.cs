@@ -38,6 +38,11 @@ namespace TechnicalChallenge.Models
 			return new DateTime(monthAndYear.Year, monthAndYear.Month, 1);
 		}
 
+		public static DateTime ToDateTime(this MonthAndYear monthAndYear, int day, TimeSpan timeOfDay)
+		{
+			return new DateTime(monthAndYear.Year, monthAndYear.Month, day, timeOfDay.Hours, timeOfDay.Minutes, timeOfDay.Seconds);
+		}
+
 		public static IReadOnlyDictionary<WeekSchedule, IEnumerable<DayAndDayOfWeek>> GetWeeksOfMonth(this MonthAndYear monthAndYear)
 		{
 			var result = new Dictionary<WeekSchedule, IEnumerable<DayAndDayOfWeek>>();

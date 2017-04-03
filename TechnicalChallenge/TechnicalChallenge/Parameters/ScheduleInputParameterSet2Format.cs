@@ -6,15 +6,17 @@ using TechnicalChallenge.Parameters.Interfaces;
 
 namespace TechnicalChallenge.Parameters
 {
-	public class ScheduleInputParameterSet2Format : IScheduleParameters<ScheduleInputParameterSet2Format>
+	public class ScheduleInputParameterSet2Format : IScheduleParameters<ScheduleInputParameterSet2Format>, IHoldInformationAboutWhichMonthsAreScheduled
 	{
-		public ScheduleInputParameterSet2Format(
+		public ScheduleInputParameterSet2Format(	
 			MonthSchedule monthSchedule,
 			string commaDelimitedStringOfDaysScheduled,
 			TimeSpan executionStartTime,
 			DateTime startDate,
 			DateTime? stopDate)
 		{
+			PreviousExecutionTime = null;
+
 			ScheduledForJanuary = monthSchedule.HasFlag(MonthSchedule.January);
 			ScheduledForFebruary = monthSchedule.HasFlag(MonthSchedule.February);
 			ScheduledForMarch = monthSchedule.HasFlag(MonthSchedule.March);
@@ -27,14 +29,18 @@ namespace TechnicalChallenge.Parameters
 			ScheduledForOctober = monthSchedule.HasFlag(MonthSchedule.October);
 			ScheduledForNovember = monthSchedule.HasFlag(MonthSchedule.November);
 			ScheduledForDecember = monthSchedule.HasFlag(MonthSchedule.December);
+
 			DaysScheduled = new CommaDelimitedStringToEnumerableCollectionOfIntegersMapper().Map(commaDelimitedStringOfDaysScheduled);
+
 			ExecutionStartTime = executionStartTime;
 			StartDate = startDate;
 			StopDate = stopDate;
 		}
 
-		private ScheduleInputParameterSet2Format(ScheduleInputParameterSet2Format existingParameters, DateTime newStartDate)
+		private ScheduleInputParameterSet2Format(ScheduleInputParameterSet2Format existingParameters, DateTime newPreviousExecutionTime)
 		{
+			PreviousExecutionTime = newPreviousExecutionTime;
+
 			ScheduledForJanuary = existingParameters.ScheduledForJanuary;
 			ScheduledForFebruary = existingParameters.ScheduledForFebruary;
 			ScheduledForMarch = existingParameters.ScheduledForMarch;
@@ -51,9 +57,11 @@ namespace TechnicalChallenge.Parameters
 			DaysScheduled = existingParameters.DaysScheduled;
 
 			ExecutionStartTime = existingParameters.ExecutionStartTime;
-			StartDate = newStartDate;
+			StartDate = existingParameters.StartDate;
 			StopDate = existingParameters.StopDate;
 		}
+
+		public DateTime? PreviousExecutionTime { get; }
 
 		public bool ScheduledForJanuary { get; }
 		public bool ScheduledForFebruary { get; }
@@ -74,9 +82,9 @@ namespace TechnicalChallenge.Parameters
 		public DateTime StartDate { get; }
 		public DateTime? StopDate { get; }
 		
-		public ScheduleInputParameterSet2Format WithNewStartDate(DateTime newStartDate)
+		public ScheduleInputParameterSet2Format WithNewPreviousExecutionTime(DateTime executionTime)
 		{
-			return new ScheduleInputParameterSet2Format(this, newStartDate);
+			return new ScheduleInputParameterSet2Format(this, executionTime);
 		}
 	}
 }

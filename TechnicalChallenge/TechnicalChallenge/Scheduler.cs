@@ -21,16 +21,10 @@ namespace TechnicalChallenge
 		public DateTime? GetNextExecuteDate(DateTime previousExecutionTimeUtc, TInputParameter parameters)
 		{
 			DateTime? result = null;
-			var newParameters = parameters.WithNewStartDate(previousExecutionTimeUtc);
-			do
-			{
-				result = _mapper.Map(newParameters);
-				if (result != null)
-					newParameters = newParameters.WithNewStartDate(result.Value);
-			}
-			while (result.HasValue && (result.Value < previousExecutionTimeUtc));
+			var newParameters = parameters.WithNewPreviousExecutionTime(previousExecutionTimeUtc);
+			result = _mapper.Map(newParameters);
 
-			return ((parameters.StopDate != null) && (result != null))
+			return (parameters.StopDate != null) && (result != null)
 				? result.Value > parameters.StopDate.Value ? null : result
 				: result;
 		}
