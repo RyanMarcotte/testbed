@@ -8,29 +8,25 @@ using TechnicalChallenge.Parameters.Interfaces;
 
 namespace TechnicalChallenge.Mappers
 {
-	/// <summary>
-	/// Maps a schedule input set to the next execution time after the start date+time.
-	/// </summary>
-	public class ScheduleInputParameterSet2FormatMapper : IMapper<ScheduleInputParameterSet2Format, DateTime?>
+	public class ScheduleInputParameterSet2FormatMapper : IMapper<ScheduleParametersAndPreviousExecutionTime<ScheduleInputParameterSet2Format>, DateTime?>
 	{
-		public DateTime? Map(ScheduleInputParameterSet2Format source)
+		public DateTime? Map(ScheduleParametersAndPreviousExecutionTime<ScheduleInputParameterSet2Format> source)
 		{
 			// first search within the month that the startDate belongs to (just in case the next execution is later that month)
-			var searchStart = source.PreviousExecutionTime?.AddMilliseconds(1) ?? source.StartDate;
-			var monthAndYear = searchStart.ToMonthAndYear();
-			var nextDayToExecuteInCurrentMonthAndYear = fdsjkfldjlsk(source, monthAndYear, searchStart);
+			var monthAndYear = source.PreviousExecutionTime.ToMonthAndYear();
+			var nextDayToExecuteInCurrentMonthAndYear = GetNextDayToExecuteInMonthAndYear(source.Schedule, monthAndYear, source.PreviousExecutionTime);
 			if (nextDayToExecuteInCurrentMonthAndYear != null)
 				return nextDayToExecuteInCurrentMonthAndYear;
 
-			// next execution is not later in the week, so look at next month
-			var nextScheduledMonthAndYear = source.GetNextScheduledMonthAndYear(searchStart);
-			var nextDayToExecuteInFutureMonthAndYear = fdsjkfldjlsk(source, nextScheduledMonthAndYear, searchStart);
-			return nextDayToExecuteInFutureMonthAndYear;
+			// next execution is not later in the month, so look at next scheduled month
+			var nextScheduledMonthAndYear = source.Schedule.GetNextScheduledMonthAndYear(source.PreviousExecutionTime);
+			var nextDayToExecuteInNextScheduledMonthAndYear = GetNextDayToExecuteInMonthAndYear(source.Schedule, nextScheduledMonthAndYear, source.PreviousExecutionTime);
+			return nextDayToExecuteInNextScheduledMonthAndYear;
 		}
 
-		private static DateTime? fdsjkfldjlsk(ScheduleInputParameterSet2Format source, MonthAndYear monthAndYear, DateTime searchStart)
+		private static DateTime? GetNextDayToExecuteInMonthAndYear(ScheduleInputParameterSet2Format schedule, MonthAndYear monthAndYear, DateTime searchStart)
 		{
-			var daysToExecuteInCurrentMonthAndYear = source.DaysScheduled.Select(x => monthAndYear.ToDateTime(x, source.ExecutionStartTime));
+			var daysToExecuteInCurrentMonthAndYear = schedule.DaysScheduled.Select(x => monthAndYear.ToDateTime(x, schedule.ExecutionStartTime));
 			var nextDaysToExecuteInCurrentMonthAndYear = daysToExecuteInCurrentMonthAndYear.Where(x => x > searchStart).ToArray();
 			if (nextDaysToExecuteInCurrentMonthAndYear.Any())
 				return nextDaysToExecuteInCurrentMonthAndYear.First();

@@ -16,16 +16,16 @@ namespace TechnicalChallenge.Tests
 		{
 			var previousExecutionTimeUTC = new DateTime(2017, 1, 30, 9, 0, 0);          // 2017-01-30 09:00:00.000
 			var expectedNextExecutionTimeUTC = new DateTime(2017, 3, 27, 9, 0, 0);      // 2017-03-27 09:00:00.000
-			sut.GetNextExecuteDate(previousExecutionTimeUTC, parameters).Should().Be(expectedNextExecutionTimeUTC);
+			sut.GetNextExecuteDate(parameters, previousExecutionTimeUTC).Should().Be(expectedNextExecutionTimeUTC);
 		}
 
 		[Theory]
 		[ArrangementForSchedulerActingOnInputSet2]
-	    public void ShouldReturnTheExpectedOutputGivenInputSet2(Scheduler<ScheduleInputParameterSet2Format> sut, ScheduleInputParameterSet2Format parameters)
+	    public void ShouldReturnTheExpectedOutputGivenInputSet2(Scheduler<ScheduleInputParameterSet2Format> sut, ScheduleInputParameterSet2Format schedule)
 	    {
 			var previousExecutionTimeUTC = new DateTime(2017, 1, 28, 9, 0, 0);          // 2017-01-28 09:00:00.000
 			var expectedNextExecutionTimeUTC = new DateTime(2017, 3, 1, 9, 0, 0);		// 2017-03-01 09:00:00.000
-			sut.GetNextExecuteDate(previousExecutionTimeUTC, parameters).Should().Be(expectedNextExecutionTimeUTC);
+			sut.GetNextExecuteDate(schedule, previousExecutionTimeUTC).Should().Be(expectedNextExecutionTimeUTC);
 		}
     }
 }

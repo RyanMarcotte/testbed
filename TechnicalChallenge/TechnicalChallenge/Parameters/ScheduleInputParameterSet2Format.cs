@@ -6,7 +6,7 @@ using TechnicalChallenge.Parameters.Interfaces;
 
 namespace TechnicalChallenge.Parameters
 {
-	public class ScheduleInputParameterSet2Format : IScheduleParameters<ScheduleInputParameterSet2Format>, IHoldInformationAboutWhichMonthsAreScheduled
+	public class ScheduleInputParameterSet2Format : IHoldInformationAboutScheduleInterval, IHoldInformationAboutWhichMonthsAreScheduled
 	{
 		public ScheduleInputParameterSet2Format(	
 			MonthSchedule monthSchedule,
@@ -15,8 +15,6 @@ namespace TechnicalChallenge.Parameters
 			DateTime startDate,
 			DateTime? stopDate)
 		{
-			PreviousExecutionTime = null;
-
 			ScheduledForJanuary = monthSchedule.HasFlag(MonthSchedule.January);
 			ScheduledForFebruary = monthSchedule.HasFlag(MonthSchedule.February);
 			ScheduledForMarch = monthSchedule.HasFlag(MonthSchedule.March);
@@ -37,32 +35,6 @@ namespace TechnicalChallenge.Parameters
 			StopDate = stopDate;
 		}
 
-		private ScheduleInputParameterSet2Format(ScheduleInputParameterSet2Format existingParameters, DateTime newPreviousExecutionTime)
-		{
-			PreviousExecutionTime = newPreviousExecutionTime;
-
-			ScheduledForJanuary = existingParameters.ScheduledForJanuary;
-			ScheduledForFebruary = existingParameters.ScheduledForFebruary;
-			ScheduledForMarch = existingParameters.ScheduledForMarch;
-			ScheduledForApril = existingParameters.ScheduledForApril;
-			ScheduledForMay = existingParameters.ScheduledForMay;
-			ScheduledForJune = existingParameters.ScheduledForJune;
-			ScheduledForJuly = existingParameters.ScheduledForJuly;
-			ScheduledForAugust = existingParameters.ScheduledForAugust;
-			ScheduledForSeptember = existingParameters.ScheduledForSeptember;
-			ScheduledForOctober = existingParameters.ScheduledForOctober;
-			ScheduledForNovember = existingParameters.ScheduledForNovember;
-			ScheduledForDecember = existingParameters.ScheduledForDecember;
-
-			DaysScheduled = existingParameters.DaysScheduled;
-
-			ExecutionStartTime = existingParameters.ExecutionStartTime;
-			StartDate = existingParameters.StartDate;
-			StopDate = existingParameters.StopDate;
-		}
-
-		public DateTime? PreviousExecutionTime { get; }
-
 		public bool ScheduledForJanuary { get; }
 		public bool ScheduledForFebruary { get; }
 		public bool ScheduledForMarch { get; }
@@ -81,10 +53,5 @@ namespace TechnicalChallenge.Parameters
 		public TimeSpan ExecutionStartTime { get; }
 		public DateTime StartDate { get; }
 		public DateTime? StopDate { get; }
-		
-		public ScheduleInputParameterSet2Format WithNewPreviousExecutionTime(DateTime executionTime)
-		{
-			return new ScheduleInputParameterSet2Format(this, executionTime);
-		}
 	}
 }
